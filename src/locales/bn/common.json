@@ -45,6 +45,7 @@
     "patients": "রোগীরা",
     "network": "নেটওয়ার্ক",
     "requests": "অনুরোধ",
+    "notifications": "বিজ্ঞপ্তি",
     "profile": "প্রোফাইল"
   },
   "home": {
@@ -229,6 +230,31 @@
     "addRoleLabel": "ভূমিকা যুক্ত করুন",
     "donorSettings": "রক্তদাতার সেটিংস",
     "signOut": "সাইন আউট"
+  },
+  "notifications": {
+    "title": "বিজ্ঞপ্তি",
+    "markAllRead": "সব পঠিত হিসেবে চিহ্নিত করুন",
+    "emptyTitle": "এখনও কোনো বিজ্ঞপ্তি নেই",
+    "emptyDescription": "আপনার সংযোগ ও অনুরোধ সম্পর্কিত আপডেট এখানে দেখতে পাবেন।",
+    "enablePush": "পুশ বিজ্ঞপ্তি চালু করুন",
+    "pushUnsupportedInExpoGo": "অ্যান্ড্রয়েডে Expo Go-তে পুশ বিজ্ঞপ্তি পাওয়া যায় না। পেতে হলে ডেভেলপমেন্ট বিল্ড ইনস্টল করুন, অথবা অ্যাপে এই তালিকা দেখুন।",
+    "messages": {
+      "connection_requested": "নতুন সংযোগ অনুরোধ",
+      "connection_accepted": "সংযোগ গৃহীত হয়েছে",
+      "connection_ended": "সংযোগ শেষ হয়েছে",
+      "request_invited": "নতুন রক্তের অনুরোধ",
+      "request_cancelled": "অনুরোধ বাতিল হয়েছে",
+      "request_fulfilled": "অনুরোধ সম্পন্ন হয়েছে",
+      "response_accepted": "প্রতিক্রিয়া গৃহীত হয়েছে",
+      "response_declined": "প্রতিক্রিয়া প্রত্যাখ্যান হয়েছে",
+      "response_withdrawn": "প্রতিক্রিয়া প্রত্যাহার হয়েছে",
+      "donation_reported": "দান রিপোর্ট হয়েছে",
+      "donation_confirmed": "দান নিশ্চিত হয়েছে"
+    }
+  },
+  "notificationPreferences": {
+    "title": "বিজ্ঞপ্তি পছন্দসমূহ",
+    "inAppAlwaysOnHint": "অ্যাপ-ভিতরের বিজ্ঞপ্তি সবসময় চালু থাকে। কোনগুলো পুশ বিজ্ঞপ্তি হিসেবেও পাঠানো হবে তা বেছে নিন।"
   },
   "common": {
     "loading": "লোড হচ্ছে…",

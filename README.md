@@ -52,10 +52,44 @@ npm test
 All three, plus `npx supabase test db` when Docker is available, must pass
 before opening a PR (see `CLAUDE.md`).
 
+## Push notifications
+
+In-app notifications (`notifications` table) always work. Push is a nudge on
+top of that and needs a few things set up on the Supabase project:
+
+1. Deploy the Edge Function:
+   ```bash
+   npx supabase functions deploy send-push
+   npx supabase secrets set PUSH_WEBHOOK_SECRET=<a random string>
+   ```
+2. In the Supabase dashboard, add a **Database Webhook**: table
+   `public.notifications`, event `INSERT`, HTTP request to the deployed
+   `send-push` function URL, with a custom header
+   `x-webhook-secret: <the same random string>`.
+3. `send-push` looks up the recipient's `notification_preferences` (skips if
+   `push_enabled = false` for that type), loads their `push_tokens`, sends a
+   generic push via the Expo Push API (never patient name, diagnosis, phone
+   or hospital — ARCHITECTURE.md §9/§10, decision D9), records `pushed_at`,
+   and deletes any token Expo reports as `DeviceNotRegistered`.
+
+**Expo Go on Android (SDK 53+) cannot receive remote push at all** — this is
+an Expo/Android platform limitation, not a bug. Everything else (auth, RLS,
+the in-app notifications list) works fine in Expo Go; to test push itself you
+need an EAS development build (`eas build --profile development`). The
+notifications screen shows an in-app hint when it detects this case.
+
+Edge Function logic lives in `supabase/functions/send-push/`, with pure
+helpers (`lib.ts`, `messages.ts`) unit-tested via `deno test`:
+
+```bash
+cd supabase/functions && deno test
+```
+
 ## CI / CD
 
 - **`.github/workflows/ci.yml`**: runs on every push and PR — lint, typecheck,
-  Jest, and (in a separate job with Docker) the pgTAP suite.
+  Jest; (in a separate job with Docker) the pgTAP suite; and (in a separate
+  job) `deno test` for the Edge Functions.
 - **`.github/workflows/eas-build.yml`**: manual (`workflow_dispatch`) build of
   the Android **preview** APK via EAS, attached to a GitHub Release
   (tag `build-<run_number>`) and as a workflow artifact.

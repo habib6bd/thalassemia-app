@@ -12,6 +12,7 @@ import { PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useAuthListener } from "@/features/auth/useAuthListener";
+import { useNotificationTapListener } from "@/features/notifications/useNotificationTapListener";
 import { queryClient } from "@/lib/queryClient";
 import { theme } from "@/lib/theme";
 import "@/lib/i18n";
@@ -25,6 +26,7 @@ export default function RootLayout() {
   });
 
   useAuthListener();
+  useNotificationTapListener();
 
   useEffect(() => {
     if (fontsLoaded || fontError) {

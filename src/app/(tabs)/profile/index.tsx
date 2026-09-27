@@ -88,6 +88,13 @@ export default function ProfileScreen() {
           </>
         ) : null}
 
+        <List.Item
+          title={t("notificationPreferences.title")}
+          left={(props) => <List.Icon {...props} icon="bell-outline" />}
+          right={(props) => <List.Icon {...props} icon="chevron-right" />}
+          onPress={() => router.push("/(tabs)/profile/notification-preferences")}
+        />
+
         <PrimaryButton
           label={t("profile.signOut")}
           mode="outlined"

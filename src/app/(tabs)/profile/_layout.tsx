@@ -12,6 +12,10 @@ export default function ProfileLayout() {
         name="donations"
         options={{ title: t("donorProfile.donationHistory") }}
       />
+      <Stack.Screen
+        name="notification-preferences"
+        options={{ title: t("notificationPreferences.title") }}
+      />
     </Stack>
   );
 }

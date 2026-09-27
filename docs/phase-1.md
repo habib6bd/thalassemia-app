@@ -78,12 +78,12 @@ Read: ARCHITECTURE §7, §9.
 
 Read: ARCHITECTURE §10.
 
-- [ ] In-app notifications screen + unread badge; tapping deep-links to the entity.
-- [ ] Push: permission prompt at a sensible moment (not at first launch), `register_push_token`, handle token refresh.
-- [ ] Edge Function `supabase/functions/send-push`: webhook secret check, preferences, Expo Push API, `pushed_at`, invalid-token cleanup. `deno test` for payload building. Payload text is generic (D9).
-- [ ] Webhook config documented in README (how to create the Database Webhook in the dashboard and set `PUSH_WEBHOOK_SECRET`).
-- [ ] Notification preferences screen (per type on/off; in-app always on).
-- [ ] Document that push needs an EAS development build (Expo Go can't receive remote push on Android).
+- [x] In-app notifications screen + unread badge; tapping deep-links to the entity.
+- [x] Push: permission prompt at a sensible moment (not at first launch), `register_push_token`, handle token refresh.
+- [x] Edge Function `supabase/functions/send-push`: webhook secret check, preferences, Expo Push API, `pushed_at`, invalid-token cleanup. `deno test` for payload building. Payload text is generic (D9).
+- [x] Webhook config documented in README (how to create the Database Webhook in the dashboard and set `PUSH_WEBHOOK_SECRET`).
+- [x] Notification preferences screen (per type on/off; in-app always on).
+- [x] Document that push needs an EAS development build (Expo Go can't receive remote push on Android).
 
 ## Phase 1 done when
 

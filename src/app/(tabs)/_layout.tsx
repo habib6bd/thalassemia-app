@@ -2,6 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
 import { useTranslation } from "react-i18next";
 
+import { useUnreadCount } from "@/features/notifications/api";
 import { useProfile } from "@/features/profile/api";
 import { useAppStore } from "@/stores/useAppStore";
 
@@ -10,6 +11,7 @@ export default function TabsLayout() {
   const session = useAppStore((state) => state.session);
   const sessionLoaded = useAppStore((state) => state.sessionLoaded);
   const profileQuery = useProfile(session?.user.id);
+  const unreadCount = useUnreadCount();
 
   if (sessionLoaded && !session) {
     return <Redirect href="/(auth)/sign-in" />;
@@ -65,6 +67,17 @@ export default function TabsLayout() {
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="water" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: t("nav.notifications"),
+          headerShown: false,
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="bell" color={color} size={size} />
           ),
         }}
       />

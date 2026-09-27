@@ -44,3 +44,17 @@ jobs:
 
       - name: Run pgTAP tests
         run: supabase test db
+
+  edge-functions:
+    name: Edge Function tests (deno)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Run deno tests
+        working-directory: supabase/functions
+        run: deno test --allow-none

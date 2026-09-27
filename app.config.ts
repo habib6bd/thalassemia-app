@@ -40,6 +40,15 @@ const config: ExpoConfig = {
         backgroundColor: "#ffffff",
       },
     ],
+    [
+      "expo-notifications",
+      {
+        // No custom sound; push text stays generic (D9) so a distinctive
+        // sound isn't needed to convey urgency.
+        icon: "./assets/android-icon-foreground.png",
+        color: "#B3261E",
+      },
+    ],
   ],
   experiments: {
     typedRoutes: true,

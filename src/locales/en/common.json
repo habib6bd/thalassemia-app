@@ -45,6 +45,7 @@
     "patients": "Patients",
     "network": "Network",
     "requests": "Requests",
+    "notifications": "Notifications",
     "profile": "Profile"
   },
   "home": {
@@ -229,6 +230,31 @@
     "addRoleLabel": "Add a role",
     "donorSettings": "Donor settings",
     "signOut": "Sign out"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "emptyTitle": "No notifications yet",
+    "emptyDescription": "You'll see updates about your connections and requests here.",
+    "enablePush": "Enable push notifications",
+    "pushUnsupportedInExpoGo": "Push notifications aren't available in Expo Go on Android. Install a development build to receive them, or check this list in-app.",
+    "messages": {
+      "connection_requested": "New connection request",
+      "connection_accepted": "Connection accepted",
+      "connection_ended": "Connection ended",
+      "request_invited": "New blood request",
+      "request_cancelled": "Request cancelled",
+      "request_fulfilled": "Request fulfilled",
+      "response_accepted": "Response accepted",
+      "response_declined": "Response declined",
+      "response_withdrawn": "Response withdrawn",
+      "donation_reported": "Donation reported",
+      "donation_confirmed": "Donation confirmed"
+    }
+  },
+  "notificationPreferences": {
+    "title": "Notification preferences",
+    "inAppAlwaysOnHint": "In-app notifications are always on. Choose which ones also send a push notification."
   },
   "common": {
     "loading": "Loading…",

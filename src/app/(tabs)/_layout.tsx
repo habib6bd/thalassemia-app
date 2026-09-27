@@ -59,6 +59,16 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="requests"
+        options={{
+          title: t("nav.requests"),
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="water" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: t("nav.profile"),

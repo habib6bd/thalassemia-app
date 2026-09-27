@@ -44,12 +44,12 @@
     "home": "Home",
     "patients": "Patients",
     "network": "Network",
+    "requests": "Requests",
     "profile": "Profile"
   },
   "home": {
     "requestBlood": "Request Blood",
     "viewBloodRequests": "View Blood Requests",
-    "requestsComingSoon": "Blood request screens are coming in the next update.",
     "roleSwitcher": "Viewing as"
   },
   "onboarding": {
@@ -78,6 +78,13 @@
     },
     "emergencyAvailable": "Available for emergencies",
     "lastDonation": "Last donation: {{date}}",
+    "donationHistory": "Donation history",
+    "donationHistoryEmptyTitle": "No donations yet",
+    "donationHistoryEmptyDescription": "Confirmed donations will show up here.",
+    "verification": {
+      "guardian_confirmed": "Confirmed by family",
+      "org_verified": "Verified by organization"
+    },
     "errors": {
       "bloodGroupRequired": "Choose a blood group."
     }
@@ -142,6 +149,81 @@
       "removed": "Removed"
     }
   },
+  "requests": {
+    "title": "Blood requests",
+    "detailTitle": "Request details",
+    "create": "New request",
+    "publish": "Publish request",
+    "cancel": "Cancel request",
+    "cancelConfirmTitle": "Cancel this request?",
+    "cancelConfirmBody": "Donors who haven't responded yet will no longer see it. This can't be undone.",
+    "emptyTitle": "No requests yet",
+    "emptyDescription": "Create a request when a patient needs blood.",
+    "notFound": "Request not found.",
+    "dateLabel": "Date",
+    "timeLabel": "Time",
+    "treatingCentre": "Hospital/centre",
+    "unitsNeeded": "Donors needed",
+    "componentOptional": "Component (optional)",
+    "componentHint": "As advised by the hospital. The app doesn't decide this.",
+    "notesOptional": "Notes (optional)",
+    "isEmergency": "This is an emergency",
+    "emergency": "Emergency",
+    "responsesHeading": "Donor responses",
+    "noResponsesYet": "No donor responses yet.",
+    "scheduledFor": "Scheduled for {{date}}",
+    "donorReportedDonated": "The donor says they've donated — awaiting your confirmation.",
+    "contactPhone": "Phone: {{phone}}",
+    "confirmDonation": "Confirm donation",
+    "confirmDonationTitle": "Confirm this donation?",
+    "confirmDonationBody": "This records that the donation happened and cannot be undone. Only confirm once the donation is actually complete.",
+    "donatedOnLabel": "Donation date",
+    "accept": "I can donate",
+    "decline": "Decline",
+    "schedule": "Save schedule",
+    "withdraw": "Withdraw",
+    "withdrawConfirmTitle": "Withdraw from this request?",
+    "withdrawConfirmBody": "The family will be notified. There's no penalty for withdrawing.",
+    "iDonated": "I donated",
+    "iDonatedConfirmTitle": "Let the family know you donated?",
+    "iDonatedConfirmBody": "This tells the family you believe you've donated. It is not the final record — they still need to confirm it before it counts as a completed donation.",
+    "acceptedNote": "You've said you can donate. This isn't a completed donation yet — the family confirms that once it happens.",
+    "completedNote": "Thank you — this donation has been confirmed.",
+    "errors": {
+      "dateRequired": "Choose a date and time."
+    },
+    "status": {
+      "draft": "Draft",
+      "open": "Open",
+      "responding": "Responding",
+      "partially_fulfilled": "Partially fulfilled",
+      "fulfilled": "Fulfilled",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    },
+    "responseStatus": {
+      "invited": "Invited",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "donation_pending": "Scheduled",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    },
+    "inbox": {
+      "emptyTitle": "No requests right now",
+      "emptyDescription": "You'll see blood requests here when a connected patient needs your blood group."
+    },
+    "wizard": {
+      "title": "Request blood",
+      "step": "Step {{current}} of {{total}}",
+      "choosePatient": "Who is this for?",
+      "detailsTitle": "When and where?",
+      "forPatient": "For {{name}}",
+      "reviewTitle": "Review and publish",
+      "disclaimer": "This app does not decide how much blood is needed or who is eligible to donate — that's for the hospital and blood bank to advise."
+    }
+  },
   "profile": {
     "rolesLabel": "Your roles",
     "addRoleLabel": "Add a role",
@@ -156,7 +238,10 @@
     "cancel": "Cancel",
     "continue": "Continue",
     "search": "Search",
-    "noResults": "No results."
+    "noResults": "No results.",
+    "back": "Back",
+    "next": "Next",
+    "yes": "Yes"
   },
   "disclaimer": {
     "generic": "This app does not decide donor eligibility, blood quantity, compatibility, or medical treatment. Always consult a doctor or blood bank for those decisions."

@@ -72,12 +72,20 @@ export default function ProfileScreen() {
         {error ? <ErrorText message={error} /> : null}
 
         {roles.includes("donor") ? (
-          <List.Item
-            title={t("profile.donorSettings")}
-            left={(props) => <List.Icon {...props} icon="water" />}
-            right={(props) => <List.Icon {...props} icon="chevron-right" />}
-            onPress={() => router.push("/(tabs)/profile/donor")}
-          />
+          <>
+            <List.Item
+              title={t("profile.donorSettings")}
+              left={(props) => <List.Icon {...props} icon="water" />}
+              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => router.push("/(tabs)/profile/donor")}
+            />
+            <List.Item
+              title={t("donorProfile.donationHistory")}
+              left={(props) => <List.Icon {...props} icon="history" />}
+              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => router.push("/(tabs)/profile/donations")}
+            />
+          </>
         ) : null}
 
         <PrimaryButton

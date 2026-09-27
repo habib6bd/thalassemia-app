@@ -1187,6 +1187,15 @@ export type Database = {
           units_needed: number;
         }[];
       };
+      get_response_contact: {
+        Args: { response_id: string };
+        Returns: {
+          donor_phone: string;
+          donor_preferred_contact: Database["public"]["Enums"]["contact_method"];
+          manager_phone: string;
+          manager_preferred_contact: Database["public"]["Enums"]["contact_method"];
+        }[];
+      };
       has_role: {
         Args: { target_role: Database["public"]["Enums"]["app_role"] };
         Returns: boolean;

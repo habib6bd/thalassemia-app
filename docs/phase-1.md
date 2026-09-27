@@ -67,12 +67,12 @@ Read: ARCHITECTURE §8, §9, §12.
 
 Read: ARCHITECTURE §7, §9.
 
-- [ ] Manager: "Request Blood" flow in at most 3 short steps (patient → date/time + centre + units → review and publish). Blood group pre-filled from patient. Component is optional free text (Q5).
-- [ ] Request detail (manager): status chip, timeline, list of donor responses (status, scheduled time, contact if shared), actions: cancel, confirm donation (date picker, confirmation dialog that says what it means).
-- [ ] Donor inbox: invited/active requests with minimal info; accept / decline (no reason required, no penalty text); schedule; withdraw; "I donated" (explains that the family will confirm).
-- [ ] Clear wording that separates **"I can donate"** from **"donation completed"** everywhere.
-- [ ] Donation history (donor): list of confirmed donations. Last donation date on the donor profile, shown only as information.
-- [ ] Error codes mapped to friendly bn/en messages.
+- [x] Manager: "Request Blood" flow in at most 3 short steps (patient → date/time + centre + units → review and publish). Blood group pre-filled from patient. Component is optional free text (Q5).
+- [x] Request detail (manager): status chip, timeline, list of donor responses (status, scheduled time, contact if shared), actions: cancel, confirm donation (date picker, confirmation dialog that says what it means).
+- [x] Donor inbox: invited/active requests with minimal info; accept / decline (no reason required, no penalty text); schedule; withdraw; "I donated" (explains that the family will confirm).
+- [x] Clear wording that separates **"I can donate"** from **"donation completed"** everywhere.
+- [x] Donation history (donor): list of confirmed donations. Last donation date on the donor profile, shown only as information.
+- [x] Error codes mapped to friendly bn/en messages.
 
 ## 1d — Notifications
 

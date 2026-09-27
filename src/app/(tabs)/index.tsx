@@ -69,13 +69,10 @@ export default function HomeScreen() {
             }
             onPress={() =>
               router.push(
-                isDonorPrimary ? "/(tabs)/network" : "/(tabs)/patients",
+                isDonorPrimary ? "/(tabs)/requests" : "/(tabs)/requests/new",
               )
             }
           />
-          <Text variant="bodySmall" style={styles.comingSoon}>
-            {t("home.requestsComingSoon")}
-          </Text>
         </View>
 
         <View>
@@ -107,8 +104,5 @@ const styles = StyleSheet.create({
   },
   primaryAction: {
     gap: 4,
-  },
-  comingSoon: {
-    opacity: 0.7,
   },
 });

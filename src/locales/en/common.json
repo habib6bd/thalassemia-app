@@ -1,0 +1,35 @@
+{
+  "app": {
+    "name": "Thalassemia Support"
+  },
+  "welcome": {
+    "title": "Welcome",
+    "subtitle": "A trusted network for thalassemia patients and blood donors."
+  },
+  "language": {
+    "label": "Language",
+    "bn": "Bangla",
+    "en": "English"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Continue"
+  },
+  "nav": {
+    "home": "Home"
+  },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Retry",
+    "somethingWentWrong": "Something went wrong."
+  },
+  "disclaimer": {
+    "generic": "This app does not decide donor eligibility, blood quantity, compatibility, or medical treatment. Always consult a doctor or blood bank for those decisions."
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "not_authorized": "You are not authorized to do that."
+  }
+}

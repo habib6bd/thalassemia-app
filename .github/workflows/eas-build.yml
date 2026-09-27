@@ -1,0 +1,49 @@
+name: EAS Build (Android APK)
+
+# Manual trigger only (docs/OPEN_QUESTIONS.md Q10). Add an "on push to
+# release" trigger once that question is answered.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    name: Build preview APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build APK with EAS
+        run: eas build --platform android --profile preview --non-interactive --wait --json > eas-build-result.json
+
+      - name: Download APK
+        run: |
+          url=$(node -e "console.log(JSON.parse(require('fs').readFileSync('eas-build-result.json','utf8'))[0].artifacts.buildUrl)")
+          curl -fL "$url" -o app-preview.apk
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-preview-apk
+          path: app-preview.apk
+
+      - name: Attach to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Preview build ${{ github.run_number }}
+          files: app-preview.apk

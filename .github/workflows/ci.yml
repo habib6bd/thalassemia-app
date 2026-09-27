@@ -57,4 +57,4 @@ jobs:
 
       - name: Run deno tests
         working-directory: supabase/functions
-        run: deno test --allow-none
+        run: deno test

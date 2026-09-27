@@ -12,6 +12,7 @@ exception when others then
   return case when sqlerrm = expected then 'OK' else 'WRONG ERROR: ' || sqlerrm end;
 end;
 $$;
+grant execute on function pg_temp.expect_error(text, text) to authenticated, anon;
 
 create temp table fx (k text, v text);
 grant all on fx to authenticated, anon, service_role;

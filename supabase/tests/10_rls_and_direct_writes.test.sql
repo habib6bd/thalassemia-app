@@ -12,6 +12,7 @@ exception when others then
   return case when sqlerrm = expected then 'OK' else 'WRONG ERROR: ' || sqlerrm end;
 end;
 $$;
+grant execute on function pg_temp.expect_error(text, text) to authenticated, anon;
 
 -- Fixtures: a guardian with a patient, a stranger, a connected donor, an admin.
 insert into auth.users (id, email) values

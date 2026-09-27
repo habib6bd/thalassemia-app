@@ -4,34 +4,34 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
-import { Text, TextInput } from "react-native-paper";
+import { HelperText, Text, TextInput } from "react-native-paper";
 
 import { Disclaimer } from "@/components/Disclaimer";
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
-import { useSignIn } from "@/features/auth/api";
-import { signInSchema, type SignInInput } from "@/features/auth/schema";
+import { useSignUp } from "@/features/auth/api";
+import { signUpSchema, type SignUpInput } from "@/features/auth/schema";
 import { mapSupabaseError } from "@/lib/errors";
 
-export default function SignInScreen() {
+export default function SignUpScreen() {
   const { t } = useTranslation();
-  const signIn = useSignIn();
+  const signUp = useSignUp();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignInInput>({
-    resolver: zodResolver(signInSchema),
+  } = useForm<SignUpInput>({
+    resolver: zodResolver(signUpSchema),
     defaultValues: { email: "", password: "" },
   });
 
   const onSubmit = handleSubmit((values) => {
     setSubmitError(null);
-    signIn.mutate(values, {
-      onSuccess: () => router.replace("/"),
+    signUp.mutate(values, {
+      onSuccess: () => router.replace("/(auth)/verify-email"),
       onError: (error) => setSubmitError(mapSupabaseError(error)),
     });
   });
@@ -39,7 +39,7 @@ export default function SignInScreen() {
   return (
     <Screen scroll>
       <View style={styles.form}>
-        <Text variant="headlineSmall">{t("auth.signIn")}</Text>
+        <Text variant="headlineSmall">{t("auth.signUp")}</Text>
 
         <Controller
           control={control}
@@ -71,26 +71,25 @@ export default function SignInScreen() {
               onChangeText={onChange}
               onBlur={onBlur}
               secureTextEntry
-              textContentType="password"
+              textContentType="newPassword"
               error={!!errors.password}
             />
           )}
         />
-
-        <Link href="/(auth)/forgot-password" style={styles.link}>
-          <Text variant="bodyMedium">{t("auth.forgotPassword")}</Text>
-        </Link>
+        <HelperText type={errors.password ? "error" : "info"}>
+          {t("auth.passwordHint")}
+        </HelperText>
 
         {submitError ? <ErrorText message={submitError} /> : null}
 
         <PrimaryButton
           label={t("auth.submit")}
           onPress={onSubmit}
-          loading={signIn.isPending}
+          loading={signUp.isPending}
         />
 
-        <Link href="/(auth)/sign-up" style={styles.link}>
-          <Text variant="bodyMedium">{t("auth.noAccount")}</Text>
+        <Link href="/(auth)/sign-in" style={styles.link}>
+          <Text variant="bodyMedium">{t("auth.haveAccount")}</Text>
         </Link>
 
         <Disclaimer />

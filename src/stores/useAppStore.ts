@@ -17,6 +17,13 @@ type AppState = {
   session: Session | null;
   setSession: (session: Session | null) => void;
 
+  // False until the first auth check (native session restore, or the
+  // web OAuth callback) has resolved — route guards must wait for this
+  // before deciding to redirect to (auth), to avoid a signed-in user
+  // flashing through the sign-in screen on cold start.
+  sessionLoaded: boolean;
+  setSessionLoaded: (loaded: boolean) => void;
+
   activeRole: AppRole | null;
   setActiveRole: (role: AppRole | null) => void;
 };
@@ -32,6 +39,9 @@ export const useAppStore = create<AppState>()(
 
       session: null,
       setSession: (session) => set({ session }),
+
+      sessionLoaded: false,
+      setSessionLoaded: (sessionLoaded) => set({ sessionLoaded }),
 
       activeRole: null,
       setActiveRole: (activeRole) => set({ activeRole }),

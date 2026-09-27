@@ -11,25 +11,178 @@
     "bn": "Bangla",
     "en": "English"
   },
+  "roles": {
+    "patient": "Patient",
+    "guardian": "Guardian",
+    "donor": "Donor"
+  },
   "auth": {
     "signIn": "Sign in",
+    "signUp": "Create account",
     "email": "Email",
     "password": "Password",
-    "submit": "Continue"
+    "passwordHint": "At least 8 characters.",
+    "submit": "Continue",
+    "forgotPassword": "Forgot password?",
+    "forgotPasswordBody": "Enter your email and we'll send you a link to reset your password.",
+    "sendResetLink": "Send reset link",
+    "resetLinkSent": "If that email has an account, a reset link is on its way.",
+    "noAccount": "Don't have an account? Sign up",
+    "haveAccount": "Already have an account? Sign in",
+    "backToSignIn": "Back to sign in",
+    "verifyEmail": {
+      "title": "Check your email",
+      "body": "We've sent a confirmation link to your email. Confirm it, then come back and sign in.",
+      "resend": "Resend confirmation email",
+      "resent": "Confirmation email sent."
+    },
+    "errors": {
+      "invalidEmail": "Enter a valid email address."
+    }
   },
   "nav": {
-    "home": "Home"
+    "home": "Home",
+    "patients": "Patients",
+    "network": "Network",
+    "profile": "Profile"
+  },
+  "home": {
+    "requestBlood": "Request Blood",
+    "viewBloodRequests": "View Blood Requests",
+    "requestsComingSoon": "Blood request screens are coming in the next update.",
+    "roleSwitcher": "Viewing as"
+  },
+  "onboarding": {
+    "title": "Tell us about you",
+    "rolesLabel": "I am a... (choose all that apply)",
+    "displayName": "Your name",
+    "phoneOptional": "Phone (optional)",
+    "district": "District",
+    "areaOptional": "Area (optional)",
+    "shareContactLabel": "Share my phone number after a donor accepts",
+    "shareContactHint": "If off, contact stays in-app only. You can change this anytime in settings.",
+    "errors": {
+      "rolesRequired": "Choose at least one.",
+      "invalidPhone": "Enter a phone number like +8801XXXXXXXXX."
+    }
+  },
+  "donorProfile": {
+    "title": "Donor settings",
+    "eligibilityDisclaimer": "Eligibility to donate is decided by the blood bank or a doctor.",
+    "bloodGroup": "Blood group",
+    "availability": "Availability",
+    "availabilityOptions": {
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "paused": "Paused"
+    },
+    "emergencyAvailable": "Available for emergencies",
+    "lastDonation": "Last donation: {{date}}",
+    "errors": {
+      "bloodGroupRequired": "Choose a blood group."
+    }
+  },
+  "patients": {
+    "myPatients": "My patients",
+    "addPatient": "Add patient",
+    "editPatient": "Edit patient",
+    "thisIsMe": "This is me",
+    "displayName": "Patient's name",
+    "bloodGroup": "Blood group",
+    "district": "District",
+    "areaOptional": "Area (optional)",
+    "treatingCentreOptional": "Treating hospital/centre (optional)",
+    "nextTransfusionDateOptional": "Next transfusion date (optional)",
+    "thalassemiaTypeOptional": "Thalassemia type (optional)",
+    "thalassemiaTypeHint": "Voluntary. Only shown to donors if you turn that on below.",
+    "visibilityHeading": "What connected donors can see",
+    "visibilityHint": "Strangers never see any of this — only donors you've connected with, and only what you allow here.",
+    "showArea": "Area",
+    "showTreatingCentre": "Treating hospital/centre",
+    "showNextTransfusion": "Next transfusion date",
+    "showThalassemiaType": "Thalassemia type",
+    "emptyTitle": "No patients yet",
+    "emptyDescription": "Add a patient to start building their donor network.",
+    "notFound": "Patient not found."
+  },
+  "network": {
+    "enterCode": "Have an invite code?",
+    "join": "Join",
+    "invalidCode": "Enter the 8-character code exactly as given.",
+    "requestSent": "Request sent. The family will review it.",
+    "inviteCode": "Invite code",
+    "share": "Share",
+    "shareMessage": "Join {{name}}'s donor network on Thalassemia Support. Invite code: {{code}}",
+    "rotateCode": "Get a new code",
+    "limitHint": "You can connect up to {{max}} donors per patient.",
+    "emptyTitle": "No connections yet",
+    "emptyDescription": "Share your patient's invite code, or enter one from a donor's invite.",
+    "approve": "Approve",
+    "decline": "Decline",
+    "cancelRequest": "Cancel request",
+    "pause": "Pause",
+    "resume": "Resume",
+    "remove": "Remove",
+    "leave": "Leave",
+    "unknownParty": "—",
+    "removeConfirmTitle": "Remove this donor?",
+    "removeConfirmBody": "They'll no longer see this patient. This can't be undone, but they can be invited again later.",
+    "leaveConfirmTitle": "Leave this network?",
+    "leaveConfirmBody": "You'll no longer see this patient's requests. This can't be undone, but you can rejoin with a new invite later.",
+    "tier": {
+      "regular": "Regular",
+      "backup": "Backup"
+    },
+    "status": {
+      "requested": "Requested",
+      "active": "Active",
+      "declined": "Declined",
+      "cancelled": "Cancelled",
+      "paused": "Paused",
+      "removed": "Removed"
+    }
+  },
+  "profile": {
+    "rolesLabel": "Your roles",
+    "addRoleLabel": "Add a role",
+    "donorSettings": "Donor settings",
+    "signOut": "Sign out"
   },
   "common": {
     "loading": "Loading…",
     "retry": "Retry",
-    "somethingWentWrong": "Something went wrong."
+    "somethingWentWrong": "Something went wrong.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "search": "Search",
+    "noResults": "No results."
   },
   "disclaimer": {
     "generic": "This app does not decide donor eligibility, blood quantity, compatibility, or medical treatment. Always consult a doctor or blood bank for those decisions."
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
-    "not_authorized": "You are not authorized to do that."
+    "not_authorized": "You are not authorized to do that.",
+    "connection_already_exists": "You're already connected (or have a pending request) with this patient.",
+    "connection_not_found": "This connection could not be found.",
+    "donor_has_active_commitment": "You already have an active commitment on another request.",
+    "donor_limit_reached": "This patient has reached their maximum number of connected donors.",
+    "donor_profile_required": "Set up your donor profile first.",
+    "duplicate_request": "There's already an open request for this patient on that date.",
+    "invalid_invite_code": "That invite code isn't valid.",
+    "invalid_self_service_role": "That role can't be self-assigned.",
+    "invalid_transition": "That action isn't available right now.",
+    "invite_code_generation_failed": "Couldn't generate an invite code. Try again.",
+    "notification_not_found": "This notification could not be found.",
+    "patient_not_found": "This patient could not be found.",
+    "profile_not_found": "Your profile could not be found.",
+    "request_not_found": "This request could not be found.",
+    "response_not_found": "This response could not be found.",
+    "invalid_credentials": "Incorrect email or password.",
+    "email_not_confirmed": "Confirm your email before signing in.",
+    "user_already_exists": "An account with that email already exists.",
+    "weak_password": "Choose a stronger password (at least 8 characters).",
+    "over_email_send_rate_limit": "Too many attempts. Wait a bit and try again."
   }
 }

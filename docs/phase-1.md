@@ -55,13 +55,13 @@ Read: ARCHITECTURE §2–§9, §11, §13.
 
 Read: ARCHITECTURE §8, §9, §12.
 
-- [ ] Auth screens: sign up, sign in, email verification notice, forgot password, sign out. Session in Zustand; route guards (unauthenticated → auth, not onboarded → onboarding).
-- [ ] Onboarding: choose role(s) (patient / guardian / donor, multiple allowed), name, phone (optional), district picker (bn/en), area, language, contact-sharing consent (clear explanation).
-- [ ] Donor profile screen: blood group, availability, available_from, emergency availability. Show the fixed disclaimer: "রক্তদানের যোগ্যতা ব্লাড ব্যাংক/চিকিৎসক নির্ধারণ করবেন" (eligibility is decided by the blood bank), with an English equivalent.
-- [ ] Patient screens (manager): create/edit patient, visibility toggles with plain-language explanations, list of my patients.
-- [ ] Network: manager shares invite code (share sheet with a WhatsApp-friendly text), donor enters code, manager approves (chooses regular/backup), both sides see connection list with status, pause/resume/remove/leave with confirmation dialogs. Limit reached → friendly message.
-- [ ] Role switcher for users with several roles; home primary action per ARCHITECTURE §12.
-- [ ] All strings in `bn` + `en` locale files. Jest tests for schemas and key components.
+- [x] Auth screens: sign up, sign in, email verification notice, forgot password, sign out. Session in Zustand; route guards (unauthenticated → auth, not onboarded → onboarding).
+- [x] Onboarding: choose role(s) (patient / guardian / donor, multiple allowed), name, phone (optional), district picker (bn/en), area, language, contact-sharing consent (clear explanation).
+- [x] Donor profile screen: blood group, availability, available_from, emergency availability. Show the fixed disclaimer: "রক্তদানের যোগ্যতা ব্লাড ব্যাংক/চিকিৎসক নির্ধারণ করবেন" (eligibility is decided by the blood bank), with an English equivalent.
+- [x] Patient screens (manager): create/edit patient, visibility toggles with plain-language explanations, list of my patients.
+- [x] Network: manager shares invite code (share sheet with a WhatsApp-friendly text), donor enters code, manager approves (chooses regular/backup), both sides see connection list with status, pause/resume/remove/leave with confirmation dialogs. Limit reached → friendly message.
+- [x] Role switcher for users with several roles; home primary action per ARCHITECTURE §12.
+- [x] All strings in `bn` + `en` locale files. Jest tests for schemas and key components.
 
 ## 1c — App: blood requests & donations
 

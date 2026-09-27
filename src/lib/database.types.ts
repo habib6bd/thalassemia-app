@@ -1159,6 +1159,17 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: string;
       };
+      get_connection_parties: {
+        Args: { connection_id: string };
+        Returns: {
+          donor_availability: Database["public"]["Enums"]["donor_availability"];
+          donor_blood_group: Database["public"]["Enums"]["blood_group"];
+          donor_display_name: string;
+          patient_blood_group: Database["public"]["Enums"]["blood_group"];
+          patient_display_name: string;
+          patient_district_id: number;
+        }[];
+      };
       get_request_for_donor: {
         Args: { request_id: string };
         Returns: {

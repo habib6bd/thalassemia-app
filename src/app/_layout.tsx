@@ -11,6 +11,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { useAuthListener } from "@/features/auth/useAuthListener";
 import { queryClient } from "@/lib/queryClient";
 import { theme } from "@/lib/theme";
 import "@/lib/i18n";
@@ -22,6 +23,8 @@ export default function RootLayout() {
     NotoSansBengali_400Regular,
     NotoSansBengali_700Bold,
   });
+
+  useAuthListener();
 
   useEffect(() => {
     if (fontsLoaded || fontError) {

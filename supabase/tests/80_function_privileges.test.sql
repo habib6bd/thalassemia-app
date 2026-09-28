@@ -35,16 +35,18 @@ select set_eq(
     -- RLS/view helpers
     'has_role', 'is_admin', 'is_patient_manager', 'manages_connected_donor',
     'is_connected_donor', 'is_invited_donor', 'shares_active_connection',
+    'manages_request_with_donor',
     -- identity / patients / connections
     'complete_onboarding', 'add_role', 'upsert_donor_profile', 'create_patient',
     'update_patient', 'rotate_invite_code', 'request_connection_by_code',
     'respond_connection', 'cancel_connection_request', 'set_connection_status',
-    'set_connection_tier', 'get_connection_parties',
+    'set_connection_tier', 'get_connection_parties', 'request_connection_to_donor',
     -- requests / responses
     'create_blood_request', 'update_blood_request', 'publish_blood_request',
     'cancel_blood_request', 'get_request_for_donor', 'respond_to_request',
     'schedule_donation', 'withdraw_response', 'report_donated', 'confirm_donation',
-    'get_response_contact',
+    'get_response_contact', 'widen_request_search', 'search_broad_donors',
+    'invite_broad_donor',
     -- notifications
     'mark_notification_read', 'mark_all_notifications_read', 'register_push_token'
   ],

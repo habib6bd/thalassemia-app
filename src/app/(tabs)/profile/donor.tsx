@@ -40,6 +40,7 @@ export default function DonorProfileScreen() {
       availability: "available",
       availableFrom: "",
       emergencyAvailable: false,
+      searchable: false,
     },
   });
 
@@ -51,6 +52,7 @@ export default function DonorProfileScreen() {
         availability: profile.availability,
         availableFrom: profile.available_from ?? "",
         emergencyAvailable: profile.emergency_available,
+        searchable: profile.searchable,
       });
     }
   }, [donorProfileQuery.data, reset]);
@@ -111,17 +113,48 @@ export default function DonorProfileScreen() {
           </View>
         </View>
 
-        <View style={styles.consentRow}>
-          <Text variant="bodyMedium" style={styles.consentText}>
-            {t("donorProfile.emergencyAvailable")}
+        <View>
+          <View style={styles.consentRow}>
+            <Text variant="bodyMedium" style={styles.consentText}>
+              {t("donorProfile.emergencyAvailable")}
+            </Text>
+            <Controller
+              control={control}
+              name="emergencyAvailable"
+              render={({ field: { value, onChange } }) => (
+                <Switch
+                  value={value}
+                  onValueChange={onChange}
+                  accessibilityLabel={t("donorProfile.emergencyAvailable")}
+                />
+              )}
+            />
+          </View>
+          <Text variant="bodySmall" style={styles.hint}>
+            {t("donorProfile.emergencyAvailableHint")}
           </Text>
-          <Controller
-            control={control}
-            name="emergencyAvailable"
-            render={({ field: { value, onChange } }) => (
-              <Switch value={value} onValueChange={onChange} />
-            )}
-          />
+        </View>
+
+        <View>
+          <View style={styles.consentRow}>
+            <Text variant="bodyMedium" style={styles.consentText}>
+              {t("donorProfile.searchable")}
+            </Text>
+            <Controller
+              control={control}
+              name="searchable"
+              render={({ field: { value, onChange } }) => (
+                <Switch
+                  value={value}
+                  onValueChange={onChange}
+                  accessibilityLabel={t("donorProfile.searchable")}
+                />
+              )}
+            />
+          </View>
+          <Text variant="bodySmall" style={styles.hint}>
+            {t("donorProfile.searchableHint")}
+          </Text>
         </View>
 
         {donorProfileQuery.data?.last_donation_date ? (
@@ -169,5 +202,9 @@ const styles = StyleSheet.create({
   },
   lastDonation: {
     opacity: 0.7,
+  },
+  hint: {
+    opacity: 0.7,
+    marginTop: 4,
   },
 });

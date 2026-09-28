@@ -95,6 +95,7 @@ export type Database = {
           created_by: string;
           current_tier: Database["public"]["Enums"]["request_tier"];
           district_id: number;
+          emergency_acknowledged_at: string | null;
           id: string;
           is_emergency: boolean;
           notes: string | null;
@@ -117,6 +118,7 @@ export type Database = {
           created_by: string;
           current_tier?: Database["public"]["Enums"]["request_tier"];
           district_id: number;
+          emergency_acknowledged_at?: string | null;
           id?: string;
           is_emergency?: boolean;
           notes?: string | null;
@@ -139,6 +141,7 @@ export type Database = {
           created_by?: string;
           current_tier?: Database["public"]["Enums"]["request_tier"];
           district_id?: number;
+          emergency_acknowledged_at?: string | null;
           id?: string;
           is_emergency?: boolean;
           notes?: string | null;
@@ -966,6 +969,7 @@ export type Database = {
           created_by: string;
           current_tier: Database["public"]["Enums"]["request_tier"];
           district_id: number;
+          emergency_acknowledged_at: string | null;
           id: string;
           is_emergency: boolean;
           notes: string | null;
@@ -1082,6 +1086,7 @@ export type Database = {
           created_by: string;
           current_tier: Database["public"]["Enums"]["request_tier"];
           district_id: number;
+          emergency_acknowledged_at: string | null;
           id: string;
           is_emergency: boolean;
           notes: string | null;
@@ -1200,7 +1205,59 @@ export type Database = {
         Args: { target_role: Database["public"]["Enums"]["app_role"] };
         Returns: boolean;
       };
+      invite_broad_donor: {
+        Args: { donor_id: string; request_id: string };
+        Returns: {
+          created_at: string;
+          donor_id: string;
+          donor_reported_donated_at: string | null;
+          id: string;
+          invited_via: Database["public"]["Enums"]["request_tier"];
+          reason: string | null;
+          request_id: string;
+          responded_at: string | null;
+          scheduled_at: string | null;
+          status: Database["public"]["Enums"]["response_status"];
+          status_changed_at: string;
+          status_changed_by: string | null;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "donor_responses";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      invite_connected_donors: {
+        Args: {
+          p_request: Database["public"]["Tables"]["blood_requests"]["Row"];
+          p_tiers: Database["public"]["Enums"]["connection_tier"][];
+        };
+        Returns: number;
+      };
+      invite_donor_to_request: {
+        Args: {
+          p_donor_id: string;
+          p_request: Database["public"]["Tables"]["blood_requests"]["Row"];
+          p_via: Database["public"]["Enums"]["request_tier"];
+        };
+        Returns: boolean;
+      };
+      invite_emergency_donors: {
+        Args: { p_request_id: string };
+        Returns: number;
+      };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      is_broad_eligible_donor: {
+        Args: {
+          p_donor_id: string;
+          p_emergency: boolean;
+          p_include_division: boolean;
+          p_request: Database["public"]["Tables"]["blood_requests"]["Row"];
+        };
+        Returns: boolean;
+      };
       is_connected_donor: {
         Args: { target_patient_id: string };
         Returns: boolean;
@@ -1214,6 +1271,10 @@ export type Database = {
         Returns: boolean;
       };
       manages_connected_donor: {
+        Args: { target_donor_id: string };
+        Returns: boolean;
+      };
+      manages_request_with_donor: {
         Args: { target_donor_id: string };
         Returns: boolean;
       };
@@ -1250,7 +1311,11 @@ export type Database = {
         Returns: undefined;
       };
       publish_blood_request: {
-        Args: { request_id: string };
+        Args: {
+          emergency_acknowledged?: boolean;
+          notify_emergency_donors?: boolean;
+          request_id: string;
+        };
         Returns: {
           area: string | null;
           blood_group: Database["public"]["Enums"]["blood_group"];
@@ -1261,6 +1326,7 @@ export type Database = {
           created_by: string;
           current_tier: Database["public"]["Enums"]["request_tier"];
           district_id: number;
+          emergency_acknowledged_at: string | null;
           id: string;
           is_emergency: boolean;
           notes: string | null;
@@ -1325,6 +1391,32 @@ export type Database = {
       };
       request_connection_by_code: {
         Args: { invite_code: string };
+        Returns: {
+          created_at: string;
+          donor_id: string;
+          end_reason: string | null;
+          id: string;
+          initiated_by: Database["public"]["Enums"]["connection_initiator"];
+          patient_id: string;
+          status: Database["public"]["Enums"]["connection_status"];
+          status_changed_at: string;
+          status_changed_by: string | null;
+          tier: Database["public"]["Enums"]["connection_tier"];
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "patient_donor_connections";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      request_connection_to_donor: {
+        Args: {
+          donor_id: string;
+          patient_id: string;
+          tier?: Database["public"]["Enums"]["connection_tier"];
+        };
         Returns: {
           created_at: string;
           donor_id: string;
@@ -1447,6 +1539,16 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      search_broad_donors: {
+        Args: { include_division?: boolean; request_id: string };
+        Returns: {
+          activity: string;
+          area: string;
+          display_name: string;
+          district_id: number;
+          donor_id: string;
+        }[];
+      };
       set_connection_status: {
         Args: {
           connection_id: string;
@@ -1525,6 +1627,7 @@ export type Database = {
           created_by: string;
           current_tier: Database["public"]["Enums"]["request_tier"];
           district_id: number;
+          emergency_acknowledged_at: string | null;
           id: string;
           is_emergency: boolean;
           notes: string | null;
@@ -1607,6 +1710,38 @@ export type Database = {
         SetofOptions: {
           from: "*";
           to: "donor_profiles";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      widen_request_search: {
+        Args: { request_id: string };
+        Returns: {
+          area: string | null;
+          blood_group: Database["public"]["Enums"]["blood_group"];
+          cancel_reason: string | null;
+          closed_at: string | null;
+          component: string | null;
+          created_at: string;
+          created_by: string;
+          current_tier: Database["public"]["Enums"]["request_tier"];
+          district_id: number;
+          emergency_acknowledged_at: string | null;
+          id: string;
+          is_emergency: boolean;
+          notes: string | null;
+          patient_id: string;
+          published_at: string | null;
+          required_at: string;
+          status: Database["public"]["Enums"]["request_status"];
+          tier_changed_at: string | null;
+          treating_centre: string;
+          units_needed: number;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "blood_requests";
           isOneToOne: true;
           isSetofReturn: false;
         };

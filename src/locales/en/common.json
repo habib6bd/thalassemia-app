@@ -88,7 +88,10 @@
     },
     "errors": {
       "bloodGroupRequired": "Choose a blood group."
-    }
+    },
+    "emergencyAvailableHint": "If on, families outside your network in your district can ask you to help in an emergency. They see your name only; your phone number is shown only if you accept and have chosen to share it.",
+    "searchable": "Let families find me in donor search",
+    "searchableHint": "If on, a family whose request still needs donors can see your name, area and how recently you were active, and invite you. Your phone number is never shown in search."
   },
   "patients": {
     "myPatients": "My patients",
@@ -223,6 +226,37 @@
       "forPatient": "For {{name}}",
       "reviewTitle": "Review and publish",
       "disclaimer": "This app does not decide how much blood is needed or who is eligible to donate — that's for the hospital and blood bank to advise."
+    },
+    "tier": {
+      "title": "Who has been asked",
+      "regular": "Regular donors",
+      "backup": "Regular and backup donors",
+      "broad": "Wider search is open"
+    },
+    "tierHint": {
+      "regular": "If not enough regular donors can help, backup donors are asked automatically.",
+      "backup": "Still not enough donors? You can search for more donors in your district.",
+      "broad": "You can search for donors outside your network."
+    },
+    "widenSearch": "Search for more donors",
+    "findDonors": "Find donors",
+    "search": {
+      "title": "Find donors",
+      "includeDivision": "Include the whole division",
+      "resultsHint": "Only donors who chose to appear in search. Contact details are never shown here.",
+      "invite": "Invite to this request",
+      "invited": "Invited",
+      "askToJoin": "Ask to join network",
+      "askToJoinSent": "Request sent",
+      "askToJoinTitle": "Ask {{name}} to join?",
+      "askToJoinBody": "If they accept, they join as a backup donor. You can change this later.",
+      "activity": {
+        "week": "Active this week",
+        "month": "Active this month",
+        "older": "Active earlier"
+      },
+      "emptyTitle": "No donors found",
+      "emptyDescription": "Try including the whole division, or check again later."
     }
   },
   "profile": {
@@ -249,7 +283,8 @@
       "response_declined": "Response declined",
       "response_withdrawn": "Response withdrawn",
       "donation_reported": "Donation reported",
-      "donation_confirmed": "Donation confirmed"
+      "donation_confirmed": "Donation confirmed",
+      "request_escalated": "Not enough donors yet: backup donors have been asked"
     }
   },
   "notificationPreferences": {
@@ -267,7 +302,8 @@
     "noResults": "No results.",
     "back": "Back",
     "next": "Next",
-    "yes": "Yes"
+    "yes": "Yes",
+    "no": "No"
   },
   "disclaimer": {
     "generic": "This app does not decide donor eligibility, blood quantity, compatibility, or medical treatment. Always consult a doctor or blood bank for those decisions."
@@ -294,6 +330,21 @@
     "email_not_confirmed": "Confirm your email before signing in.",
     "user_already_exists": "An account with that email already exists.",
     "weak_password": "Choose a stronger password (at least 8 characters).",
-    "over_email_send_rate_limit": "Too many attempts. Wait a bit and try again."
+    "over_email_send_rate_limit": "Too many attempts. Wait a bit and try again.",
+    "emergency_disclaimer_required": "Please confirm you understand this app is not an emergency service.",
+    "search_not_available_yet": "Wider search opens after your regular and backup donors have been asked.",
+    "already_invited": "This donor has already been invited.",
+    "donor_not_available": "This donor can't be invited right now.",
+    "broad_invite_limit_reached": "You've invited the maximum number of donors for this request."
+  },
+  "emergency": {
+    "badge": "Emergency",
+    "stepTitle": "Before you publish an emergency request",
+    "noticeTitle": "This app is not an emergency service",
+    "noticeBody": "If a life is in danger, call {{number}} or go to the nearest hospital now. This request only notifies donors; it does not arrange blood or medical care.",
+    "callNumber": "Call {{number}}",
+    "acknowledge": "I understand this app is not an emergency service",
+    "notifyNearby": "Also notify nearby donors who accept emergency requests",
+    "notifyNearbyHint": "Donors in the same district who chose to help in emergencies. They see the request details, but not the patient's name."
   }
 }

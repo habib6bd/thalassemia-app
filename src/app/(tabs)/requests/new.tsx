@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
-import { Card, Switch, Text, TextInput } from "react-native-paper";
+import { Card, Checkbox, Switch, Text, TextInput } from "react-native-paper";
 
 import { Disclaimer } from "@/components/Disclaimer";
 import { ErrorText } from "@/components/ErrorText";
@@ -13,14 +13,25 @@ import { Screen } from "@/components/Screen";
 import { useMyPatients } from "@/features/patients/api";
 import { useCreateAndPublishBloodRequest } from "@/features/requests/api";
 import {
+  EmergencyBadge,
+  EmergencyNotice,
+} from "@/features/requests/components/EmergencyNotice";
+import {
   bloodRequestSchema,
   type BloodRequestInput,
 } from "@/features/requests/schema";
 import { bloodGroupLabels } from "@/lib/bloodGroups";
 import { mapSupabaseError } from "@/lib/errors";
 
-const STEPS = ["patient", "details", "review"] as const;
-type Step = (typeof STEPS)[number];
+type Step = "patient" | "details" | "emergency" | "review";
+
+// Emergency requests get an extra, mandatory step before review (§22,
+// CLAUDE.md #7); the server rejects publishing without it too.
+function stepsFor(isEmergency: boolean): Step[] {
+  return isEmergency
+    ? ["patient", "details", "emergency", "review"]
+    : ["patient", "details", "review"];
+}
 
 export default function NewRequestScreen() {
   const { t } = useTranslation();
@@ -30,6 +41,8 @@ export default function NewRequestScreen() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [emergencyAcknowledged, setEmergencyAcknowledged] = useState(false);
+  const [notifyEmergencyDonors, setNotifyEmergencyDonors] = useState(false);
 
   const {
     control,
@@ -54,6 +67,8 @@ export default function NewRequestScreen() {
   });
 
   const patientId = watch("patientId");
+  const isEmergency = watch("isEmergency");
+  const steps = stepsFor(isEmergency);
   const selectedPatient = patientsQuery.data?.find((p) => p.id === patientId);
 
   const selectPatient = (id: string) => {
@@ -83,12 +98,19 @@ export default function NewRequestScreen() {
       "districtId",
       "unitsNeeded",
     ]);
-    if (valid) setStep("review");
+    if (valid) setStep(isEmergency ? "emergency" : "review");
   };
 
   const onPublish = handleSubmit((values) => {
     setSubmitError(null);
-    createAndPublish.mutate(values, {
+    createAndPublish.mutate(
+      {
+        input: values,
+        options: values.isEmergency
+          ? { emergencyAcknowledged, notifyEmergencyDonors }
+          : {},
+      },
+      {
       onSuccess: (data) => {
         router.replace({
           pathname: "/(tabs)/requests/[id]",
@@ -96,7 +118,8 @@ export default function NewRequestScreen() {
         });
       },
       onError: (error) => setSubmitError(mapSupabaseError(error)),
-    });
+      },
+    );
   });
 
   return (
@@ -104,8 +127,8 @@ export default function NewRequestScreen() {
       <View style={styles.content}>
         <Text variant="labelLarge">
           {t("requests.wizard.step", {
-            current: STEPS.indexOf(step) + 1,
-            total: 3,
+            current: steps.indexOf(step) + 1,
+            total: steps.length,
           })}
         </Text>
 
@@ -234,7 +257,14 @@ export default function NewRequestScreen() {
                 control={control}
                 name="isEmergency"
                 render={({ field: { value, onChange } }) => (
-                  <Switch value={value} onValueChange={onChange} />
+                  <Switch
+                    value={value}
+                    onValueChange={(next) => {
+                      onChange(next);
+                      setEmergencyAcknowledged(false);
+                    }}
+                    accessibilityLabel={t("requests.isEmergency")}
+                  />
                 )}
               />
             </View>
@@ -250,11 +280,54 @@ export default function NewRequestScreen() {
           </View>
         ) : null}
 
+        {step === "emergency" ? (
+          <View style={styles.stepContent}>
+            <Text variant="titleMedium">{t("emergency.stepTitle")}</Text>
+            <EmergencyNotice />
+
+            <Checkbox.Item
+              label={t("emergency.acknowledge")}
+              status={emergencyAcknowledged ? "checked" : "unchecked"}
+              onPress={() => setEmergencyAcknowledged((v) => !v)}
+              position="leading"
+              labelStyle={styles.checkboxLabel}
+            />
+
+            <View style={styles.switchRow}>
+              <Text variant="bodyMedium" style={styles.switchLabel}>
+                {t("emergency.notifyNearby")}
+              </Text>
+              <Switch
+                value={notifyEmergencyDonors}
+                onValueChange={setNotifyEmergencyDonors}
+                accessibilityLabel={t("emergency.notifyNearby")}
+              />
+            </View>
+            <Text variant="bodySmall" style={styles.hint}>
+              {t("emergency.notifyNearbyHint")}
+            </Text>
+
+            <View style={styles.buttonRow}>
+              <PrimaryButton
+                label={t("common.back")}
+                mode="outlined"
+                onPress={() => setStep("details")}
+              />
+              <PrimaryButton
+                label={t("common.next")}
+                onPress={() => setStep("review")}
+                disabled={!emergencyAcknowledged}
+              />
+            </View>
+          </View>
+        ) : null}
+
         {step === "review" ? (
           <View style={styles.stepContent}>
             <Text variant="titleMedium">
               {t("requests.wizard.reviewTitle")}
             </Text>
+            {isEmergency ? <EmergencyBadge /> : null}
             <Card>
               <Card.Content style={styles.reviewContent}>
                 <ReviewRow
@@ -285,10 +358,12 @@ export default function NewRequestScreen() {
                     value={watch("component")}
                   />
                 ) : null}
-                {watch("isEmergency") ? (
+                {isEmergency ? (
                   <ReviewRow
-                    label={t("requests.isEmergency")}
-                    value={t("common.yes")}
+                    label={t("emergency.notifyNearby")}
+                    value={
+                      notifyEmergencyDonors ? t("common.yes") : t("common.no")
+                    }
                   />
                 ) : null}
               </Card.Content>
@@ -302,7 +377,7 @@ export default function NewRequestScreen() {
               <PrimaryButton
                 label={t("common.back")}
                 mode="outlined"
-                onPress={() => setStep("details")}
+                onPress={() => setStep(isEmergency ? "emergency" : "details")}
               />
               <PrimaryButton
                 label={t("requests.publish")}
@@ -379,5 +454,8 @@ const styles = StyleSheet.create({
   },
   reviewLabel: {
     opacity: 0.7,
+  },
+  checkboxLabel: {
+    textAlign: "left",
   },
 });

@@ -94,7 +94,8 @@ districts (id int pk, division_id → divisions, name_bn, name_en) -- seeded, 64
 app_settings (key text pk, value jsonb not null, description text, updated_at, updated_by)
   seed: max_connected_donors=6, request_expiry_grace_hours=24,
         regular_response_window_hours=6 (Phase 2), donation_reminder_days=120 (Phase 2,
-        label as "configurable reminder, not a medical rule")
+        label as "configurable reminder, not a medical rule"),
+        broad_invite_limit=20 (Phase 2a: max donors outside the network invited per request)
 ```
 
 ### 5.2 Patients
@@ -155,6 +156,8 @@ blood_requests
   required_at timestamptz not null
   treating_centre text not null, district_id → districts not null, area text null
   is_emergency bool not null default false
+  emergency_acknowledged_at timestamptz null  -- Phase 2a: set on publish when the manager
+                                              --   accepted the "not an emergency service" notice
   notes text null (≤500)
   status request_status not null default 'draft'
   current_tier request_tier not null default 'regular'
@@ -201,7 +204,11 @@ audit_logs                      -- append-only; no update/delete grants to anyon
 
 ## 6. Tables — later phases (outline only)
 
-- **Phase 2**: `organizations` (+ `organization_verifications`), `organization_members`,
+- **Phase 2a** (done): no new tables. Uses `blood_requests.current_tier`/`tier_changed_at`,
+  `donor_responses.invited_via`, `donor_profiles.searchable`/`emergency_available` (all
+  Phase 1 columns), adds `blood_requests.emergency_acknowledged_at` and the
+  `broad_invite_limit` setting. Tiered escalation is in §7.2, broad search in §9.
+- **Phase 2 (rest)**: `organizations` (+ `organization_verifications`), `organization_members`,
   `blood_requests.organization_id`, `patients.treating_organization_id`,
   `appreciation_messages`, `community_posts`, `community_comments`, `reports`,
   `user_blocks`, `guardian_invites`, `account_deletion_requests`.
@@ -228,6 +235,10 @@ locks the row, sets `status_changed_at/by`, writes audit, enqueues notifications
 - "Accepted → Active" from the master prompt is merged into `active` (Q2).
 - Patient side (any manager) or donor may pause/resume/remove. Donor "leaving" = `removed` by donor (§28.5). No penalty, no reason required.
 - `tier` changes (regular↔backup) by patient side only, while `requested/active/paused`; audited.
+- Patient-side request (Phase 2a, `request_connection_to_donor`): a manager asks a donor to join,
+  choosing the tier. Allowed only for a donor with the patient's exact blood group who is either
+  `searchable` or has accepted a request for this patient. The donor accepts/declines with
+  `respond_connection`; the tier the manager chose is kept.
 - Limit check (`donor_limit_reached`) runs when a connection is created. Paused connections still count toward the limit, so resuming needs no check.
 
 ### 7.2 Blood request
@@ -241,6 +252,22 @@ locks the row, sets `status_changed_at/by`, writes audit, enqueues notifications
 - `status` is **derived** by `recompute_request_status(request_id)` after each response change. Only `publish`, `cancel` (manager) and `expire` (cron) set it directly.
 - `open` covers the master prompt's "Open/Notified"; `responding` covers "Donor responding/Donor accepted/Donation scheduled". Response-level detail comes from `donor_responses`.
 - On publish: create `donor_responses(status=invited)` for invited donors, notify them.
+- **Invitation tiers (Phase 2a, `current_tier`)**. Only ever moves forward: `regular → backup → broad`.
+  - Normal request: publish invites `active` connections with `tier = regular` (exact blood group,
+    availability ≠ `paused`). `current_tier = regular`.
+  - Escalation (`process_request_timers`): a non-emergency request at `regular` whose
+    accepted + scheduled + completed responses are fewer than `units_needed` moves to `backup`
+    when **either** `regular_response_window_hours` have passed since publish **or** no regular
+    invite is still unanswered (Q17). Backup-tier connections are invited; managers get
+    `request_escalated`.
+  - `widen_request_search` (manager): `backup → broad`. Only at `broad` can managers run
+    `search_broad_donors` and `invite_broad_donor` (capped by `broad_invite_limit`).
+  - Emergency request: publish requires `emergency_acknowledged = true`
+    (`emergency_disclaimer_required` otherwise), invites regular **and** backup connections at
+    once (`current_tier = backup`). If the manager opts in (`notify_emergency_donors`), it also
+    invites donors with `emergency_available = true` in the same district and goes straight to
+    `broad` (Q18). Emergency requests never wait for the timer.
+  - `invited_via` on each response records which tier invited that donor.
 - On `fulfilled`: remaining `invited` → `expired`; remaining `accepted/donation_pending` → `cancelled` (reason `request_fulfilled`), notify.
 - On `cancelled`/`expired`: all non-terminal responses → `cancelled`/`expired`, notify.
 - Terminal: `fulfilled`, `cancelled`, `expired`.
@@ -268,7 +295,7 @@ Helper functions: `has_role(role)`, `is_admin()`, `is_patient_manager(patient_id
 
 | Table | select | writes |
 |-------|--------|--------|
-| profiles | own row; admin; managers↔donors of a shared active connection see `display_name` only (via view `public_profiles`) | own row (not `deleted_at`, not roles) |
+| profiles | own row; admin; managers↔donors of a shared active connection see `display_name` only (via view `public_profiles`); managers also see `display_name` of any donor invited to one of their patient's requests (Phase 2a, `manages_request_with_donor`) | own row (not `deleted_at`, not roles) |
 | user_roles | own; admin | RPC only |
 | districts/divisions | everyone authenticated | none |
 | app_settings | everyone authenticated | admin RPC |
@@ -283,6 +310,12 @@ Helper functions: `has_role(role)`, `is_admin()`, `is_patient_manager(patient_id
 | push_tokens / notification_preferences | own | own |
 | audit_logs | admin | triggers only |
 
+Phase 2a RPCs (all check `is_patient_manager` of the request's/patient's patient):
+`widen_request_search`, `search_broad_donors`, `invite_broad_donor`,
+`request_connection_to_donor`, and `publish_blood_request(request_id, emergency_acknowledged,
+notify_emergency_donors)`. Search and invite also require the request to be at tier `broad`
+(`search_not_available_yet`).
+
 Every RPC re-checks authorization; RLS is defence in depth, not the only check.
 Test every row of this matrix with pgTAP (allowed **and** denied cases) — this is the IDOR/BOLA protection.
 
@@ -291,6 +324,13 @@ Test every row of this matrix with pgTAP (allowed **and** denied cases) — this
 - Stranger (not connected, not invited): sees nothing about a patient.
 - Invited donor for a request (`get_request_for_donor`): blood group, component, units, required_at, treating centre, district, area, emergency flag, patient `display_name` **only if connected**. Never thalassemia type.
 - Connected donor: patient card with fields allowed by `show_*` flags.
+- Broad search (Phase 2a, `search_broad_donors`): a manager whose request reached `broad` sees
+  only donors who opted in (`searchable = true`), with the exact blood group, `availability =
+  available`, in the request's district (or its division if widened, Q19). Returned fields:
+  donor id, `display_name`, `area`, `district_id`, recent-activity bucket (`week` / `month` /
+  `older`). **Never** phone, contact method, donation history or last donation date. At most
+  50 rows. The manager can then invite (`invite_broad_donor`, re-checks the same rules); the
+  donor sees the request through `get_request_for_donor`, without the patient's name.
 - Contact reveal: when a donor accepts, managers and that donor may see each other's `phone` + `preferred_contact` **only if** that user set `share_contact_on_accept = true` (explicit consent in onboarding, changeable in settings). Otherwise in-app only (Phase 2 messaging, Q3).
 - No public URLs, no web indexing of any authenticated route (`robots: noindex` on web build).
 - Push notification text is generic (D9).
@@ -305,12 +345,15 @@ Test every row of this matrix with pgTAP (allowed **and** denied cases) — this
 Phase 1 types: `connection_requested`, `connection_accepted`, `connection_ended`,
 `request_invited`, `request_cancelled`, `request_fulfilled`, `response_accepted`,
 `response_declined`, `response_withdrawn`, `donation_reported`, `donation_confirmed`.
+Phase 2a adds `request_escalated` (to managers, when a request moves from regular to backup
+donors). `request_invited` carries `is_emergency` in `params`, so push can say "urgent" without
+any patient detail.
 
 Note: Expo Go on Android cannot receive remote push (SDK 53+). Test push with an EAS development build; everything else works in Expo Go.
 
 ## 11. Scheduled jobs (pg_cron)
 
-- `*/10 * * * *` → `process_request_timers()`: expire requests with `required_at + grace < now()`; (Phase 2) escalate `current_tier` when the response window passes without enough accepts.
+- `*/10 * * * *` → `process_request_timers()`: expire requests with `required_at + grace < now()`; then escalate non-emergency `regular` requests to `backup` (rules in §7.2).
 - Daily (Phase 2) → availability reminders based on `donation_reminder_days` — worded as a reminder to check with the blood bank, never "you are eligible".
 
 ## 12. Frontend architecture

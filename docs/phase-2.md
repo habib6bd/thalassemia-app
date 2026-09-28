@@ -12,6 +12,41 @@ Master prompt §8, §10, §22.
 - [ ] Emergency requests: `is_emergency` invites regular + backup at once and, optionally, `emergency_available` broad donors. A mandatory disclaimer screen before publishing (not an emergency service, contact hospital / 999 per Q15). Distinct visual status.
 - [ ] pgTAP: escalation timing, no leakage to non-invited donors, emergency path.
 
+### 2a — concrete plan
+Decisions: OPEN_QUESTIONS Q17 (escalation), Q18 (emergency broad), Q19 (search scope). Rules: ARCHITECTURE §7.2 (tiers), §9 (search privacy).
+
+Schema / settings
+- [ ] `blood_requests.emergency_acknowledged_at timestamptz null`.
+- [ ] `app_settings.broad_invite_limit = 20`.
+
+RPCs (new migration; old migrations untouched)
+- [ ] `publish_blood_request(request_id, emergency_acknowledged default false, notify_emergency_donors default false)`: regular tier only for normal requests; emergency needs acknowledgement (`emergency_disclaimer_required`), invites regular + backup, and optionally `emergency_available` donors (→ tier `broad`).
+- [ ] `process_request_timers()`: after expiry, escalate `regular → backup` (Q17), invite backup connections, notify managers `request_escalated`.
+- [ ] `widen_request_search(request_id)`: `backup → broad` (idempotent at `broad`; `search_not_available_yet` at `regular`).
+- [ ] `search_broad_donors(request_id, include_division default false)`: opted-in donors only; returns id, display name, area, district, activity bucket. No contact data. Max 50.
+- [ ] `invite_broad_donor(request_id, donor_id)`: re-checks eligibility (`donor_not_available`), `already_invited`, `broad_invite_limit_reached`.
+- [ ] `request_connection_to_donor(patient_id, donor_id, tier)`: `initiated_by = patient_side`; exact blood group; donor searchable or has accepted this patient's request; limit + duplicate checks.
+- [ ] `respond_connection`: keep the manager's chosen tier when the donor accepts a patient-side request.
+- [ ] `public_profiles`: managers see display names of donors invited to their requests.
+
+Tests (`supabase/tests/70_escalation_and_search.test.sql`)
+- [ ] Publish invites regular only; backup not invited.
+- [ ] Timer: no escalation inside the window while an invite is pending; escalation after the window; early escalation when all regular invites declined; no escalation when enough donors accepted.
+- [ ] Widen: denied at `regular`, denied to non-managers; allowed at `backup`.
+- [ ] Search: denied before `broad` and to non-managers; returns only opted-in, same-group, available, same-district donors; returns no contact columns.
+- [ ] Invite: non-searchable donor rejected; duplicate rejected; donor then sees the request without the patient's name.
+- [ ] Emergency: publish without acknowledgement rejected; regular + backup invited at once; opted-in emergency donors invited only when asked.
+- [ ] Patient-side connection: allowed for a searchable donor, denied for a non-searchable one and for non-managers; donor accepts and tier is kept.
+
+App
+- [ ] Donor profile: "Let families find me in search" switch (fixes `searchable` being reset on save) with a clear consent hint; clearer emergency hint.
+- [ ] Request wizard: emergency disclaimer screen before publish (not an emergency service, call 999 / contact hospital — Q15), with the opt-in for nearby emergency donors.
+- [ ] Emergency requests shown distinctly everywhere (icon + text label, not colour alone).
+- [ ] Request detail: current tier ("regular donors" / "backup donors" / "wider search"), "Widen search" action, link to search.
+- [ ] Search screen: district/division toggle, results with name, area, activity; "Invite" and "Ask to join network".
+- [ ] Donor network: donor can accept/decline a family's request to connect.
+- [ ] `request_escalated` notification + urgent push title for emergency invites; bn/en strings.
+
 ## 2b — History, appreciation, guardians, account lifecycle
 §12, §20.
 - [ ] Patient donation history (managers) and donor history with milestones (count-based badges, no ranking of donors against each other).

@@ -13,5 +13,6 @@ export const donorProfileSchema = z.object({
   availability: z.enum(donorAvailabilities),
   availableFrom: z.string().optional().or(z.literal("")), // ISO date string
   emergencyAvailable: z.boolean(),
+  searchable: z.boolean(),
 });
 export type DonorProfileInput = z.infer<typeof donorProfileSchema>;

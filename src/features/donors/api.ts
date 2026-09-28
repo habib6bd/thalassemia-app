@@ -28,6 +28,7 @@ export function useUpsertDonorProfile() {
         availability: input.availability,
         available_from: input.availableFrom || undefined,
         emergency_available: input.emergencyAvailable,
+        searchable: input.searchable,
       });
       if (error) throw error;
       return data;

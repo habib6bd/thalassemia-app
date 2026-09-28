@@ -88,10 +88,23 @@ export function useCreateBloodRequest() {
 // The 3-step wizard's last step: create the draft, then publish it in the
 // same action ("review and publish" — the user never sees the draft as a
 // separate state).
+export type PublishOptions = {
+  // Required by the server for emergency requests (the manager saw the
+  // "not an emergency service" notice).
+  emergencyAcknowledged?: boolean;
+  notifyEmergencyDonors?: boolean;
+};
+
 export function useCreateAndPublishBloodRequest() {
   const invalidate = useInvalidateRequests();
   return useMutation({
-    mutationFn: async (input: BloodRequestInput) => {
+    mutationFn: async ({
+      input,
+      options = {},
+    }: {
+      input: BloodRequestInput;
+      options?: PublishOptions;
+    }) => {
       const { data: draft, error } = await supabase.rpc(
         "create_blood_request",
         {
@@ -112,6 +125,8 @@ export function useCreateAndPublishBloodRequest() {
         "publish_blood_request",
         {
           request_id: draft.id,
+          emergency_acknowledged: options.emergencyAcknowledged ?? false,
+          notify_emergency_donors: options.notifyEmergencyDonors ?? false,
         },
       );
       if (publishError) throw publishError;
@@ -146,14 +161,96 @@ export function useUpdateBloodRequest(requestId: string) {
 export function usePublishBloodRequest(requestId: string) {
   const invalidate = useInvalidateRequests(requestId);
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (options: PublishOptions = {}) => {
       const { data, error } = await supabase.rpc("publish_blood_request", {
+        request_id: requestId,
+        emergency_acknowledged: options.emergencyAcknowledged ?? false,
+        notify_emergency_donors: options.notifyEmergencyDonors ?? false,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: invalidate,
+  });
+}
+
+// === Phase 2a: wider search (ARCHITECTURE §7.2, §9) ===
+
+export function useWidenRequestSearch(requestId: string) {
+  const invalidate = useInvalidateRequests(requestId);
+  return useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.rpc("widen_request_search", {
         request_id: requestId,
       });
       if (error) throw error;
       return data;
     },
     onSuccess: invalidate,
+  });
+}
+
+export function useBroadDonorSearch(
+  requestId: string | undefined,
+  includeDivision: boolean,
+) {
+  return useQuery({
+    queryKey: ["broad-search", requestId, includeDivision],
+    enabled: !!requestId,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("search_broad_donors", {
+        request_id: requestId as string,
+        include_division: includeDivision,
+      });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useInviteBroadDonor(requestId: string) {
+  const queryClient = useQueryClient();
+  const invalidate = useInvalidateRequests(requestId);
+  return useMutation({
+    mutationFn: async (donorId: string) => {
+      const { data, error } = await supabase.rpc("invite_broad_donor", {
+        request_id: requestId,
+        donor_id: donorId,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      invalidate();
+      void queryClient.invalidateQueries({
+        queryKey: ["broad-search", requestId],
+      });
+    },
+  });
+}
+
+export function useRequestConnectionToDonor() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      patientId,
+      donorId,
+    }: {
+      patientId: string;
+      donorId: string;
+    }) => {
+      // Someone found through search joins as a backup donor; the manager
+      // can change the tier from the network screen later.
+      const { data, error } = await supabase.rpc(
+        "request_connection_to_donor",
+        { patient_id: patientId, donor_id: donorId, tier: "backup" },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["connections"] });
+    },
   });
 }
 

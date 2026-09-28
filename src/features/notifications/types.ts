@@ -6,6 +6,7 @@ export const notificationTypes = [
   "request_invited",
   "request_cancelled",
   "request_fulfilled",
+  "request_escalated",
   "response_accepted",
   "response_declined",
   "response_withdrawn",

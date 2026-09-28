@@ -30,7 +30,7 @@ Supabase
 | D1 | **Patient is an entity, not a user.** `patients` rows are managed by users through `patient_managers` (`self` or `guardian`). | Many patients are children; guardians act on their behalf. A patient may never have an account. |
 | D2 | **State transitions are Postgres RPC functions** (`security definer`, `plpgsql`), not Edge Functions. Edge Functions only for external I/O (push). | Transitions need atomicity and row locks (`select … for update`) to handle concurrent accepts, duplicate requests and races. That is impossible to do safely across an HTTP Edge Function + separate queries. Still fully server-side, as §26a requires. |
 | D3 | **Clients never `UPDATE` stateful tables directly.** `insert/update/delete` on `patient_donor_connections`, `blood_requests`, `donor_responses`, `donations`, `audit_logs`, `user_roles` is revoked from `authenticated`; only RPCs change them. | Guarantees state machines and business rules (§28) cannot be bypassed from the client. |
-| D4 | **Location = division / district (seeded) + free-text area.** No GPS in MVP. | Privacy; donors in Bangladesh think in districts/upazilas. Radius search is Phase 4. |
+| D4 | **Location = division / district (seeded) + free-text area.** No GPS in MVP. Phase 4c adds *opt-in*, approximate (~1 km) donor locations for nearby search only. | Privacy; donors in Bangladesh think in districts/upazilas. Coordinates are never shown to anyone; searchers see distance bands. |
 | D5 | **Notifications use an outbox table.** RPCs insert into `notifications`; a DB webhook calls Edge Function `send-push`. | Notification intent is transactional with the state change; push delivery can retry independently. |
 | D6 | **Configurable product rules live in `app_settings`**, e.g. `max_connected_donors = 6`. | §6, §9: these are product rules, not medical rules. |
 | D7 | **Exact blood-group match only** when inviting/searching. No compatibility matrix. | Compatibility/phenotype matching is the blood bank's decision (§2). See OPEN_QUESTIONS Q4. |
@@ -242,6 +242,7 @@ audit_logs                      -- append-only; no update/delete grants to anyon
   - `patients.treating_organization_id`, `blood_requests.organization_id` (optional; free text stays the fallback). A `before insert` trigger copies the patient's verified centre onto new requests.
   - Settings `organization_reverify_months` (12), `organization_reverify_reminder_days` (30). `app_settings` now has an audit trigger.
 - **Phase 4a** (done): `content_view_counts` (content, day, views; no user id, no client access) and setting `analytics_min_cell_size` (5). Analytics are computed on demand by `admin_analytics()`; no materialised views yet.
+- **Phase 4c** (done): `donor_locations` (donor, latitude/longitude rounded to 2 decimals, updated_at; owner-only), `donor_profiles.availability_reminders` (bool, default true, donor-editable) and `availability_reminded_at`, `patients.transfusion_reminded_for`. Settings `nearby_search_max_km` (50), `transfusion_reminder_days` (3).
 - **Phase 4b** (done): `organization_members` (organization, user, added_by). Staff act only while the organization is `verified` and they hold the `organization` role.
 - **Phase 3** (done):
   - `content_sources` (title, organization, url, `accessed_at` = date a person checked it; null = unchecked).
@@ -397,6 +398,7 @@ Helper functions: `has_role(role)`, `is_admin()`, `is_patient_manager(patient_id
 | awareness_content (3) | `published` rows, reader columns only (column grant); admin: all via `admin_list_content` / `admin_get_content` | admin RPC only |
 | content_source_links (3) | links of published content; admin | admin RPC only (`admin_set_content_sources`) |
 | content_sources (3) | sources linked to published content; admin | admin RPC only (`admin_upsert_content_source`) |
+| donor_locations (4c) | own row only | `set_donor_location` RPC |
 | content_view_counts (4a) | nobody (only `admin_analytics`) | `record_content_view` (published items, any signed-in user) |
 | organization_members (4b) | own rows; admin | admin RPC only (`admin_set_organization_member`) |
 | app_settings (2d change) | everyone authenticated | `admin_update_setting` (existing keys, whole numbers 1–10000; audited) |
@@ -445,6 +447,11 @@ Test every row of this matrix with pgTAP (allowed **and** denied cases) — this
   `older`). **Never** phone, contact method, donation history or last donation date. At most
   50 rows. The manager can then invite (`invite_broad_donor`, re-checks the same rules); the
   donor sees the request through `get_request_for_donor`, without the patient's name.
+- Nearby search (Phase 4c, `search_nearby_donors`): same gates and donor rules as broad search, for
+  donors who opted in to share an approximate location (rounded to ~1 km, readable only by
+  themselves). The request's location is its linked verified organization. Results carry a
+  distance band (`under_5` / `under_10` / `under_25` / `under_50` km), never coordinates or exact
+  distances; radius ≤ `nearby_search_max_km`. Blocked pairs never appear in broad or nearby search.
 - Contact reveal: when a donor accepts, managers and that donor may see each other's `phone` + `preferred_contact` **only if** that user set `share_contact_on_accept = true` (explicit consent in onboarding, changeable in settings). Otherwise in-app only (Phase 2 messaging, Q3).
 - No public URLs, no web indexing of any authenticated route (`robots: noindex` on web build).
 - Push notification text is generic (D9).
@@ -469,7 +476,9 @@ Phase 2d adds `organization_reverification_due` and `organization_marked_stale` 
 `entity_type = organization`). Phase 3 adds `content_review_due` (admins,
 `entity_type = awareness_content`). Phase 4b adds `organization_member_added` (the new staff
 member, `entity_type = organization_membership`) and sends `donation_confirmed` (with
-`params.by_organization`) to the patient's managers when staff confirm.
+`params.by_organization`) to the patient's managers when staff confirm. Phase 4c adds
+`availability_check_in` (donor, `entity_type = donor_profile`, `params.reason`) and
+`transfusion_upcoming` (managers, `entity_type = patient_request`, `params.date`).
 
 Note: Expo Go on Android cannot receive remote push (SDK 53+). Test push with an EAS development build; everything else works in Expo Go.
 
@@ -478,7 +487,8 @@ Note: Expo Go on Android cannot receive remote push (SDK 53+). Test push with an
 - `*/10 * * * *` → `process_request_timers()`: expire requests with `required_at + grace < now()`; then escalate non-emergency `regular` requests to `backup` (rules in §7.2).
 - `17 3 * * *` → `process_organization_reverification()` (Phase 2d, §7.5).
 - `23 3 * * *` → `process_content_review_due()` (Phase 3, §7.6).
-- Daily (Phase 2) → availability reminders based on `donation_reminder_days` — worded as a reminder to check with the blood bank, never "you are eligible".
+- `41 3 * * *` → `process_daily_reminders()` (Phase 4c): donor availability check-ins and manager transfusion reminders.
+- Availability reminders (Phase 4c, above) use `donation_reminder_days` and are worded as a reminder to update availability and check with a doctor/blood bank, never "you are eligible".
 
 ## 12. Frontend architecture
 

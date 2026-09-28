@@ -208,6 +208,26 @@ export function useBroadDonorSearch(
   });
 }
 
+// Opt-in nearby search (Phase 4c): distance bands only, never coordinates.
+export function useNearbyDonorSearch(
+  requestId: string | undefined,
+  radiusKm: number,
+  enabled: boolean,
+) {
+  return useQuery({
+    queryKey: ["nearby-search", requestId, radiusKm],
+    enabled: !!requestId && enabled,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("search_nearby_donors", {
+        request_id: requestId as string,
+        radius_km: radiusKm,
+      });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
 export function useInviteBroadDonor(requestId: string) {
   const queryClient = useQueryClient();
   const invalidate = useInvalidateRequests(requestId);

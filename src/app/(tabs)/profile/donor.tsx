@@ -10,6 +10,7 @@ import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
 import { useDonorProfile, useUpsertDonorProfile } from "@/features/donors/api";
+import { DonorExtrasCard } from "@/features/donors/components/DonorExtrasCard";
 import {
   donorAvailabilities,
   donorProfileSchema,
@@ -175,6 +176,13 @@ export default function DonorProfileScreen() {
           onPress={onSubmit}
           loading={upsertDonorProfile.isPending}
         />
+
+        {session && donorProfileQuery.data ? (
+          <DonorExtrasCard
+            userId={session.user.id}
+            remindersEnabled={donorProfileQuery.data.availability_reminders}
+          />
+        ) : null}
       </View>
     </Screen>
   );

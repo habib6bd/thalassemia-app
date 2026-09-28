@@ -82,6 +82,16 @@ export async function navigateToNotificationTarget(entityType: string | null, en
     return;
   }
 
+  if (entityType === "donor_profile") {
+    router.push("/(tabs)/profile/donor");
+    return;
+  }
+
+  if (entityType === "patient_request") {
+    router.push("/(tabs)/requests/new");
+    return;
+  }
+
   if (entityType === "organization_membership") {
     router.push("/(tabs)/org");
     return;

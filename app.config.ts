@@ -32,6 +32,17 @@ const config: ExpoConfig = {
   plugins: [
     "expo-router",
     [
+      "expo-location",
+      {
+        // Foreground only, used once when a donor chooses to share an
+        // approximate location for nearby search (Phase 4c).
+        locationWhenInUsePermission:
+          "Share your approximate location so families nearby can find you. Only a rounded area (about 1 km) is saved.",
+        isAndroidBackgroundLocationEnabled: false,
+        isIosBackgroundLocationEnabled: false,
+      },
+    ],
+    [
       "expo-splash-screen",
       {
         image: "./assets/splash-icon.png",

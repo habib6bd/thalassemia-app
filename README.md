@@ -160,8 +160,8 @@ a new GitHub Release and to the workflow run as an artifact.
 | Phase 3 Awareness & carrier education                  | Done (content still needs human review, Q35) |
 | 4a Analytics                                           | Done                                         |
 | 4b Organization portal                                 | Done                                         |
-| 4c Search & reminders                                  | **Next**                                     |
-| 4d Polish & release                                    | Not started                                  |
+| 4c Search & reminders                                  | Done                                         |
+| 4d Polish & release                                    | **Next**                                     |
 
 Queries for the product owner. Development continues with the default shown
 here; full details are in `docs/OPEN_QUESTIONS.md`.
@@ -210,6 +210,15 @@ here; full details are in `docs/OPEN_QUESTIONS.md`.
   never changed.
 - **Q41 — Donor verification** is not implemented (needs a process and
   legal review).
+- **Q42 — Nearby search** works only for requests linked to a verified
+  centre that has map coordinates; families see distance ranges only.
+- **Q43 — Donor location** is optional, rounded to about 1 km and kept until
+  the donor stops sharing. Should it expire (e.g. after 6 months)?
+- **Q44 — Check-in reminders** 120 days after a recorded donation (a
+  product setting, not a medical rule), and when a donor's own "available
+  from" date arrives; donors can switch them off.
+- **Q45 — Transfusion reminders** go to all guardians 3 days before the
+  next transfusion date unless a request already covers it.
 - **Directory content.** No organizations are included. An admin must add
   and verify each real entry (call it or check its official website)
   before users see it.

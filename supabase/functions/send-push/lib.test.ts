@@ -126,6 +126,8 @@ Deno.test("getPushText has specific titles for community and organization notifi
     "organization_marked_stale",
     "content_review_due",
     "organization_member_added",
+    "availability_check_in",
+    "transfusion_upcoming",
   ]) {
     assertEquals(getPushText(type, "en").title === "New notification", false);
     assertEquals(getPushText(type, "bn").title === "নতুন বিজ্ঞপ্তি", false);

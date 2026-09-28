@@ -31,6 +31,8 @@ const titles: Record<string, Record<"bn" | "en", string>> = {
   organization_reverification_due: { bn: "প্রতিষ্ঠান পুনরায় যাচাই করুন", en: "Organization re-verification due" },
   organization_marked_stale: { bn: "প্রতিষ্ঠানের তথ্য পুরোনো হয়েছে", en: "Organization listing is out of date" },
   organization_member_added: { bn: "আপনাকে প্রতিষ্ঠানের স্টাফ হিসেবে যুক্ত করা হয়েছে", en: "You were added as organization staff" },
+  availability_check_in: { bn: "আপনার প্রাপ্যতা হালনাগাদ করবেন?", en: "Update your availability?" },
+  transfusion_upcoming: { bn: "পরবর্তী রক্ত নেওয়ার তারিখ কাছে", en: "Next transfusion date is near" },
   content_review_due: { bn: "শিক্ষামূলক লেখা পুনরায় পর্যালোচনা করুন", en: "Awareness content due for review" },
 };
 

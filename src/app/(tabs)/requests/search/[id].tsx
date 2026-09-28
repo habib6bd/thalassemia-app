@@ -2,7 +2,14 @@ import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, StyleSheet, View } from "react-native";
-import { ActivityIndicator, Card, Switch, Text } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Card,
+  Chip,
+  SegmentedButtons,
+  Switch,
+  Text,
+} from "react-native-paper";
 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
@@ -13,6 +20,7 @@ import { useDistricts } from "@/features/onboarding/api";
 import {
   useBroadDonorSearch,
   useInviteBroadDonor,
+  useNearbyDonorSearch,
   useRequest,
   useRequestConnectionToDonor,
 } from "@/features/requests/api";
@@ -20,6 +28,8 @@ import { mapSupabaseError } from "@/lib/errors";
 import { useAppStore } from "@/stores/useAppStore";
 
 type Found = { donor_id: string; display_name: string };
+type SearchMode = "area" | "nearby";
+const radiusOptions = [10, 25, 50] as const;
 
 // ARCHITECTURE §9: results are opted-in donors with name, area and an
 // activity bucket only. No contact data is ever fetched here.
@@ -34,7 +44,11 @@ export default function DonorSearchScreen() {
   const [askedIds, setAskedIds] = useState<string[]>([]);
 
   const requestQuery = useRequest(id);
-  const searchQuery = useBroadDonorSearch(id, includeDivision);
+  const [mode, setMode] = useState<SearchMode>("area");
+  const [radiusKm, setRadiusKm] = useState<number>(25);
+  const areaQuery = useBroadDonorSearch(id, includeDivision);
+  const nearbyQuery = useNearbyDonorSearch(id, radiusKm, mode === "nearby");
+  const searchQuery = mode === "nearby" ? nearbyQuery : areaQuery;
   const districtsQuery = useDistricts();
   const invite = useInviteBroadDonor(id ?? "");
   const askToJoin = useRequestConnectionToDonor();
@@ -81,16 +95,43 @@ export default function DonorSearchScreen() {
           {t("requests.search.resultsHint")}
         </Text>
 
-        <View style={styles.switchRow}>
-          <Text variant="bodyMedium" style={styles.switchLabel}>
-            {t("requests.search.includeDivision")}
-          </Text>
-          <Switch
-            value={includeDivision}
-            onValueChange={setIncludeDivision}
-            accessibilityLabel={t("requests.search.includeDivision")}
-          />
-        </View>
+        <SegmentedButtons
+          value={mode}
+          onValueChange={(value) => setMode(value as SearchMode)}
+          buttons={[
+            { value: "area", label: t("requests.search.modeArea") },
+            { value: "nearby", label: t("requests.search.modeNearby") },
+          ]}
+        />
+
+        {mode === "area" ? (
+          <View style={styles.switchRow}>
+            <Text variant="bodyMedium" style={styles.switchLabel}>
+              {t("requests.search.includeDivision")}
+            </Text>
+            <Switch
+              value={includeDivision}
+              onValueChange={setIncludeDivision}
+              accessibilityLabel={t("requests.search.includeDivision")}
+            />
+          </View>
+        ) : (
+          <View style={styles.chipRow}>
+            {radiusOptions.map((km) => (
+              <Chip
+                key={km}
+                selected={radiusKm === km}
+                showSelectedCheck
+                onPress={() => setRadiusKm(km)}
+              >
+                {t("requests.search.withinKm", { count: km })}
+              </Chip>
+            ))}
+            <Text variant="bodySmall" style={styles.hint}>
+              {t("requests.search.nearbyHint")}
+            </Text>
+          </View>
+        )}
 
         {notice ? <Text variant="bodyMedium">{notice}</Text> : null}
         {error ? <ErrorText message={error} /> : null}
@@ -120,12 +161,19 @@ export default function DonorSearchScreen() {
                         .filter(Boolean)
                         .join(", ")}
                     </Text>
+                    {"distance_band" in item ? (
+                      <Text variant="bodySmall">
+                        {t(`requests.search.distance.${item.distance_band}`)}
+                      </Text>
+                    ) : null}
                     <Text variant="bodySmall" style={styles.hint}>
                       {t(`requests.search.activity.${item.activity}`)}
                     </Text>
                     <PrimaryButton
                       label={t("requests.search.invite")}
-                      loading={invite.isPending && invite.variables === item.donor_id}
+                      loading={
+                        invite.isPending && invite.variables === item.donor_id
+                      }
                       onPress={() => onInvite(item)}
                     />
                     <PrimaryButton
@@ -176,6 +224,12 @@ const styles = StyleSheet.create({
   },
   switchLabel: {
     flex: 1,
+  },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: 8,
   },
   card: {
     marginBottom: 8,

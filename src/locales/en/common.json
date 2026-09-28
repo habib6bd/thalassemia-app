@@ -101,7 +101,17 @@
     },
     "emergencyAvailableHint": "If on, families outside your network in your district can ask you to help in an emergency. They see your name only; your phone number is shown only if you accept and have chosen to share it.",
     "searchable": "Let families find me in donor search",
-    "searchableHint": "If on, a family whose request still needs donors can see your name, area and how recently you were active, and invite you. Your phone number is never shown in search."
+    "searchableHint": "If on, a family whose request still needs donors can see your name, area and how recently you were active, and invite you. Your phone number is never shown in search.",
+    "nearbyTitle": "Nearby search (optional)",
+    "nearbyHint": "If you share an approximate location, families whose request is at a nearby verified centre can find you. Only a rounded area (about 1 km) is saved, and families see only a distance range, never your location.",
+    "locationShared": "Approximate location shared (updated {{date}})",
+    "locationNotShared": "Location not shared",
+    "shareLocation": "Share approximate location",
+    "updateLocation": "Update location",
+    "stopSharing": "Stop sharing",
+    "locationDenied": "Location permission was not given, so nothing was shared.",
+    "remindersLabel": "Check-in reminders",
+    "remindersHint": "A gentle reminder to update your availability some time after your last recorded donation, or when your \"available from\" date arrives. It never means you can donate; only a doctor or blood bank can say that."
   },
   "patients": {
     "myPatients": "My patients",
@@ -271,7 +281,18 @@
         "older": "Active earlier"
       },
       "emptyTitle": "No donors found",
-      "emptyDescription": "Try including the whole division, or check again later."
+      "emptyDescription": "Try including the whole division, or check again later.",
+      "modeArea": "By district",
+      "modeNearby": "Nearby",
+      "withinKm_one": "Within {{count}} km",
+      "withinKm_other": "Within {{count}} km",
+      "nearbyHint": "Distance from the request's verified centre to donors who chose to share an approximate location.",
+      "distance": {
+        "under_5": "Less than 5 km away",
+        "under_10": "5–10 km away",
+        "under_25": "10–25 km away",
+        "under_50": "25–50 km away"
+      }
     }
   },
   "profile": {
@@ -312,7 +333,9 @@
       "organization_reverification_due": "An organization in the directory is due for re-verification",
       "organization_marked_stale": "An organization was hidden because its verification is overdue",
       "content_review_due": "Published awareness content is due for re-review",
-      "organization_member_added": "You were added as staff of an organization"
+      "organization_member_added": "You were added as staff of an organization",
+      "availability_check_in": "Time for a check-in: update your availability if it has changed. Only a doctor or blood bank can say whether you can donate.",
+      "transfusion_upcoming": "A patient's next transfusion date is coming up. Create a blood request if you need donors."
     }
   },
   "notificationPreferences": {
@@ -403,7 +426,9 @@
     "content_locked": "Published content can't be edited. Retire it and move it back to draft first.",
     "slug_taken": "This slug is already used.",
     "invalid_content": "Please fill in the title and text in both languages.",
-    "invalid_donation_date": "The donation date can't be in the future or before the request was made."
+    "invalid_donation_date": "The donation date can't be in the future or before the request was made.",
+    "invalid_location": "That location isn't valid.",
+    "request_location_unknown": "Nearby search needs the request to be linked to a verified centre with a map location."
   },
   "emergency": {
     "badge": "Emergency",

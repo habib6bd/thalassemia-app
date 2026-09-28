@@ -68,9 +68,19 @@ Plan (migration `20260928150000_phase4b_organization_portal.sql`; decisions Q7, 
 - [x] Tests `99_organization_portal.test.sql` (25): membership allow/deny, role grant/revoke, visibility limited to linked requests, no thalassemia type/notes/phones, other org and guardians denied, confirmation once, date check, managers notified, unverified org can't act.
 - [x] App: Profile → Organization portal (organizations → linked requests → donors → confirm); Admin → organization → Portal staff (search, add, remove).
 
-## 4c — Search & reminders (next)
-- [ ] Radius/distance search (opt-in location), availability reminders, more automation.
+## 4c — Search & reminders (done)
+- [x] Radius/distance search (opt-in location), availability reminders, more automation.
 
-## 4d — Polish & release
+Plan (migration `20260928160000_phase4c_nearby_and_reminders.sql`; decisions Q42–Q45)
+- [x] `donor_locations` (owner-only, rounded to ~1 km) + `set_donor_location` (nulls stop sharing); removed on account deletion.
+- [x] `distance_km`, `request_donor_distance_km` (request location = its linked verified organization's coordinates).
+- [x] `search_nearby_donors(request_id, radius_km)`: broad-search gates, radius ≤ `nearby_search_max_km` (50), distance bands only.
+- [x] `is_broad_eligible_donor` (replaced): nearby donors count as reachable for broad invites; blocked pairs excluded from broad search and invites (Q27).
+- [x] `process_daily_reminders` (pg_cron 03:41): donor check-ins (`donation_reminder_days`, own "available from" date; opt-out `availability_reminders`), manager reminders `transfusion_reminder_days` before `next_transfusion_date` unless a request covers it.
+- [x] Tests `99_nearby_and_reminders.test.sql` (23): location privacy/rounding/validation, gates, radius cap, bands without coordinates, missing location, blocks, cross-division nearby invite, stop sharing, reminders once / opt-out / covered-date suppression, cron.
+- [x] App: donor profile "Nearby search (optional)" (foreground `expo-location`, low accuracy, share / update / stop) and "Check-in reminders" switch; request search "By district | Nearby" with 10/25/50 km and distance bands; new notifications routed, translated, push titles.
+
+## 4d — Polish & release (next)
+
 - [ ] Web/PWA polish, iOS build via EAS cloud, Maestro e2e, security review, load test for concurrent requests.
 - [ ] Final deliverables (§32): produce each document when its phase is done, not all at the end.

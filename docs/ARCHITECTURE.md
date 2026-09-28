@@ -30,7 +30,7 @@ Supabase
 | D1 | **Patient is an entity, not a user.** `patients` rows are managed by users through `patient_managers` (`self` or `guardian`). | Many patients are children; guardians act on their behalf. A patient may never have an account. |
 | D2 | **State transitions are Postgres RPC functions** (`security definer`, `plpgsql`), not Edge Functions. Edge Functions only for external I/O (push). | Transitions need atomicity and row locks (`select … for update`) to handle concurrent accepts, duplicate requests and races. That is impossible to do safely across an HTTP Edge Function + separate queries. Still fully server-side, as §26a requires. |
 | D3 | **Clients never `UPDATE` stateful tables directly.** `insert/update/delete` on `patient_donor_connections`, `blood_requests`, `donor_responses`, `donations`, `audit_logs`, `user_roles` is revoked from `authenticated`; only RPCs change them. | Guarantees state machines and business rules (§28) cannot be bypassed from the client. |
-| D4 | **Location = division / district (seeded) + free-text area.** No GPS in MVP. | Privacy; donors in Bangladesh think in districts/upazilas. Radius search is Phase 4. |
+| D4 | **Location = division / district (seeded) + free-text area.** No GPS in MVP. Phase 4c adds *opt-in*, approximate (~1 km) donor locations for nearby search only. | Privacy; donors in Bangladesh think in districts/upazilas. Coordinates are never shown to anyone; searchers see distance bands. |
 | D5 | **Notifications use an outbox table.** RPCs insert into `notifications`; a DB webhook calls Edge Function `send-push`. | Notification intent is transactional with the state change; push delivery can retry independently. |
 | D6 | **Configurable product rules live in `app_settings`**, e.g. `max_connected_donors = 6`. | §6, §9: these are product rules, not medical rules. |
 | D7 | **Exact blood-group match only** when inviting/searching. No compatibility matrix. | Compatibility/phenotype matching is the blood bank's decision (§2). See OPEN_QUESTIONS Q4. |
@@ -43,6 +43,7 @@ Supabase
 - **RLS enabled on every table**, no exceptions. Default deny.
 - Helper functions are `security definer`, `stable`, `set search_path = ''`, fully-qualified names.
 - RPCs: `security definer`, `set search_path = ''`, validate `auth.uid()` is not null, check authorization explicitly, lock rows they transition, write audit, enqueue notifications, return the updated row.
+- Function EXECUTE is default-deny: `anon` can execute nothing; `authenticated` gets an explicit `grant execute` only for client RPCs and the helpers RLS policies/views call. Supabase grants EXECUTE on new `public` functions to `anon`/`authenticated` directly, so this must be revoked per role, not only from `PUBLIC` (migration `20260928080000`). `supabase/tests/80_function_privileges.test.sql` pins the allowed list; add every new client RPC there.
 - RPC errors: `raise exception using errcode = 'P0001', message = '<error_code>'` where `<error_code>` is a stable snake_case key (e.g. `invalid_transition`, `not_authorized`, `donor_limit_reached`). The app maps it to i18n key `errors.<error_code>`.
 - Enums as Postgres `enum` types (listed in §4).
 - Generated TS types: `supabase gen types typescript` → `src/lib/database.types.ts` (committed).
@@ -62,6 +63,21 @@ request_tier        : regular | backup | broad          -- current escalation st
 response_status     : invited | accepted | declined | donation_pending | completed | cancelled | expired
 donation_verification: guardian_confirmed | org_verified -- (self_reported is NOT a donation; see §7.3)
 contact_method      : phone | whatsapp | in_app
+community_topic     : treatment_centre_experience | transfusion_experience | managing_transfusions
+                    | family_experience | emotional_support | support_resources | newly_diagnosed
+                    | questions                        -- Phase 2c; no money-related topic (Q24)
+community_content_status: published | hidden | removed | deleted   -- Phase 2c (§7.4)
+organization_type   : treatment_centre | hospital | blood_bank | diagnostic_centre
+                    | genetic_counselling | support_org        -- Phase 2d
+organization_verification_status: pending | verified | stale | rejected   -- Phase 2d (§7.5)
+organization_verification_method: phone_call | official_website | in_person | official_document
+content_kind        : article | faq | medicine            -- Phase 3
+awareness_category  : what_is_thalassemia | what_is_carrier | why_screening | both_carriers
+                    | genetic_counselling | screening | family_awareness | living_with_thalassemia
+                    | medicines
+content_review_status: draft | in_review | approved | published | retired   -- Phase 3 (§7.6)
+report_reason       : selling_blood | medical_misinformation | harassment | privacy | spam | other
+report_status       : open | actioned | dismissed
 ```
 
 ## 5. Tables — Phase 1
@@ -94,7 +110,8 @@ districts (id int pk, division_id → divisions, name_bn, name_en) -- seeded, 64
 app_settings (key text pk, value jsonb not null, description text, updated_at, updated_by)
   seed: max_connected_donors=6, request_expiry_grace_hours=24,
         regular_response_window_hours=6 (Phase 2), donation_reminder_days=120 (Phase 2,
-        label as "configurable reminder, not a medical rule")
+        label as "configurable reminder, not a medical rule"),
+        broad_invite_limit=20 (Phase 2a: max donors outside the network invited per request)
 ```
 
 ### 5.2 Patients
@@ -155,6 +172,8 @@ blood_requests
   required_at timestamptz not null
   treating_centre text not null, district_id → districts not null, area text null
   is_emergency bool not null default false
+  emergency_acknowledged_at timestamptz null  -- Phase 2a: set on publish when the manager
+                                              --   accepted the "not an emergency service" notice
   notes text null (≤500)
   status request_status not null default 'draft'
   current_tier request_tier not null default 'regular'
@@ -201,13 +220,35 @@ audit_logs                      -- append-only; no update/delete grants to anyon
 
 ## 6. Tables — later phases (outline only)
 
-- **Phase 2**: `organizations` (+ `organization_verifications`), `organization_members`,
-  `blood_requests.organization_id`, `patients.treating_organization_id`,
-  `appreciation_messages`, `community_posts`, `community_comments`, `reports`,
-  `user_blocks`, `guardian_invites`, `account_deletion_requests`.
-- **Phase 3**: `content_sources`, `awareness_articles` (bn/en body, `review_status`
-  draft|in_review|approved|published|retired, `reviewed_by`, `reviewed_at`,
-  `next_review_due`), `article_sources` (m:n), `faqs`, `medicine_info` (optional).
+- **Phase 2a** (done): no new tables. Uses `blood_requests.current_tier`/`tier_changed_at`,
+  `donor_responses.invited_via`, `donor_profiles.searchable`/`emergency_available` (all
+  Phase 1 columns), adds `blood_requests.emergency_acknowledged_at` and the
+  `broad_invite_limit` setting. Tiered escalation is in §7.2, broad search in §9.
+- **Phase 2b** (done):
+  - `guardian_invites` (patient_id, one-time `code`, `expires_at`, `accepted_by/at`, `revoked_at`): readable by the patient's managers, written by RPCs only.
+  - `appreciation_messages` (one per `donation_id`, `sender_id`, `recipient_id`, `message` ≤ 300, `hidden_by_recipient_at`, `removed_at/by`): readable by sender, recipient and admin, written by RPCs only.
+  - Settings `max_patient_managers` (5) and `guardian_invite_ttl_hours` (72).
+  - Deletion is handled directly by the RPC plus Edge Function `delete-account` (no `account_deletion_requests` table, Q21).
+  - A `before insert` trigger on `user_roles` blocks deleted profiles, and the `profiles_update_own` policy excludes deleted profiles.
+- **Phase 2c** (done):
+  - `community_posts` (author, `topic` community_topic, `title` ≤ 120, `body` ≤ 5000, `status`, `report_count`, `moderated_by/at`, `moderation_note`) and `community_comments` (post, author, `body` ≤ 2000, same moderation columns). Written by RPCs only.
+  - `reports` (reporter, exactly one of `post_id`/`comment_id`, `reason` report_reason, `details` ≤ 500, `status` open|actioned|dismissed, `resolved_by/at`; one per reporter per item).
+  - `user_blocks` (blocker, blocked; pk both). `community_guideline_acceptances` (user, guideline version).
+  - Settings `community_auto_hide_report_threshold` (3), `community_daily_post_limit` (10), `community_guidelines_version` (1).
+  - Triggers: `block_connections_between_blocked_users` (before insert on `patient_donor_connections`), `community_cleanup_on_profile_delete` (after a profile is soft-deleted).
+- **Phase 2d** (done):
+  - `organizations` (`name`, `name_bn`, `type` organization_type, `address`, `district_id`, optional `latitude/longitude`, `phone` E.164, `website`, `services`, `opening_hours`, `verification_status`, `last_verified_at`, `verified_by`, `verification_method`, `verification_note`, `reverify_reminded_at`, `created_by`). **Never seeded.**
+  - `organization_verifications` (history: organization, status, method, note, verified_by, created_at).
+  - `patients.treating_organization_id`, `blood_requests.organization_id` (optional; free text stays the fallback). A `before insert` trigger copies the patient's verified centre onto new requests.
+  - Settings `organization_reverify_months` (12), `organization_reverify_reminder_days` (30). `app_settings` now has an audit trigger.
+- **Phase 4a** (done): `content_view_counts` (content, day, views; no user id, no client access) and setting `analytics_min_cell_size` (5). Analytics are computed on demand by `admin_analytics()`; no materialised views yet.
+- **Phase 4c** (done): `donor_locations` (donor, latitude/longitude rounded to 2 decimals, updated_at; owner-only), `donor_profiles.availability_reminders` (bool, default true, donor-editable) and `availability_reminded_at`, `patients.transfusion_reminded_for`. Settings `nearby_search_max_km` (50), `transfusion_reminder_days` (3).
+- **Phase 4b** (done): `organization_members` (organization, user, added_by). Staff act only while the organization is `verified` and they hold the `organization` role.
+- **Phase 3** (done):
+  - `content_sources` (title, organization, url, `accessed_at` = date a person checked it; null = unchecked).
+  - `awareness_content` (`kind` article|faq|medicine, unique `slug`, `category`, bn/en title/summary/body, `sort_order`, `review_status`, `reviewed_by/at`, `review_note`, `published_at`, `next_review_due`, `review_reminded_at`, `drafted_by` agent|human, `last_edited_by`). FAQs and medicine information are kinds of this table (Q33).
+  - `content_source_links` (content ↔ source, m:n).
+  - Setting `content_review_months` (12). Trigger `enforce_content_publish_rules`.
 - **Phase 4**: aggregate analytics views/materialised views (no row-level personal data).
 
 ## 7. State machines
@@ -228,6 +269,10 @@ locks the row, sets `status_changed_at/by`, writes audit, enqueues notifications
 - "Accepted → Active" from the master prompt is merged into `active` (Q2).
 - Patient side (any manager) or donor may pause/resume/remove. Donor "leaving" = `removed` by donor (§28.5). No penalty, no reason required.
 - `tier` changes (regular↔backup) by patient side only, while `requested/active/paused`; audited.
+- Patient-side request (Phase 2a, `request_connection_to_donor`): a manager asks a donor to join,
+  choosing the tier. Allowed only for a donor with the patient's exact blood group who is either
+  `searchable` or has accepted a request for this patient. The donor accepts/declines with
+  `respond_connection`; the tier the manager chose is kept.
 - Limit check (`donor_limit_reached`) runs when a connection is created. Paused connections still count toward the limit, so resuming needs no check.
 
 ### 7.2 Blood request
@@ -241,6 +286,22 @@ locks the row, sets `status_changed_at/by`, writes audit, enqueues notifications
 - `status` is **derived** by `recompute_request_status(request_id)` after each response change. Only `publish`, `cancel` (manager) and `expire` (cron) set it directly.
 - `open` covers the master prompt's "Open/Notified"; `responding` covers "Donor responding/Donor accepted/Donation scheduled". Response-level detail comes from `donor_responses`.
 - On publish: create `donor_responses(status=invited)` for invited donors, notify them.
+- **Invitation tiers (Phase 2a, `current_tier`)**. Only ever moves forward: `regular → backup → broad`.
+  - Normal request: publish invites `active` connections with `tier = regular` (exact blood group,
+    availability ≠ `paused`). `current_tier = regular`.
+  - Escalation (`process_request_timers`): a non-emergency request at `regular` whose
+    accepted + scheduled + completed responses are fewer than `units_needed` moves to `backup`
+    when **either** `regular_response_window_hours` have passed since publish **or** no regular
+    invite is still unanswered (Q17). Backup-tier connections are invited; managers get
+    `request_escalated`.
+  - `widen_request_search` (manager): `backup → broad`. Only at `broad` can managers run
+    `search_broad_donors` and `invite_broad_donor` (capped by `broad_invite_limit`).
+  - Emergency request: publish requires `emergency_acknowledged = true`
+    (`emergency_disclaimer_required` otherwise), invites regular **and** backup connections at
+    once (`current_tier = backup`). If the manager opts in (`notify_emergency_donors`), it also
+    invites donors with `emergency_available = true` in the same district and goes straight to
+    `broad` (Q18). Emergency requests never wait for the timer.
+  - `invited_via` on each response records which tier invited that donor.
 - On `fulfilled`: remaining `invited` → `expired`; remaining `accepted/donation_pending` → `cancelled` (reason `request_fulfilled`), notify.
 - On `cancelled`/`expired`: all non-terminal responses → `cancelled`/`expired`, notify.
 - Terminal: `fulfilled`, `cancelled`, `expired`.
@@ -257,9 +318,52 @@ locks the row, sets `status_changed_at/by`, writes audit, enqueues notifications
 - `declined → accepted` allowed while request is `open/responding/partially_fulfilled` (misclicks).
 - `schedule` (set `scheduled_at`) by donor or manager.
 - `report_donated` by donor sets `donor_reported_donated_at` and notifies managers; status unchanged.
-- `confirm_donation` by a patient manager from `accepted` or `donation_pending` → `completed` and inserts a `donations` row (`guardian_confirmed`). Phase 4: organizations can confirm (`org_verified`).
+- `confirm_donation` by a patient manager from `accepted` or `donation_pending` → `completed` and inserts a `donations` row (`guardian_confirmed`).
+- `org_confirm_donation` (Phase 4b) by staff of the request's verified organization, same transition, inserts `org_verified` and notifies the patient's managers; the date can't be in the future or before the request was made (`invalid_donation_date`).
 - Decline/withdraw carries no penalty and is not shown to other donors (§28.3).
 - Conflict rule: a donor with a response in `accepted/donation_pending` on another non-terminal request gets `donor_has_active_commitment` on accept (Q6).
+
+### 7.4 Community content (Phase 2c, posts and comments)
+```
+            reports ≥ threshold / admin hide
+ published ─────────────────────────────────▶ hidden
+     ▲  │                                       │  │
+     │  │           admin restore               │  │
+     │  └──────────◀────────────────────────────┘  │
+     │                                             │
+     ├── admin remove ──────▶ removed ◀── admin remove
+     └── author delete ─────▶ deleted ◀── author delete
+```
+- Created as `published` by `create_community_post` / `create_community_comment` after the author accepted the current guidelines version.
+- `report_community_content`: one report per reporter per item; `report_count` counts distinct reporters. At `community_auto_hide_report_threshold` a `published` item becomes `hidden` and admins get `community_content_auto_hidden`. Every "selling blood" report also notifies admins (`community_report_urgent`).
+- `moderate_community_content` (admin): `restore` → `published` (open reports `dismissed`, count reset), `hide` → `hidden`, `remove` → `removed` (open reports `actioned`). Audited with `community_moderated`; the author gets `community_content_moderated`.
+- `removed` and `deleted` are terminal (`invalid_transition`). Account deletion moves the user's items to `deleted`.
+- Visibility: others see `published` items not involving a block; the author also sees their own `hidden` items (labelled "under review"); admins see everything.
+
+### 7.5 Organization verification (Phase 2d)
+```
+ pending ──admin verifies (method required)──▶ verified ──job: reverify_months passed──▶ stale
+    ▲                                            ▲  │                                      │
+    │                                            │  └───────── admin re-verifies ◀─────────┘
+    └──── admin "needs checking" ◀── any ──▶ admin rejects ──▶ rejected
+```
+- Only `verified` entries are visible to users and linkable to patients/requests.
+- Verifying sets `last_verified_at`, `verified_by`, `verification_method` and clears `reverify_reminded_at`. Every admin status change appends to `organization_verifications`.
+- `process_organization_reverification()` (pg_cron, daily 03:17 UTC): once `organization_reverify_reminder_days` before the window ends, admins get `organization_reverification_due`; after `organization_reverify_months`, the entry becomes `stale` (hidden) and admins get `organization_marked_stale`. `stale` is never set by hand.
+- Rejecting clears patient links to the entry.
+
+### 7.6 Awareness content review (Phase 3)
+```
+ draft ─submit─▶ in_review ─approve (human)─▶ approved ─publish─▶ published ─retire─▶ retired
+   ▲                │                            │                   │  ▲                │
+   └── changes ─────┴────────────────────────────┘                   └──┘ re-reviewed    │
+   └──────────────────────────── reopen ─────────────────────────────────────────────────┘
+```
+- Only admins act (`admin_transition_content`); every step is audited.
+- `approved` records `reviewed_by/at`. `published` needs ≥ 1 linked source and every linked source checked (`accessed_at`); a trigger re-checks on every write. Publishing sets `published_at` and `next_review_due = today + content_review_months`.
+- Editing text or sources (`admin_upsert_content`, `admin_set_content_sources`) is allowed in draft/in_review/approved and always returns the item to `draft` with the review cleared. `published`/`retired` items are locked (`content_locked`): retire → draft to change them (Q34).
+- `published → published` = "re-reviewed": records the reviewer again and restarts `next_review_due`.
+- `process_content_review_due()` (pg_cron) notifies admins once when a published item reaches `next_review_due`. It never unpublishes.
 
 ## 8. Authorization matrix (Phase 1)
 
@@ -268,7 +372,7 @@ Helper functions: `has_role(role)`, `is_admin()`, `is_patient_manager(patient_id
 
 | Table | select | writes |
 |-------|--------|--------|
-| profiles | own row; admin; managers↔donors of a shared active connection see `display_name` only (via view `public_profiles`) | own row (not `deleted_at`, not roles) |
+| profiles | own row; admin; managers↔donors of a shared active connection see `display_name` only (via view `public_profiles`); managers also see `display_name` of any donor invited to one of their patient's requests (Phase 2a, `manages_request_with_donor`) | own row (not `deleted_at`, not roles) |
 | user_roles | own; admin | RPC only |
 | districts/divisions | everyone authenticated | none |
 | app_settings | everyone authenticated | admin RPC |
@@ -282,8 +386,57 @@ Helper functions: `has_role(role)`, `is_admin()`, `is_patient_manager(patient_id
 | notifications | own | `mark_notification_read` RPC |
 | push_tokens / notification_preferences | own | own |
 | audit_logs | admin | triggers only |
+| guardian_invites (2b) | managers of patient; admin | RPC only (`create_/revoke_/accept_guardian_invite`) |
+| appreciation_messages (2b) | sender, recipient, admin | RPC only (`send_/hide_/remove_appreciation`) |
+| community_posts (2c) | `published` and no block either way; own `published/hidden`; admin | RPC only (`create_/delete_community_post`, `moderate_community_content`) |
+| community_comments (2c) | as posts, and only under a `published` post; admin | RPC only (`create_/delete_community_comment`, `moderate_community_content`) |
+| reports (2c) | own; admin | RPC only (`report_community_content`, `moderate_community_content`) |
+| user_blocks (2c) | blocker only (the blocked user never sees it) | RPC only (`block_user`, `unblock_user`) |
+| community_guideline_acceptances (2c) | own; admin | RPC only (`accept_community_guidelines`) |
+| organizations (2d) | `verified` entries, directory columns only (column grant); admin: all via `admin_list_organizations` | admin RPC only (`admin_upsert_organization`, `admin_set_organization_verification`) |
+| organization_verifications (2d) | admin | admin RPC only |
+| awareness_content (3) | `published` rows, reader columns only (column grant); admin: all via `admin_list_content` / `admin_get_content` | admin RPC only |
+| content_source_links (3) | links of published content; admin | admin RPC only (`admin_set_content_sources`) |
+| content_sources (3) | sources linked to published content; admin | admin RPC only (`admin_upsert_content_source`) |
+| donor_locations (4c) | own row only | `set_donor_location` RPC |
+| content_view_counts (4a) | nobody (only `admin_analytics`) | `record_content_view` (published items, any signed-in user) |
+| organization_members (4b) | own rows; admin | admin RPC only (`admin_set_organization_member`) |
+| app_settings (2d change) | everyone authenticated | `admin_update_setting` (existing keys, whole numbers 1–10000; audited) |
+
+Phase 2b read RPCs: `get_patient_managers` and `get_patient_donation_history`
+(managers only), `get_my_donation_history` (own donations; the patient name
+appears only while the donor is still connected), `export_my_data` (own data only).
+
+Phase 2c read RPCs: `list_community_posts`, `get_community_post`, `list_community_comments`
+(same visibility as the table rows; they add the author's display name, so `profiles` stays
+private), `list_blocked_users` (own blocks), `list_moderation_queue` (admin only). Blocking
+also rejects new connections between the two users (`patient_donor_connections` insert
+trigger, both directions); the error is the path's usual `invalid_invite_code` /
+`donor_not_available`, so a user can't tell they were blocked.
+
+Phase 2d RPCs: `set_patient_organization` / `set_request_organization` (patient managers; verified
+entries only). Admin-only (`is_admin()` checked in each): `admin_search_users` (name, email,
+roles), `admin_set_user_role` (only `organization`/`admin`; an admin can't drop their own admin
+role), `admin_request_overview` (aggregate counts only, no per-request or per-person rows).
+
+Phase 4a: `admin_analytics(period_days)` (admin) returns aggregates only; counts from 1 to
+`analytics_min_cell_size − 1` come back as null, and rates/medians need at least that many
+requests. Phase 4b staff RPCs (`org_list_requests`, `org_list_request_responses`,
+`org_confirm_donation`) check `is_active_organization_member` of the request's organization and
+return patient display name, blood group, units, time, status, emergency flag, and donor display
+names/statuses only (never thalassemia type, notes or contact details).
+
+Phase 2a RPCs (all check `is_patient_manager` of the request's/patient's patient):
+`widen_request_search`, `search_broad_donors`, `invite_broad_donor`,
+`request_connection_to_donor`, and `publish_blood_request(request_id, emergency_acknowledged,
+notify_emergency_donors)`. Search and invite also require the request to be at tier `broad`
+(`search_not_available_yet`).
 
 Every RPC re-checks authorization; RLS is defence in depth, not the only check.
+Views (`public_profiles`, `patient_cards_for_donor`) are definer-rights and therefore
+**read-only** for clients (Phase 4d SR-1): a write through them would bypass RLS.
+A donor's move into an active commitment is serialised by the
+`enforce_single_active_commitment` trigger (Phase 4d LT-1, Q6).
 Test every row of this matrix with pgTAP (allowed **and** denied cases) — this is the IDOR/BOLA protection.
 
 ## 9. Privacy model
@@ -291,6 +444,18 @@ Test every row of this matrix with pgTAP (allowed **and** denied cases) — this
 - Stranger (not connected, not invited): sees nothing about a patient.
 - Invited donor for a request (`get_request_for_donor`): blood group, component, units, required_at, treating centre, district, area, emergency flag, patient `display_name` **only if connected**. Never thalassemia type.
 - Connected donor: patient card with fields allowed by `show_*` flags.
+- Broad search (Phase 2a, `search_broad_donors`): a manager whose request reached `broad` sees
+  only donors who opted in (`searchable = true`), with the exact blood group, `availability =
+  available`, in the request's district (or its division if widened, Q19). Returned fields:
+  donor id, `display_name`, `area`, `district_id`, recent-activity bucket (`week` / `month` /
+  `older`). **Never** phone, contact method, donation history or last donation date. At most
+  50 rows. The manager can then invite (`invite_broad_donor`, re-checks the same rules); the
+  donor sees the request through `get_request_for_donor`, without the patient's name.
+- Nearby search (Phase 4c, `search_nearby_donors`): same gates and donor rules as broad search, for
+  donors who opted in to share an approximate location (rounded to ~1 km, readable only by
+  themselves). The request's location is its linked verified organization. Results carry a
+  distance band (`under_5` / `under_10` / `under_25` / `under_50` km), never coordinates or exact
+  distances; radius ≤ `nearby_search_max_km`. Blocked pairs never appear in broad or nearby search.
 - Contact reveal: when a donor accepts, managers and that donor may see each other's `phone` + `preferred_contact` **only if** that user set `share_contact_on_accept = true` (explicit consent in onboarding, changeable in settings). Otherwise in-app only (Phase 2 messaging, Q3).
 - No public URLs, no web indexing of any authenticated route (`robots: noindex` on web build).
 - Push notification text is generic (D9).
@@ -305,13 +470,29 @@ Test every row of this matrix with pgTAP (allowed **and** denied cases) — this
 Phase 1 types: `connection_requested`, `connection_accepted`, `connection_ended`,
 `request_invited`, `request_cancelled`, `request_fulfilled`, `response_accepted`,
 `response_declined`, `response_withdrawn`, `donation_reported`, `donation_confirmed`.
+Phase 2a adds `request_escalated` (to managers, when a request moves from regular to backup
+donors). `request_invited` carries `is_emergency` in `params`, so push can say "urgent" without
+any patient detail.
+Phase 2c adds `community_comment_added` (post author), `community_content_moderated` (author;
+`params.action`), `community_content_auto_hidden` and `community_report_urgent` (admins). All use
+`entity_type = community_post`.
+Phase 2d adds `organization_reverification_due` and `organization_marked_stale` (admins,
+`entity_type = organization`). Phase 3 adds `content_review_due` (admins,
+`entity_type = awareness_content`). Phase 4b adds `organization_member_added` (the new staff
+member, `entity_type = organization_membership`) and sends `donation_confirmed` (with
+`params.by_organization`) to the patient's managers when staff confirm. Phase 4c adds
+`availability_check_in` (donor, `entity_type = donor_profile`, `params.reason`) and
+`transfusion_upcoming` (managers, `entity_type = patient_request`, `params.date`).
 
 Note: Expo Go on Android cannot receive remote push (SDK 53+). Test push with an EAS development build; everything else works in Expo Go.
 
 ## 11. Scheduled jobs (pg_cron)
 
-- `*/10 * * * *` → `process_request_timers()`: expire requests with `required_at + grace < now()`; (Phase 2) escalate `current_tier` when the response window passes without enough accepts.
-- Daily (Phase 2) → availability reminders based on `donation_reminder_days` — worded as a reminder to check with the blood bank, never "you are eligible".
+- `*/10 * * * *` → `process_request_timers()`: expire requests with `required_at + grace < now()`; then escalate non-emergency `regular` requests to `backup` (rules in §7.2).
+- `17 3 * * *` → `process_organization_reverification()` (Phase 2d, §7.5).
+- `23 3 * * *` → `process_content_review_due()` (Phase 3, §7.6).
+- `41 3 * * *` → `process_daily_reminders()` (Phase 4c): donor availability check-ins and manager transfusion reminders.
+- Availability reminders (Phase 4c, above) use `donation_reminder_days` and are worded as a reminder to update availability and check with a doctor/blood bank, never "you are eligible".
 
 ## 12. Frontend architecture
 
@@ -334,12 +515,15 @@ src/stores/              Zustand: session, activeRole, language
 - **pgTAP** (`supabase/tests/*.test.sql`, `supabase test db`): RLS matrix (allow + deny), every state transition (valid + invalid), limits, duplicates, concurrency-sensitive rules, cancel/expire cascades, deleted/blocked users. Highest priority.
 - **Jest (jest-expo) + React Native Testing Library**: zod schemas, error mapping, hooks, key screens.
 - **Edge Functions**: `deno test`.
-- CI runs lint, typecheck, jest, and `supabase start && supabase test db` (Docker available on GitHub runners).
-- Later: Maestro e2e flows on Android.
+- CI runs lint, typecheck, jest, `supabase start && supabase test db`, the concurrency test, and `deno test`.
+- Security invariants (`05_security_invariants`): RLS everywhere, pinned `search_path`, no `anon` access, read-only views, writable-table allow-list.
+- Concurrency (`scripts/load/concurrency.sh`, in CI): races on accept / confirm / create / join.
+- e2e: Maestro flows on Android (`.maestro/`), web smoke journeys (`npm run e2e:web`).
+- Results: `docs/TESTING_REPORT.md`.
 
 ## 14. Health, privacy, security & legal considerations
 
-- App never decides donor eligibility, dosage, blood quantity, compatibility or genetic status (§2). Copy review checklist in `docs/CONTENT_SAFETY.md` (Phase 3).
+- App never decides donor eligibility, dosage, blood quantity, compatibility or genetic status (§2). Copy review checklist in `docs/CONTENT_SAFETY.md`.
 - Emergency screen must say the app is not an emergency service and direct to hospital / national emergency number (999 in Bangladesh — verify before release).
 - No money fields anywhere; reports category "selling blood" in moderation (§28.11).
 - Minors: patients are often children → guardians manage; decide minimum account age (Q8).

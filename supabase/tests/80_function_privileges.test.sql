@@ -1,0 +1,107 @@
+-- Function EXECUTE lockdown (D2/D3). Pins exactly which functions in
+-- `public` the app roles may call. Adding a client RPC means adding it to
+-- the allow-list here on purpose; anything else is a leak.
+begin;
+select plan(4);
+
+create or replace function pg_temp.expect_error(query text, expected text) returns text
+language plpgsql as $$
+begin
+  execute query;
+  return 'NO ERROR RAISED';
+exception when others then
+  return case when sqlerrm = expected then 'OK' else 'WRONG ERROR: ' || sqlerrm end;
+end;
+$$;
+grant execute on function pg_temp.expect_error(text, text) to authenticated, anon;
+
+create temp view own_functions as
+select p.oid, p.proname::text as name
+from pg_proc p
+join pg_namespace n on n.oid = p.pronamespace
+where n.nspname = 'public'
+  and not exists (
+    select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e'
+  );
+
+select is_empty(
+  $$select name from own_functions where has_function_privilege('anon', oid, 'execute')$$,
+  'anon can execute no function in public'
+);
+
+select set_eq(
+  $$select name from own_functions where has_function_privilege('authenticated', oid, 'execute')$$,
+  array[
+    -- RLS/view helpers
+    'has_role', 'is_admin', 'is_patient_manager', 'manages_connected_donor',
+    'is_connected_donor', 'is_invited_donor', 'shares_active_connection',
+    'manages_request_with_donor',
+    -- identity / patients / connections
+    'complete_onboarding', 'add_role', 'upsert_donor_profile', 'create_patient',
+    'update_patient', 'rotate_invite_code', 'request_connection_by_code',
+    'respond_connection', 'cancel_connection_request', 'set_connection_status',
+    'set_connection_tier', 'get_connection_parties', 'request_connection_to_donor',
+    -- requests / responses
+    'create_blood_request', 'update_blood_request', 'publish_blood_request',
+    'cancel_blood_request', 'get_request_for_donor', 'respond_to_request',
+    'schedule_donation', 'withdraw_response', 'report_donated', 'confirm_donation',
+    'get_response_contact', 'widen_request_search', 'search_broad_donors',
+    'invite_broad_donor',
+    -- notifications
+    'mark_notification_read', 'mark_all_notifications_read', 'register_push_token',
+    -- phase 2b: guardians, history, appreciation, account lifecycle
+    'create_guardian_invite', 'revoke_guardian_invite', 'accept_guardian_invite',
+    'remove_patient_manager', 'get_patient_managers', 'get_patient_donation_history',
+    'get_my_donation_history', 'send_appreciation', 'hide_appreciation',
+    'remove_appreciation', 'delete_my_account', 'export_my_data',
+    -- phase 2c: community, reports, blocks, moderation
+    'is_blocked_between', 'has_accepted_community_guidelines',
+    'accept_community_guidelines', 'list_community_posts', 'get_community_post',
+    'list_community_comments', 'create_community_post', 'delete_community_post',
+    'create_community_comment', 'delete_community_comment',
+    'report_community_content', 'block_user', 'unblock_user', 'list_blocked_users',
+    'list_moderation_queue', 'moderate_community_content',
+    -- phase 2d: organizations, admin basics
+    'set_patient_organization', 'set_request_organization', 'admin_list_organizations',
+    'admin_upsert_organization', 'admin_set_organization_verification',
+    'admin_search_users', 'admin_set_user_role', 'admin_request_overview',
+    'admin_update_setting',
+    -- phase 3: awareness CMS
+    'admin_upsert_content_source', 'admin_list_content', 'admin_get_content',
+    'admin_upsert_content', 'admin_set_content_sources', 'admin_transition_content',
+    -- phase 4a: analytics
+    'record_content_view', 'admin_analytics',
+    -- phase 4b: organization portal
+    'is_active_organization_member', 'admin_set_organization_member',
+    'admin_list_organization_members', 'org_my_organizations', 'org_list_requests',
+    'org_list_request_responses', 'org_confirm_donation',
+    -- phase 4c: nearby search
+    'set_donor_location', 'search_nearby_donors'
+  ],
+  'authenticated can execute exactly the client RPCs and RLS/view helpers'
+);
+
+select set_config('request.jwt.claims', json_build_object('sub', gen_random_uuid(), 'role', 'authenticated')::text, true);
+set local role authenticated;
+
+select is(
+  pg_temp.expect_error(
+    $$select public.enqueue_notification(gen_random_uuid(), 'request_invited', null, null)$$,
+    'permission denied for function enqueue_notification'
+  ),
+  'OK',
+  'a signed-in user cannot send notifications to other users directly'
+);
+
+select is(
+  pg_temp.expect_error(
+    $$select public.write_audit('forged', 'blood_requests', gen_random_uuid(), null, null)$$,
+    'permission denied for function write_audit'
+  ),
+  'OK',
+  'a signed-in user cannot write audit log entries directly'
+);
+
+reset role;
+select * from finish();
+rollback;

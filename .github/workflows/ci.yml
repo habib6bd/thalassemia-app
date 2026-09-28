@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+
+jobs:
+  app:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test -- --ci
+
+  db:
+    name: Supabase pgTAP tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase local stack
+        run: supabase start
+
+      - name: Run pgTAP tests
+        run: supabase test db
+
+      # Races on accept / confirm / create / join (docs/TESTING_REPORT.md).
+      # psql comes preinstalled on ubuntu-latest runners.
+      - name: Concurrency test
+        run: scripts/load/concurrency.sh 20
+
+  edge-functions:
+    name: Edge Function tests (deno)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Run deno tests
+        working-directory: supabase/functions
+        run: deno test

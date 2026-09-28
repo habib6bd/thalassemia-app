@@ -1,0 +1,26 @@
+{
+  "name": "থ্যালাসেমিয়া সহায়তা",
+  "short_name": "থ্যালাসেমিয়া",
+  "description": "Thalassemia support and trusted blood donor network (Bangladesh).",
+  "lang": "bn",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#B3261E",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

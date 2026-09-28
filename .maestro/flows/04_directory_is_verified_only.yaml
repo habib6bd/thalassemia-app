@@ -1,0 +1,6 @@
+# Directory opens with its "verified only / call before you visit" notice.
+appId: com.habib6bd.thalassemiaapp
+---
+- runFlow: sign_in.yaml
+- tapOn: "Find treatment centres & services|চিকিৎসা কেন্দ্র ও সেবা খুঁজুন"
+- assertVisible: ".*(Only entries checked by our team|শুধু আমাদের টিমের যাচাই).*"

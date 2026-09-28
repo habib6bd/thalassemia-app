@@ -4,18 +4,13 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
-import {
-  Chip,
-  SegmentedButtons,
-  Switch,
-  Text,
-  TextInput,
-} from "react-native-paper";
+import { Chip, SegmentedButtons, Switch, Text } from "react-native-paper";
 
 import { DistrictPicker } from "@/components/DistrictPicker";
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import { useCompleteOnboarding } from "@/features/onboarding/api";
 import {
   onboardingSchema,
@@ -103,7 +98,7 @@ export default function OnboardingScreen() {
           control={control}
           name="displayName"
           render={({ field: { value, onChange, onBlur } }) => (
-            <TextInput
+            <TextField
               label={t("onboarding.displayName")}
               value={value}
               onChangeText={onChange}
@@ -117,7 +112,7 @@ export default function OnboardingScreen() {
           control={control}
           name="phone"
           render={({ field: { value, onChange, onBlur } }) => (
-            <TextInput
+            <TextField
               label={t("onboarding.phoneOptional")}
               value={value}
               onChangeText={onChange}
@@ -149,7 +144,7 @@ export default function OnboardingScreen() {
           control={control}
           name="area"
           render={({ field: { value, onChange, onBlur } }) => (
-            <TextInput
+            <TextField
               label={t("onboarding.areaOptional")}
               value={value}
               onChangeText={onChange}

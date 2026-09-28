@@ -4,11 +4,12 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
-import { Text, TextInput } from "react-native-paper";
+import { Text } from "react-native-paper";
 
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import { useForgotPassword } from "@/features/auth/api";
 import {
   forgotPasswordSchema,
@@ -49,7 +50,7 @@ export default function ForgotPasswordScreen() {
           control={control}
           name="email"
           render={({ field: { value, onChange, onBlur } }) => (
-            <TextInput
+            <TextField
               label={t("auth.email")}
               value={value}
               onChangeText={onChange}

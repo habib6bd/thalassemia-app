@@ -4,12 +4,13 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
-import { Card, Checkbox, Switch, Text, TextInput } from "react-native-paper";
+import { Card, Checkbox, Switch, Text } from "react-native-paper";
 
 import { Disclaimer } from "@/components/Disclaimer";
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import { useMyPatients } from "@/features/patients/api";
 import { useCreateAndPublishBloodRequest } from "@/features/requests/api";
 import {
@@ -111,13 +112,13 @@ export default function NewRequestScreen() {
           : {},
       },
       {
-      onSuccess: (data) => {
-        router.replace({
-          pathname: "/(tabs)/requests/[id]",
-          params: { id: data.id },
-        });
-      },
-      onError: (error) => setSubmitError(mapSupabaseError(error)),
+        onSuccess: (data) => {
+          router.replace({
+            pathname: "/(tabs)/requests/[id]",
+            params: { id: data.id },
+          });
+        },
+        onError: (error) => setSubmitError(mapSupabaseError(error)),
       },
     );
   });
@@ -172,13 +173,13 @@ export default function NewRequestScreen() {
               })}
             </Text>
 
-            <TextInput
+            <TextField
               label={t("requests.dateLabel")}
               placeholder="YYYY-MM-DD"
               value={date}
               onChangeText={setDate}
             />
-            <TextInput
+            <TextField
               label={t("requests.timeLabel")}
               placeholder="HH:MM"
               value={time}
@@ -192,7 +193,7 @@ export default function NewRequestScreen() {
               control={control}
               name="treatingCentre"
               render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
+                <TextField
                   label={t("requests.treatingCentre")}
                   value={value}
                   onChangeText={onChange}
@@ -206,7 +207,7 @@ export default function NewRequestScreen() {
               control={control}
               name="unitsNeeded"
               render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
+                <TextField
                   label={t("requests.unitsNeeded")}
                   value={String(value)}
                   onChangeText={(v) =>
@@ -223,7 +224,7 @@ export default function NewRequestScreen() {
               control={control}
               name="component"
               render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
+                <TextField
                   label={t("requests.componentOptional")}
                   value={value}
                   onChangeText={onChange}
@@ -239,7 +240,7 @@ export default function NewRequestScreen() {
               control={control}
               name="notes"
               render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
+                <TextField
                   label={t("requests.notesOptional")}
                   value={value}
                   onChangeText={onChange}

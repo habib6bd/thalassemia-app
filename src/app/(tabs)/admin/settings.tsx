@@ -1,16 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, StyleSheet, View } from "react-native";
-import {
-  ActivityIndicator,
-  Button,
-  Card,
-  Text,
-  TextInput,
-} from "react-native-paper";
+import { ActivityIndicator, Button, Card, Text } from "react-native-paper";
 
 import { ErrorText } from "@/components/ErrorText";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import { useAppSettings, useUpdateSetting } from "@/features/admin/api";
 import { AdminGate } from "@/features/admin/components/AdminGate";
 import { mapSupabaseError } from "@/lib/errors";
@@ -89,7 +84,7 @@ function AdminSettings() {
                   <Text variant="bodySmall">{item.description}</Text>
                 ) : null}
                 <View style={styles.row}>
-                  <TextInput
+                  <TextField
                     style={styles.input}
                     mode="outlined"
                     dense

@@ -1,0 +1,9 @@
+# The medical disclaimer is visible before anyone signs in (CLAUDE.md rule 1).
+appId: com.habib6bd.thalassemiaapp
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Sign in|সাইন ইন"
+    timeout: 20000
+- assertVisible: ".*(does not decide donor eligibility|যোগ্যতা).*"

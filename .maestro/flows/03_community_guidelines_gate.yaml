@@ -1,0 +1,10 @@
+# Community → New post shows the guidelines first for an account that has
+# not accepted them (use a fresh E2E account).
+appId: com.habib6bd.thalassemiaapp
+---
+- runFlow: sign_in.yaml
+- tapOn: "Community: share experiences|কমিউনিটি: অভিজ্ঞতা শেয়ার করুন"
+- assertVisible: ".*(Personal experience, not medical advice|ব্যক্তিগত অভিজ্ঞতা, চিকিৎসা পরামর্শ নয়).*"
+- tapOn: "New post|নতুন পোস্ট"
+- assertVisible: "I accept the guidelines|আমি নির্দেশিকা মেনে নিচ্ছি"
+- assertVisible: ".*(not an emergency service|জরুরি সেবা নয়).*"

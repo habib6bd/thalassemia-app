@@ -8,12 +8,12 @@ import {
   Card,
   Chip,
   Text,
-  TextInput,
 } from "react-native-paper";
 
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorText } from "@/components/ErrorText";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import {
   useModerateContent,
   useModerationQueue,
@@ -143,7 +143,7 @@ export default function ModerationQueueScreen() {
                   {t("community.targetPost")}
                 </Button>
               ) : null}
-              <TextInput
+              <TextField
                 label={t("community.moderationNote")}
                 value={notes[item.target_id] ?? ""}
                 onChangeText={(text) =>

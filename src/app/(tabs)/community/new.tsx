@@ -4,18 +4,13 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
-import {
-  ActivityIndicator,
-  Chip,
-  HelperText,
-  Text,
-  TextInput,
-} from "react-native-paper";
+import { ActivityIndicator, Chip, HelperText, Text } from "react-native-paper";
 
 import { Disclaimer } from "@/components/Disclaimer";
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import {
   useAcceptCommunityGuidelines,
   useCommunityGuidelinesAccepted,
@@ -117,7 +112,7 @@ export default function NewCommunityPostScreen() {
           control={control}
           name="title"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
+            <TextField
               label={t("community.titleLabel")}
               value={value}
               onChangeText={onChange}
@@ -132,7 +127,7 @@ export default function NewCommunityPostScreen() {
           control={control}
           name="body"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
+            <TextField
               label={t("community.bodyLabel")}
               value={value}
               onChangeText={onChange}

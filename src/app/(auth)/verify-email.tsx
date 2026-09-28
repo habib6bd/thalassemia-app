@@ -2,11 +2,12 @@ import { Link } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
-import { Text, TextInput } from "react-native-paper";
+import { Text } from "react-native-paper";
 
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import { useResendVerificationEmail } from "@/features/auth/api";
 import { mapSupabaseError } from "@/lib/errors";
 
@@ -32,7 +33,7 @@ export default function VerifyEmailScreen() {
         <Text variant="headlineSmall">{t("auth.verifyEmail.title")}</Text>
         <Text variant="bodyLarge">{t("auth.verifyEmail.body")}</Text>
 
-        <TextInput
+        <TextField
           label={t("auth.email")}
           value={email}
           onChangeText={setEmail}

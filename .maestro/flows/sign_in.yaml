@@ -1,0 +1,20 @@
+# Signs in with an existing, onboarded account. Selectors match Bangla or
+# English text so the flow works in either language.
+# Env: E2E_EMAIL, E2E_PASSWORD
+appId: com.habib6bd.thalassemiaapp
+tags: [subflow]
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Sign in|সাইন ইন"
+    timeout: 20000
+- tapOn: "Email|ইমেইল"
+- inputText: ${E2E_EMAIL}
+- tapOn: "Password|পাসওয়ার্ড"
+- inputText: ${E2E_PASSWORD}
+- hideKeyboard
+- tapOn: "Continue|চালিয়ে যান"
+- extendedWaitUntil:
+    visible: "Home|হোম"
+    timeout: 20000

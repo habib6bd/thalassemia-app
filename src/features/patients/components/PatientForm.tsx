@@ -2,11 +2,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
-import { Chip, Switch, Text, TextInput } from "react-native-paper";
+import { Chip, Switch, Text } from "react-native-paper";
 
 import { DistrictPicker } from "@/components/DistrictPicker";
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
+import { TextField } from "@/components/TextField";
 import { patientSchema, type PatientInput } from "@/features/patients/schema";
 import { bloodGroupLabels, bloodGroups } from "@/lib/bloodGroups";
 
@@ -64,7 +65,7 @@ export function PatientForm({
         control={control}
         name="displayName"
         render={({ field: { value, onChange, onBlur } }) => (
-          <TextInput
+          <TextField
             label={t("patients.displayName")}
             value={value}
             onChangeText={onChange}
@@ -111,7 +112,7 @@ export function PatientForm({
         control={control}
         name="area"
         render={({ field: { value, onChange, onBlur } }) => (
-          <TextInput
+          <TextField
             label={t("patients.areaOptional")}
             value={value}
             onChangeText={onChange}
@@ -124,7 +125,7 @@ export function PatientForm({
         control={control}
         name="treatingCentre"
         render={({ field: { value, onChange, onBlur } }) => (
-          <TextInput
+          <TextField
             label={t("patients.treatingCentreOptional")}
             value={value}
             onChangeText={onChange}
@@ -137,7 +138,7 @@ export function PatientForm({
         control={control}
         name="nextTransfusionDate"
         render={({ field: { value, onChange, onBlur } }) => (
-          <TextInput
+          <TextField
             label={t("patients.nextTransfusionDateOptional")}
             placeholder="YYYY-MM-DD"
             value={value}
@@ -151,7 +152,7 @@ export function PatientForm({
         control={control}
         name="thalassemiaType"
         render={({ field: { value, onChange, onBlur } }) => (
-          <TextInput
+          <TextField
             label={t("patients.thalassemiaTypeOptional")}
             value={value}
             onChangeText={onChange}

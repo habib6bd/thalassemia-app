@@ -4,11 +4,12 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
-import { HelperText, Text, TextInput } from "react-native-paper";
+import { HelperText, Text } from "react-native-paper";
 
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import { useAcceptGuardianInvite } from "@/features/guardians/api";
 import {
   inviteCodeSchema,
@@ -51,7 +52,7 @@ export default function JoinAsGuardianScreen() {
           control={control}
           name="inviteCode"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
+            <TextField
               label={t("guardians.codeLabel")}
               value={value}
               onChangeText={onChange}

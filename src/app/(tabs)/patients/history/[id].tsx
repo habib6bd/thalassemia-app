@@ -9,13 +9,13 @@ import {
   Dialog,
   Portal,
   Text,
-  TextInput,
 } from "react-native-paper";
 
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorText } from "@/components/ErrorText";
 import { Screen } from "@/components/Screen";
 import { StatusChip } from "@/components/StatusChip";
+import { TextField } from "@/components/TextField";
 import {
   usePatientDonationHistory,
   useSendAppreciation,
@@ -122,7 +122,7 @@ export default function PatientDonationHistoryScreen() {
           <Dialog.Title>{t("history.thanksTitle")}</Dialog.Title>
           <Dialog.Content style={styles.dialogContent}>
             <Text variant="bodySmall">{t("history.thanksHint")}</Text>
-            <TextInput
+            <TextField
               label={t("history.thanksLabel")}
               value={message}
               onChangeText={setMessage}

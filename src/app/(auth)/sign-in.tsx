@@ -4,12 +4,13 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
-import { Text, TextInput } from "react-native-paper";
+import { Text } from "react-native-paper";
 
 import { Disclaimer } from "@/components/Disclaimer";
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import { useSignIn } from "@/features/auth/api";
 import { signInSchema, type SignInInput } from "@/features/auth/schema";
 import { mapSupabaseError } from "@/lib/errors";
@@ -45,7 +46,7 @@ export default function SignInScreen() {
           control={control}
           name="email"
           render={({ field: { value, onChange, onBlur } }) => (
-            <TextInput
+            <TextField
               label={t("auth.email")}
               value={value}
               onChangeText={onChange}
@@ -65,7 +66,7 @@ export default function SignInScreen() {
           control={control}
           name="password"
           render={({ field: { value, onChange, onBlur } }) => (
-            <TextInput
+            <TextField
               label={t("auth.password")}
               value={value}
               onChangeText={onChange}

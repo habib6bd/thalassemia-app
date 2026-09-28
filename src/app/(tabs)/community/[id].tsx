@@ -10,13 +10,13 @@ import {
   Card,
   Snackbar,
   Text,
-  TextInput,
 } from "react-native-paper";
 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import {
   useBlockUser,
   useCommunityComments,
@@ -246,7 +246,7 @@ export default function CommunityPostScreen() {
                     control={control}
                     name="body"
                     render={({ field: { onChange, onBlur, value } }) => (
-                      <TextInput
+                      <TextField
                         label={t("community.commentLabel")}
                         value={value}
                         onChangeText={onChange}

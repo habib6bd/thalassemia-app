@@ -3,12 +3,13 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { FlatList, StyleSheet, View } from "react-native";
-import { Text, TextInput } from "react-native-paper";
+import { Text } from "react-native-paper";
 
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import {
   useConnections,
   useMaxConnectedDonors,
@@ -67,7 +68,7 @@ export default function NetworkScreen() {
               control={control}
               name="inviteCode"
               render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
+                <TextField
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}

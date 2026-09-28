@@ -10,10 +10,10 @@ import {
   Portal,
   RadioButton,
   Text,
-  TextInput,
 } from "react-native-paper";
 
 import { ErrorText } from "@/components/ErrorText";
+import { TextField } from "@/components/TextField";
 import { useReportCommunityContent } from "@/features/community/api";
 import {
   reportReasons,
@@ -100,7 +100,7 @@ export function ReportDialog({
               control={control}
               name="details"
               render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
+                <TextField
                   label={t("community.reportDetails")}
                   value={value}
                   onChangeText={onChange}

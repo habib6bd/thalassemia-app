@@ -11,13 +11,13 @@ import {
   Chip,
   HelperText,
   Text,
-  TextInput,
 } from "react-native-paper";
 
 import { Disclaimer } from "@/components/Disclaimer";
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import { AdminGate } from "@/features/admin/components/AdminGate";
 import {
   useAdminContent,
@@ -37,12 +37,12 @@ import {
 import { contentSchema, type ContentFormInput } from "@/features/learn/schema";
 import { mapSupabaseError } from "@/lib/errors";
 
-type TextField = Exclude<
+type TextFieldName = Exclude<
   keyof ContentFormInput,
   "kind" | "category" | "sortOrder"
 >;
 
-const textFields: { name: TextField; max: number; lines?: number }[] = [
+const textFields: { name: TextFieldName; max: number; lines?: number }[] = [
   { name: "slug", max: 80 },
   { name: "titleBn", max: 200 },
   { name: "titleEn", max: 200 },
@@ -149,7 +149,7 @@ function WorkflowCard({ content }: { content: AdminContent }) {
           <Text variant="bodySmall">“{content.review_note}”</Text>
         ) : null}
         <Text variant="bodySmall">{t("admin.reviewHint")}</Text>
-        <TextInput
+        <TextField
           label={t("admin.reviewNote")}
           value={note}
           onChangeText={setNote}
@@ -356,7 +356,7 @@ function ContentForm({
         control={control}
         name="sortOrder"
         render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
+          <TextField
             label={t("admin.contentFields.sortOrder")}
             value={String(value)}
             onChangeText={(text) =>
@@ -375,7 +375,7 @@ function ContentForm({
             control={control}
             name={field.name}
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
+              <TextField
                 label={t(`admin.contentFields.${field.name}`)}
                 value={value ?? ""}
                 onChangeText={onChange}

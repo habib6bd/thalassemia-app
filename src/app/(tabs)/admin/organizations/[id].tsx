@@ -11,13 +11,13 @@ import {
   HelperText,
   RadioButton,
   Text,
-  TextInput,
 } from "react-native-paper";
 
 import { DistrictPicker } from "@/components/DistrictPicker";
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import { AdminGate } from "@/features/admin/components/AdminGate";
 import {
   useAdminOrganizations,
@@ -35,10 +35,10 @@ import {
 import { StaffCard } from "@/features/orgPortal/components/StaffCard";
 import { mapSupabaseError } from "@/lib/errors";
 
-type TextField = Exclude<keyof OrganizationInput, "type" | "districtId">;
+type TextFieldName = Exclude<keyof OrganizationInput, "type" | "districtId">;
 
 const textFields: {
-  name: TextField;
+  name: TextFieldName;
   max: number;
   multiline?: boolean;
   keyboard?: "phone-pad" | "url" | "decimal-pad";
@@ -206,7 +206,7 @@ function OrganizationForm({
             control={control}
             name={field.name}
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
+              <TextField
                 label={t(`admin.orgFields.${field.name}`)}
                 value={value ?? ""}
                 onChangeText={onChange}
@@ -345,7 +345,7 @@ function VerificationCard({
           control={control}
           name="note"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
+            <TextField
               label={t("admin.verificationNote")}
               value={value ?? ""}
               onChangeText={onChange}

@@ -2,7 +2,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Linking, StyleSheet, View } from "react-native";
-import { ActivityIndicator, Text, TextInput } from "react-native-paper";
+import { ActivityIndicator, Text } from "react-native-paper";
 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Disclaimer } from "@/components/Disclaimer";
@@ -10,6 +10,7 @@ import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
 import { StatusChip } from "@/components/StatusChip";
+import { TextField } from "@/components/TextField";
 import {
   EmergencyBadge,
   EmergencyNotice,
@@ -147,13 +148,13 @@ export default function ResponseDetailScreen() {
               {t("requests.acceptedNote")}
             </Text>
 
-            <TextInput
+            <TextField
               label={t("requests.dateLabel")}
               placeholder="YYYY-MM-DD"
               value={scheduleDate}
               onChangeText={setScheduleDate}
             />
-            <TextInput
+            <TextField
               label={t("requests.timeLabel")}
               placeholder="HH:MM"
               value={scheduleTime}

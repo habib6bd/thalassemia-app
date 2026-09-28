@@ -1,0 +1,10 @@
+# Learn → inheritance example: the fixed diagram shows the mandatory
+# "educational example" banner and asks for no personal input (§16).
+appId: com.habib6bd.thalassemiaapp
+---
+- runFlow: sign_in.yaml
+- tapOn: "Learn about thalassemia & carriers|থ্যালাসেমিয়া ও বাহক সম্পর্কে জানুন"
+- tapOn: "How inheritance works \\(example\\)|বংশগতি কীভাবে কাজ করে \\(উদাহরণ\\)"
+- assertVisible: "Educational example — not a personal medical/genetic risk assessment|শিক্ষামূলক উদাহরণ — ব্যক্তিগত চিকিৎসা/জেনেটিক ঝুঁকি মূল্যায়ন নয়"
+- tapOn: "Carrier × non-carrier|বাহক × বাহক নন"
+- assertVisible: ".*(2 of 4 boxes: Carrier|৪টি ঘরের 2টি: বাহক).*"

@@ -10,12 +10,12 @@ import {
   Checkbox,
   HelperText,
   Text,
-  TextInput,
 } from "react-native-paper";
 
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import { AdminGate } from "@/features/admin/components/AdminGate";
 import { useAdminSources, useUpsertSource } from "@/features/learn/api";
 import { sourceSchema, type SourceFormInput } from "@/features/learn/schema";
@@ -158,7 +158,7 @@ function SourceForm({
               control={control}
               name={name}
               render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
+                <TextField
                   label={t(`admin.sourceFields.${name}`)}
                   value={value ?? ""}
                   onChangeText={onChange}

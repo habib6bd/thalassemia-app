@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Linking, StyleSheet, View } from "react-native";
-import { Card, Text, TextInput } from "react-native-paper";
+import { Card, Text } from "react-native-paper";
 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { StatusChip } from "@/components/StatusChip";
+import { TextField } from "@/components/TextField";
 import {
   useConfirmDonation,
   useResponseContact,
@@ -85,7 +86,7 @@ export function ResponseRow({
 
         {canConfirm ? (
           <>
-            <TextInput
+            <TextField
               label={t("requests.donatedOnLabel")}
               placeholder="YYYY-MM-DD"
               value={donatedOn}

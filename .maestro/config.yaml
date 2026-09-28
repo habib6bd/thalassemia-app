@@ -1,0 +1,7 @@
+# Maestro e2e flows (Phase 4d). Run against an Android emulator or device
+# with a development/preview build installed (Expo Go is not supported).
+# See docs/TESTING_REPORT.md for setup and the test accounts they need.
+flows:
+  - "flows/*"
+excludeTags:
+  - subflow

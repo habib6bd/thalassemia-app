@@ -2,7 +2,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, StyleSheet, View } from "react-native";
-import { ActivityIndicator, Card, Text, TextInput } from "react-native-paper";
+import { ActivityIndicator, Card, Text } from "react-native-paper";
 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Disclaimer } from "@/components/Disclaimer";
@@ -11,6 +11,7 @@ import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
 import { StatusChip } from "@/components/StatusChip";
+import { TextField } from "@/components/TextField";
 import {
   useOrgConfirmDonation,
   useOrgRequestResponses,
@@ -85,7 +86,7 @@ export default function OrgRequestScreen() {
                 ) : null}
                 {canConfirm ? (
                   <>
-                    <TextInput
+                    <TextField
                       label={t("requests.donatedOnLabel")}
                       placeholder="YYYY-MM-DD"
                       value={donatedOn}

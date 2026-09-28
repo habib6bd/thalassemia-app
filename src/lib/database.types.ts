@@ -207,6 +207,7 @@ export type Database = {
           id: string;
           is_emergency: boolean;
           notes: string | null;
+          organization_id: string | null;
           patient_id: string;
           published_at: string | null;
           required_at: string;
@@ -230,6 +231,7 @@ export type Database = {
           id?: string;
           is_emergency?: boolean;
           notes?: string | null;
+          organization_id?: string | null;
           patient_id: string;
           published_at?: string | null;
           required_at: string;
@@ -253,6 +255,7 @@ export type Database = {
           id?: string;
           is_emergency?: boolean;
           notes?: string | null;
+          organization_id?: string | null;
           patient_id?: string;
           published_at?: string | null;
           required_at?: string;
@@ -282,6 +285,13 @@ export type Database = {
             columns: ["district_id"];
             isOneToOne: false;
             referencedRelation: "districts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "blood_requests_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
             referencedColumns: ["id"];
           },
           {
@@ -912,6 +922,178 @@ export type Database = {
           },
         ];
       };
+      organization_verifications: {
+        Row: {
+          created_at: string;
+          id: string;
+          method:
+            | Database["public"]["Enums"]["organization_verification_method"]
+            | null;
+          note: string | null;
+          organization_id: string;
+          status: Database["public"]["Enums"]["organization_verification_status"];
+          verified_by: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          method?:
+            | Database["public"]["Enums"]["organization_verification_method"]
+            | null;
+          note?: string | null;
+          organization_id: string;
+          status: Database["public"]["Enums"]["organization_verification_status"];
+          verified_by?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          method?:
+            | Database["public"]["Enums"]["organization_verification_method"]
+            | null;
+          note?: string | null;
+          organization_id?: string;
+          status?: Database["public"]["Enums"]["organization_verification_status"];
+          verified_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "organization_verifications_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "organization_verifications_verified_by_fkey";
+            columns: ["verified_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "organization_verifications_verified_by_fkey";
+            columns: ["verified_by"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
+      };
+      organizations: {
+        Row: {
+          address: string | null;
+          created_at: string;
+          created_by: string | null;
+          district_id: number;
+          id: string;
+          last_verified_at: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          name: string;
+          name_bn: string | null;
+          opening_hours: string | null;
+          phone: string | null;
+          reverify_reminded_at: string | null;
+          services: string | null;
+          type: Database["public"]["Enums"]["organization_type"];
+          updated_at: string;
+          verification_method:
+            | Database["public"]["Enums"]["organization_verification_method"]
+            | null;
+          verification_note: string | null;
+          verification_status: Database["public"]["Enums"]["organization_verification_status"];
+          verified_by: string | null;
+          website: string | null;
+        };
+        Insert: {
+          address?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          district_id: number;
+          id?: string;
+          last_verified_at?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          name: string;
+          name_bn?: string | null;
+          opening_hours?: string | null;
+          phone?: string | null;
+          reverify_reminded_at?: string | null;
+          services?: string | null;
+          type: Database["public"]["Enums"]["organization_type"];
+          updated_at?: string;
+          verification_method?:
+            | Database["public"]["Enums"]["organization_verification_method"]
+            | null;
+          verification_note?: string | null;
+          verification_status?: Database["public"]["Enums"]["organization_verification_status"];
+          verified_by?: string | null;
+          website?: string | null;
+        };
+        Update: {
+          address?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          district_id?: number;
+          id?: string;
+          last_verified_at?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          name?: string;
+          name_bn?: string | null;
+          opening_hours?: string | null;
+          phone?: string | null;
+          reverify_reminded_at?: string | null;
+          services?: string | null;
+          type?: Database["public"]["Enums"]["organization_type"];
+          updated_at?: string;
+          verification_method?:
+            | Database["public"]["Enums"]["organization_verification_method"]
+            | null;
+          verification_note?: string | null;
+          verification_status?: Database["public"]["Enums"]["organization_verification_status"];
+          verified_by?: string | null;
+          website?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "organizations_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "organizations_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "organizations_district_id_fkey";
+            columns: ["district_id"];
+            isOneToOne: false;
+            referencedRelation: "districts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "organizations_verified_by_fkey";
+            columns: ["verified_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "organizations_verified_by_fkey";
+            columns: ["verified_by"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
+      };
       patient_donor_connections: {
         Row: {
           created_at: string;
@@ -1061,6 +1243,7 @@ export type Database = {
           show_treating_centre: boolean;
           thalassemia_type: string | null;
           treating_centre: string | null;
+          treating_organization_id: string | null;
           updated_at: string;
         };
         Insert: {
@@ -1080,6 +1263,7 @@ export type Database = {
           show_treating_centre?: boolean;
           thalassemia_type?: string | null;
           treating_centre?: string | null;
+          treating_organization_id?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -1099,6 +1283,7 @@ export type Database = {
           show_treating_centre?: boolean;
           thalassemia_type?: string | null;
           treating_centre?: string | null;
+          treating_organization_id?: string | null;
           updated_at?: string;
         };
         Relationships: [
@@ -1121,6 +1306,13 @@ export type Database = {
             columns: ["district_id"];
             isOneToOne: false;
             referencedRelation: "districts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "patients_treating_organization_id_fkey";
+            columns: ["treating_organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
             referencedColumns: ["id"];
           },
         ];
@@ -1462,8 +1654,171 @@ export type Database = {
         Args: { role: Database["public"]["Enums"]["app_role"] };
         Returns: undefined;
       };
+      admin_list_organizations: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          address: string | null;
+          created_at: string;
+          created_by: string | null;
+          district_id: number;
+          id: string;
+          last_verified_at: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          name: string;
+          name_bn: string | null;
+          opening_hours: string | null;
+          phone: string | null;
+          reverify_reminded_at: string | null;
+          services: string | null;
+          type: Database["public"]["Enums"]["organization_type"];
+          updated_at: string;
+          verification_method:
+            | Database["public"]["Enums"]["organization_verification_method"]
+            | null;
+          verification_note: string | null;
+          verification_status: Database["public"]["Enums"]["organization_verification_status"];
+          verified_by: string | null;
+          website: string | null;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "organizations";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
+      admin_request_overview: {
+        Args: Record<PropertyKey, never>;
+        Returns: Json;
+      };
+      admin_search_users: {
+        Args: { max_rows?: number; query?: string };
+        Returns: {
+          created_at: string;
+          deleted: boolean;
+          display_name: string;
+          email: string;
+          roles: Database["public"]["Enums"]["app_role"][];
+          user_id: string;
+        }[];
+      };
+      admin_set_organization_verification: {
+        Args: {
+          method?: Database["public"]["Enums"]["organization_verification_method"];
+          note?: string;
+          organization_id: string;
+          status: Database["public"]["Enums"]["organization_verification_status"];
+        };
+        Returns: {
+          address: string | null;
+          created_at: string;
+          created_by: string | null;
+          district_id: number;
+          id: string;
+          last_verified_at: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          name: string;
+          name_bn: string | null;
+          opening_hours: string | null;
+          phone: string | null;
+          reverify_reminded_at: string | null;
+          services: string | null;
+          type: Database["public"]["Enums"]["organization_type"];
+          updated_at: string;
+          verification_method:
+            | Database["public"]["Enums"]["organization_verification_method"]
+            | null;
+          verification_note: string | null;
+          verification_status: Database["public"]["Enums"]["organization_verification_status"];
+          verified_by: string | null;
+          website: string | null;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "organizations";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      admin_set_user_role: {
+        Args: {
+          granted: boolean;
+          role: Database["public"]["Enums"]["app_role"];
+          user_id: string;
+        };
+        Returns: undefined;
+      };
+      admin_update_setting: {
+        Args: { key: string; value: Json };
+        Returns: {
+          description: string | null;
+          key: string;
+          updated_at: string;
+          updated_by: string | null;
+          value: NonNullable<Json>;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "app_settings";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      admin_upsert_organization: {
+        Args: {
+          address?: string;
+          district_id: number;
+          latitude?: number;
+          longitude?: number;
+          name: string;
+          name_bn?: string;
+          opening_hours?: string;
+          organization_id: string;
+          phone?: string;
+          services?: string;
+          type: Database["public"]["Enums"]["organization_type"];
+          website?: string;
+        };
+        Returns: {
+          address: string | null;
+          created_at: string;
+          created_by: string | null;
+          district_id: number;
+          id: string;
+          last_verified_at: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          name: string;
+          name_bn: string | null;
+          opening_hours: string | null;
+          phone: string | null;
+          reverify_reminded_at: string | null;
+          services: string | null;
+          type: Database["public"]["Enums"]["organization_type"];
+          updated_at: string;
+          verification_method:
+            | Database["public"]["Enums"]["organization_verification_method"]
+            | null;
+          verification_note: string | null;
+          verification_status: Database["public"]["Enums"]["organization_verification_status"];
+          verified_by: string | null;
+          website: string | null;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "organizations";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       assert_can_post_in_community: {
         Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
+      assert_verified_organization: {
+        Args: { p_organization_id: string };
         Returns: undefined;
       };
       bd_date: { Args: { ts: string }; Returns: string };
@@ -1484,6 +1839,7 @@ export type Database = {
           id: string;
           is_emergency: boolean;
           notes: string | null;
+          organization_id: string | null;
           patient_id: string;
           published_at: string | null;
           required_at: string;
@@ -1605,6 +1961,7 @@ export type Database = {
           id: string;
           is_emergency: boolean;
           notes: string | null;
+          organization_id: string | null;
           patient_id: string;
           published_at: string | null;
           required_at: string;
@@ -1722,6 +2079,7 @@ export type Database = {
           show_treating_centre: boolean;
           thalassemia_type: string | null;
           treating_centre: string | null;
+          treating_organization_id: string | null;
           updated_at: string;
         };
         SetofOptions: {
@@ -2026,6 +2384,10 @@ export type Database = {
         };
         Returns: undefined;
       };
+      process_organization_reverification: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
       process_request_timers: {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
@@ -2050,6 +2412,7 @@ export type Database = {
           id: string;
           is_emergency: boolean;
           notes: string | null;
+          organization_id: string | null;
           patient_id: string;
           published_at: string | null;
           required_at: string;
@@ -2280,6 +2643,7 @@ export type Database = {
           show_treating_centre: boolean;
           thalassemia_type: string | null;
           treating_centre: string | null;
+          treating_organization_id: string | null;
           updated_at: string;
         };
         SetofOptions: {
@@ -2394,6 +2758,68 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      set_patient_organization: {
+        Args: { organization_id: string; patient_id: string };
+        Returns: {
+          archived_at: string | null;
+          area: string | null;
+          blood_group: Database["public"]["Enums"]["blood_group"];
+          created_at: string;
+          created_by: string;
+          display_name: string;
+          district_id: number;
+          id: string;
+          invite_code: string;
+          next_transfusion_date: string | null;
+          show_area: boolean;
+          show_next_transfusion: boolean;
+          show_thalassemia_type: boolean;
+          show_treating_centre: boolean;
+          thalassemia_type: string | null;
+          treating_centre: string | null;
+          treating_organization_id: string | null;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "patients";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      set_request_organization: {
+        Args: { organization_id: string; request_id: string };
+        Returns: {
+          area: string | null;
+          blood_group: Database["public"]["Enums"]["blood_group"];
+          cancel_reason: string | null;
+          closed_at: string | null;
+          component: string | null;
+          created_at: string;
+          created_by: string;
+          current_tier: Database["public"]["Enums"]["request_tier"];
+          district_id: number;
+          emergency_acknowledged_at: string | null;
+          id: string;
+          is_emergency: boolean;
+          notes: string | null;
+          organization_id: string | null;
+          patient_id: string;
+          published_at: string | null;
+          required_at: string;
+          status: Database["public"]["Enums"]["request_status"];
+          tier_changed_at: string | null;
+          treating_centre: string;
+          units_needed: number;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "blood_requests";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       shares_active_connection: {
         Args: { other_user_id: string };
         Returns: boolean;
@@ -2426,6 +2852,7 @@ export type Database = {
           id: string;
           is_emergency: boolean;
           notes: string | null;
+          organization_id: string | null;
           patient_id: string;
           published_at: string | null;
           required_at: string;
@@ -2474,6 +2901,7 @@ export type Database = {
           show_treating_centre: boolean;
           thalassemia_type: string | null;
           treating_centre: string | null;
+          treating_organization_id: string | null;
           updated_at: string;
         };
         SetofOptions: {
@@ -2525,6 +2953,7 @@ export type Database = {
           id: string;
           is_emergency: boolean;
           notes: string | null;
+          organization_id: string | null;
           patient_id: string;
           published_at: string | null;
           required_at: string;
@@ -2610,6 +3039,17 @@ export type Database = {
       donation_verification: "guardian_confirmed" | "org_verified";
       donor_availability: "available" | "unavailable" | "paused";
       manager_relation: "self" | "guardian";
+      organization_type:
+        | "treatment_centre"
+        | "hospital"
+        | "blood_bank"
+        | "diagnostic_centre"
+        | "genetic_counselling"
+        | "support_org";
+      organization_verification_method:
+        "phone_call" | "official_website" | "in_person" | "official_document";
+      organization_verification_status:
+        "pending" | "verified" | "stale" | "rejected";
       report_reason:
         | "selling_blood"
         | "medical_misinformation"
@@ -2801,6 +3241,26 @@ export const Constants = {
       donation_verification: ["guardian_confirmed", "org_verified"],
       donor_availability: ["available", "unavailable", "paused"],
       manager_relation: ["self", "guardian"],
+      organization_type: [
+        "treatment_centre",
+        "hospital",
+        "blood_bank",
+        "diagnostic_centre",
+        "genetic_counselling",
+        "support_org",
+      ],
+      organization_verification_method: [
+        "phone_call",
+        "official_website",
+        "in_person",
+        "official_document",
+      ],
+      organization_verification_status: [
+        "pending",
+        "verified",
+        "stale",
+        "rejected",
+      ],
       report_reason: [
         "selling_blood",
         "medical_misinformation",

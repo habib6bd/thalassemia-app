@@ -60,7 +60,12 @@ select set_eq(
     'list_community_comments', 'create_community_post', 'delete_community_post',
     'create_community_comment', 'delete_community_comment',
     'report_community_content', 'block_user', 'unblock_user', 'list_blocked_users',
-    'list_moderation_queue', 'moderate_community_content'
+    'list_moderation_queue', 'moderate_community_content',
+    -- phase 2d: organizations, admin basics
+    'set_patient_organization', 'set_request_organization', 'admin_list_organizations',
+    'admin_upsert_organization', 'admin_set_organization_verification',
+    'admin_search_users', 'admin_set_user_role', 'admin_request_overview',
+    'admin_update_setting'
   ],
   'authenticated can execute exactly the client RPCs and RLS/view helpers'
 );

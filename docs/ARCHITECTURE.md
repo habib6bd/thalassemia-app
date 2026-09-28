@@ -67,6 +67,10 @@ community_topic     : treatment_centre_experience | transfusion_experience | man
                     | family_experience | emotional_support | support_resources | newly_diagnosed
                     | questions                        -- Phase 2c; no money-related topic (Q24)
 community_content_status: published | hidden | removed | deleted   -- Phase 2c (§7.4)
+organization_type   : treatment_centre | hospital | blood_bank | diagnostic_centre
+                    | genetic_counselling | support_org        -- Phase 2d
+organization_verification_status: pending | verified | stale | rejected   -- Phase 2d (§7.5)
+organization_verification_method: phone_call | official_website | in_person | official_document
 report_reason       : selling_blood | medical_misinformation | harassment | privacy | spam | other
 report_status       : open | actioned | dismissed
 ```
@@ -227,8 +231,12 @@ audit_logs                      -- append-only; no update/delete grants to anyon
   - `user_blocks` (blocker, blocked; pk both). `community_guideline_acceptances` (user, guideline version).
   - Settings `community_auto_hide_report_threshold` (3), `community_daily_post_limit` (10), `community_guidelines_version` (1).
   - Triggers: `block_connections_between_blocked_users` (before insert on `patient_donor_connections`), `community_cleanup_on_profile_delete` (after a profile is soft-deleted).
-- **Phase 2 (rest)**: `organizations` (+ `organization_verifications`), `organization_members`,
-  `blood_requests.organization_id`, `patients.treating_organization_id`.
+- **Phase 2d** (done):
+  - `organizations` (`name`, `name_bn`, `type` organization_type, `address`, `district_id`, optional `latitude/longitude`, `phone` E.164, `website`, `services`, `opening_hours`, `verification_status`, `last_verified_at`, `verified_by`, `verification_method`, `verification_note`, `reverify_reminded_at`, `created_by`). **Never seeded.**
+  - `organization_verifications` (history: organization, status, method, note, verified_by, created_at).
+  - `patients.treating_organization_id`, `blood_requests.organization_id` (optional; free text stays the fallback). A `before insert` trigger copies the patient's verified centre onto new requests.
+  - Settings `organization_reverify_months` (12), `organization_reverify_reminder_days` (30). `app_settings` now has an audit trigger.
+- **Phase 4**: `organization_members` (organization portal).
 - **Phase 3**: `content_sources`, `awareness_articles` (bn/en body, `review_status`
   draft|in_review|approved|published|retired, `reviewed_by`, `reviewed_at`,
   `next_review_due`), `article_sources` (m:n), `faqs`, `medicine_info` (optional).
@@ -322,6 +330,18 @@ locks the row, sets `status_changed_at/by`, writes audit, enqueues notifications
 - `removed` and `deleted` are terminal (`invalid_transition`). Account deletion moves the user's items to `deleted`.
 - Visibility: others see `published` items not involving a block; the author also sees their own `hidden` items (labelled "under review"); admins see everything.
 
+### 7.5 Organization verification (Phase 2d)
+```
+ pending ──admin verifies (method required)──▶ verified ──job: reverify_months passed──▶ stale
+    ▲                                            ▲  │                                      │
+    │                                            │  └───────── admin re-verifies ◀─────────┘
+    └──── admin "needs checking" ◀── any ──▶ admin rejects ──▶ rejected
+```
+- Only `verified` entries are visible to users and linkable to patients/requests.
+- Verifying sets `last_verified_at`, `verified_by`, `verification_method` and clears `reverify_reminded_at`. Every admin status change appends to `organization_verifications`.
+- `process_organization_reverification()` (pg_cron, daily 03:17 UTC): once `organization_reverify_reminder_days` before the window ends, admins get `organization_reverification_due`; after `organization_reverify_months`, the entry becomes `stale` (hidden) and admins get `organization_marked_stale`. `stale` is never set by hand.
+- Rejecting clears patient links to the entry.
+
 ## 8. Authorization matrix (Phase 1)
 
 Helper functions: `has_role(role)`, `is_admin()`, `is_patient_manager(patient_id)`,
@@ -350,6 +370,9 @@ Helper functions: `has_role(role)`, `is_admin()`, `is_patient_manager(patient_id
 | reports (2c) | own; admin | RPC only (`report_community_content`, `moderate_community_content`) |
 | user_blocks (2c) | blocker only (the blocked user never sees it) | RPC only (`block_user`, `unblock_user`) |
 | community_guideline_acceptances (2c) | own; admin | RPC only (`accept_community_guidelines`) |
+| organizations (2d) | `verified` entries, directory columns only (column grant); admin: all via `admin_list_organizations` | admin RPC only (`admin_upsert_organization`, `admin_set_organization_verification`) |
+| organization_verifications (2d) | admin | admin RPC only |
+| app_settings (2d change) | everyone authenticated | `admin_update_setting` (existing keys, whole numbers 1–10000; audited) |
 
 Phase 2b read RPCs: `get_patient_managers` and `get_patient_donation_history`
 (managers only), `get_my_donation_history` (own donations; the patient name
@@ -361,6 +384,11 @@ private), `list_blocked_users` (own blocks), `list_moderation_queue` (admin only
 also rejects new connections between the two users (`patient_donor_connections` insert
 trigger, both directions); the error is the path's usual `invalid_invite_code` /
 `donor_not_available`, so a user can't tell they were blocked.
+
+Phase 2d RPCs: `set_patient_organization` / `set_request_organization` (patient managers; verified
+entries only). Admin-only (`is_admin()` checked in each): `admin_search_users` (name, email,
+roles), `admin_set_user_role` (only `organization`/`admin`; an admin can't drop their own admin
+role), `admin_request_overview` (aggregate counts only, no per-request or per-person rows).
 
 Phase 2a RPCs (all check `is_patient_manager` of the request's/patient's patient):
 `widen_request_search`, `search_broad_donors`, `invite_broad_donor`,
@@ -403,12 +431,15 @@ any patient detail.
 Phase 2c adds `community_comment_added` (post author), `community_content_moderated` (author;
 `params.action`), `community_content_auto_hidden` and `community_report_urgent` (admins). All use
 `entity_type = community_post`.
+Phase 2d adds `organization_reverification_due` and `organization_marked_stale` (admins,
+`entity_type = organization`).
 
 Note: Expo Go on Android cannot receive remote push (SDK 53+). Test push with an EAS development build; everything else works in Expo Go.
 
 ## 11. Scheduled jobs (pg_cron)
 
 - `*/10 * * * *` → `process_request_timers()`: expire requests with `required_at + grace < now()`; then escalate non-emergency `regular` requests to `backup` (rules in §7.2).
+- `17 3 * * *` → `process_organization_reverification()` (Phase 2d, §7.5).
 - Daily (Phase 2) → availability reminders based on `donation_reminder_days` — worded as a reminder to check with the blood bank, never "you are eligible".
 
 ## 12. Frontend architecture

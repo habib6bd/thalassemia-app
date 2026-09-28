@@ -21,5 +21,8 @@ export const notificationTypes = [
   "community_content_moderated",
   "community_content_auto_hidden",
   "community_report_urgent",
+  // Phase 2d
+  "organization_reverification_due",
+  "organization_marked_stale",
 ] as const;
 export type NotificationType = (typeof notificationTypes)[number];

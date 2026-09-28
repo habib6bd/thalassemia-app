@@ -110,12 +110,20 @@ export default function ProfileScreen() {
         />
 
         {roles.includes("admin") ? (
-          <List.Item
-            title={t("profile.moderation")}
-            left={(props) => <List.Icon {...props} icon="shield-check" />}
-            right={(props) => <List.Icon {...props} icon="chevron-right" />}
-            onPress={() => router.push("/(tabs)/community/moderation")}
-          />
+          <>
+            <List.Item
+              title={t("admin.title")}
+              left={(props) => <List.Icon {...props} icon="shield-account" />}
+              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => router.push("/(tabs)/admin")}
+            />
+            <List.Item
+              title={t("profile.moderation")}
+              left={(props) => <List.Icon {...props} icon="shield-check" />}
+              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => router.push("/(tabs)/community/moderation")}
+            />
+          </>
         ) : null}
 
         <View>

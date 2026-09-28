@@ -81,6 +81,18 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="directory"
+        options={{
+          title: t("nav.directory"),
+          headerShown: false,
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="admin"
+        options={{ title: t("nav.admin"), headerShown: false, href: null }}
+      />
+      <Tabs.Screen
         name="notifications"
         options={{
           title: t("nav.notifications"),

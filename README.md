@@ -52,7 +52,9 @@ insert into public.user_roles (user_id, role)
 select user_id, 'admin' from public.profiles where user_id = '<auth user id>';
 ```
 
-The admin then sees **Profile → Community moderation**. Thresholds are
+The admin then sees **Profile → Admin** (users & roles, requests overview,
+organizations & verification, reports queue, settings) and **Profile →
+Community moderation**. Thresholds are
 product settings in `app_settings` (`community_auto_hide_report_threshold`,
 `community_daily_post_limit`, `community_guidelines_version`).
 
@@ -170,6 +172,19 @@ here; full details are in `docs/OPEN_QUESTIONS.md`.
   the Phase 3 Learn tab)?
 - **Q27 — Blocking and existing donor connections.** Default: blocking stops
   new connection requests both ways but does not end an existing connection.
+- **Q28 — Stale directory entries.** Default: admins are reminded 30 days
+  before, and after 12 months without re-verification the entry is hidden
+  until re-verified.
+- **Q29 — Linking requests to organizations.** Default: via the patient's
+  linked centre (new requests inherit it); no per-request picker screen yet.
+- **Q30 — Admin requests overview.** Default: aggregate counts only, no list
+  of individual requests or patients.
+- **Q31 — Roles.** Default: admins manage only the `organization` and
+  `admin` roles; the first admin is created with SQL; nobody can remove
+  their own admin role.
+- **Directory content.** No organizations are included. An admin must add
+  and verify each real entry (call it or check its official website)
+  before users see it.
 - **Community guidelines text** (bn/en, `community.guidelines.*` in the locale
   files) was drafted by an agent and needs a human review before launch.
 - Still open from earlier phases: Q9 (legal review), Q11 (package name before

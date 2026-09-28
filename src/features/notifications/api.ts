@@ -77,6 +77,11 @@ export async function navigateToNotificationTarget(entityType: string | null, en
     return;
   }
 
+  if (entityType === "organization") {
+    router.push({ pathname: "/(tabs)/admin/organizations/[id]", params: { id: entityId } });
+    return;
+  }
+
   if (entityType === "patient") {
     router.push({ pathname: "/(tabs)/patients/guardians/[id]", params: { id: entityId } });
     return;

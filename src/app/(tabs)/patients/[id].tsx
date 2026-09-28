@@ -5,6 +5,7 @@ import { Share, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Card, List, Text } from "react-native-paper";
 
 import { ErrorText } from "@/components/ErrorText";
+import { PatientOrganizationCard } from "@/features/organizations/components/PatientOrganizationCard";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
 import {
@@ -114,6 +115,11 @@ export default function EditPatientScreen() {
             }
           />
         </Card>
+
+        <PatientOrganizationCard
+          patientId={patient.id}
+          organizationId={patient.treating_organization_id}
+        />
 
         <PatientForm
           defaultValues={defaultValues}

@@ -28,6 +28,8 @@ const titles: Record<string, Record<"bn" | "en", string>> = {
   community_content_moderated: { bn: "আপনার কমিউনিটি কনটেন্ট পর্যালোচনা হয়েছে", en: "Your community content was reviewed" },
   community_content_auto_hidden: { bn: "কমিউনিটি কনটেন্ট পর্যালোচনা প্রয়োজন", en: "Community content needs review" },
   community_report_urgent: { bn: "জরুরি কমিউনিটি রিপোর্ট", en: "Urgent community report" },
+  organization_reverification_due: { bn: "প্রতিষ্ঠান পুনরায় যাচাই করুন", en: "Organization re-verification due" },
+  organization_marked_stale: { bn: "প্রতিষ্ঠানের তথ্য পুরোনো হয়েছে", en: "Organization listing is out of date" },
 };
 
 // "Urgent" says nothing about the patient, so it stays within D9.

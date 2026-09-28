@@ -14,7 +14,9 @@
   "roles": {
     "patient": "Patient",
     "guardian": "Guardian",
-    "donor": "Donor"
+    "donor": "Donor",
+    "organization": "Organization",
+    "admin": "Admin"
   },
   "auth": {
     "signIn": "Sign in",
@@ -47,13 +49,16 @@
     "requests": "Requests",
     "notifications": "Notifications",
     "profile": "Profile",
-    "community": "Community"
+    "community": "Community",
+    "directory": "Directory",
+    "admin": "Admin"
   },
   "home": {
     "requestBlood": "Request Blood",
     "viewBloodRequests": "View Blood Requests",
     "roleSwitcher": "Viewing as",
-    "openCommunity": "Community: share experiences"
+    "openCommunity": "Community: share experiences",
+    "openDirectory": "Find treatment centres & services"
   },
   "onboarding": {
     "title": "Tell us about you",
@@ -300,7 +305,9 @@
       "community_comment_added": "Someone commented on your community post",
       "community_content_moderated": "A moderator reviewed your community content",
       "community_content_auto_hidden": "Community content was hidden after reports and needs review",
-      "community_report_urgent": "Community content was reported for selling blood"
+      "community_report_urgent": "Community content was reported for selling blood",
+      "organization_reverification_due": "An organization in the directory is due for re-verification",
+      "organization_marked_stale": "An organization was hidden because its verification is overdue"
     }
   },
   "notificationPreferences": {
@@ -376,7 +383,13 @@
     "already_reported": "You've already reported this.",
     "invalid_report": "Details can be up to 500 characters.",
     "invalid_target": "This action isn't possible.",
-    "invalid_action": "Unknown moderation action."
+    "invalid_action": "Unknown moderation action.",
+    "organization_not_verified": "This organization is not verified.",
+    "invalid_organization": "Please check the organization details.",
+    "verification_method_required": "Choose how you verified it.",
+    "role_not_admin_managed": "This role is chosen by the user, not by admins.",
+    "cannot_remove_own_admin": "You can't remove your own admin role.",
+    "invalid_setting_value": "Enter a whole number from 1 to 10000."
   },
   "emergency": {
     "badge": "Emergency",
@@ -534,5 +547,115 @@
     "restore": "Keep / restore",
     "hide": "Hide",
     "remove": "Remove"
+  },
+  "directory": {
+    "title": "Verified directory",
+    "types": {
+      "treatment_centre": "Thalassemia treatment centre",
+      "hospital": "Hospital",
+      "blood_bank": "Blood bank",
+      "diagnostic_centre": "Diagnostic centre",
+      "genetic_counselling": "Genetic counselling",
+      "support_org": "Support organization"
+    },
+    "lastVerified": "Last verified {{date}}",
+    "disclaimer": "Only entries checked by our team are listed, with the date they were last verified. Details can change: please call before you visit. A listing is not a recommendation.",
+    "detailDisclaimer": "Please confirm services, hours and blood availability directly with the organization. This app does not arrange treatment or blood.",
+    "allTypes": "All types",
+    "district": "District",
+    "allDistricts": "All districts",
+    "emptyTitle": "No verified entries yet",
+    "emptyDescription": "Entries appear here after our team has verified them.",
+    "services": "Services",
+    "openingHours": "Opening hours",
+    "call": "Call",
+    "website": "Website",
+    "openMap": "Open in maps",
+    "pickHint": "Link this verified entry to the patient. New blood requests will use it; the treating centre text stays as it is.",
+    "useAsTreatingCentre": "Use as treating centre",
+    "patientCentreTitle": "Verified treating centre (optional)",
+    "patientCentreNone": "Not linked",
+    "patientCentreHint": "Link a verified centre from the directory. If yours isn't listed, the treating centre text below is enough.",
+    "chooseCentre": "Choose from directory",
+    "changeCentre": "Change",
+    "removeCentre": "Remove link"
+  },
+  "admin": {
+    "title": "Admin",
+    "users": "Users & roles",
+    "organizations": "Organizations & verification",
+    "organization": "Organization",
+    "settings": "App settings",
+    "reports": "Reports queue",
+    "organizationsPending_one": "{{count}} waiting for verification",
+    "organizationsPending_other": "{{count}} waiting for verification",
+    "openReports_one": "{{count}} open report",
+    "openReports_other": "{{count}} open reports",
+    "requestsOverview": "Requests overview",
+    "openEmergencies": "Open emergency requests",
+    "created7": "Requests created, last 7 days",
+    "created30": "Requests created, last 30 days",
+    "fulfilled30": "Requests fulfilled, last 30 days",
+    "donations30": "Confirmed donations, last 30 days",
+    "byStatus": "All requests by status",
+    "searchUsers": "Search by name or email",
+    "grantRole": "Give {{role}} role",
+    "removeRole": "Remove {{role}} role",
+    "roleConfirm": "Change roles for {{name}}? This is recorded in the audit log.",
+    "settingsHint": "Product rules, not medical rules. Values are whole numbers from 1 to 10000. Every change is recorded in the audit log.",
+    "settingValue": "Value",
+    "settingSaved": "Saved.",
+    "saved": "Saved.",
+    "verificationStatus": {
+      "pending": "Waiting for verification",
+      "verified": "Verified",
+      "stale": "Re-verification overdue",
+      "rejected": "Rejected"
+    },
+    "organizationsHint": "Add only real organizations you have checked. Users see an entry only after it is verified.",
+    "addOrganization": "Add organization",
+    "noOrganizations": "No organizations yet.",
+    "newOrganizationHint": "Save the details first, then record how you verified them.",
+    "orgFields": {
+      "type": "Type",
+      "district": "District",
+      "name": "Name (English)",
+      "nameBn": "Name (Bangla, optional)",
+      "address": "Address",
+      "phone": "Phone (e.g. +8801XXXXXXXXX)",
+      "website": "Website (https://…)",
+      "services": "Services",
+      "openingHours": "Opening hours",
+      "latitude": "Latitude (optional)",
+      "longitude": "Longitude (optional)"
+    },
+    "orgFieldErrors": {
+      "name": "Enter a name (up to 200 characters).",
+      "nameBn": "Up to 200 characters.",
+      "address": "Up to 300 characters.",
+      "phone": "Use international format, e.g. +8801XXXXXXXXX.",
+      "website": "Start with http:// or https://.",
+      "services": "Up to 1000 characters.",
+      "openingHours": "Up to 300 characters.",
+      "latitude": "Enter a number from -90 to 90, together with longitude.",
+      "longitude": "Enter a number from -180 to 180, together with latitude."
+    },
+    "verificationTitle": "Verification",
+    "currentStatus": "Status: {{status}}",
+    "verificationHint": "Check the details yourself (e.g. call the organization or check its official website) before marking it verified. Verified entries must be re-checked every year.",
+    "setStatus": {
+      "verified": "I checked it: mark verified",
+      "pending": "Needs checking",
+      "rejected": "Reject (not shown)"
+    },
+    "methodLabel": "How did you verify it?",
+    "verificationMethod": {
+      "phone_call": "Phone call",
+      "official_website": "Official website",
+      "in_person": "In person",
+      "official_document": "Official document"
+    },
+    "verificationNote": "Note (optional)",
+    "recordVerification": "Record"
   }
 }

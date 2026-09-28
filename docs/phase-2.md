@@ -126,8 +126,36 @@ App
 
 ## 2d — Verified organization directory + admin basics
 §18, §23.
-- [ ] `organizations` (type: treatment_centre, hospital, blood_bank, diagnostic_centre, genetic_counselling, support_org), address, district, map coordinates (optional), phone, website, services, hours, `verification_status`, `last_verified_at`, `verified_by`, `verification_method`.
-- [ ] **No seeded real organizations.** Admins add them after verification. Only `verified` ones are shown to users, with the "last verified" date.
-- [ ] Re-verification reminder (Q14) via a pg_cron job that flags stale entries.
-- [ ] Link requests/patients to an organization optionally (keep free text as a fallback).
-- [ ] Admin screens (`/admin`, admin role only): users & roles, requests overview, reports queue, organizations & verification, app_settings editor.
+- [x] `organizations` (type: treatment_centre, hospital, blood_bank, diagnostic_centre, genetic_counselling, support_org), address, district, map coordinates (optional), phone, website, services, hours, `verification_status`, `last_verified_at`, `verified_by`, `verification_method`.
+- [x] **No seeded real organizations.** Admins add them after verification. Only `verified` ones are shown to users, with the "last verified" date.
+- [x] Re-verification reminder (Q14) via a pg_cron job that flags stale entries.
+- [x] Link requests/patients to an organization optionally (keep free text as a fallback).
+- [x] Admin screens (`/admin`, admin role only): users & roles, requests overview, reports queue, organizations & verification, app_settings editor.
+
+### 2d — concrete plan
+Decisions: OPEN_QUESTIONS Q14 (verification), Q28 (stale entries), Q29 (linking), Q30 (overview), Q31 (roles). State machine: ARCHITECTURE §7.5.
+
+Schema / settings (migration `20260928120000_phase2d_organizations_admin.sql`)
+- [x] Enums `organization_type`, `organization_verification_status` (pending/verified/stale/rejected), `organization_verification_method`.
+- [x] `organizations` (checks: E.164 phone, http(s) website, both-or-no coordinates, verified ⇒ who/how/when) and `organization_verifications` (history). RLS: users read verified entries and only the directory columns; admins read all.
+- [x] `patients.treating_organization_id`, `blood_requests.organization_id` (optional; new requests inherit the patient's verified centre via trigger).
+- [x] Settings `organization_reverify_months` (12), `organization_reverify_reminder_days` (30). `app_settings` changes are now audited.
+- [x] pg_cron `process-organization-reverification` (daily): reminder once, then `stale` + admin notification.
+
+RPCs
+- [x] `set_patient_organization`, `set_request_organization` (managers; verified entries only, `organization_not_verified`).
+- [x] Admin: `admin_list_organizations`, `admin_upsert_organization` (`invalid_organization`), `admin_set_organization_verification` (`verification_method_required`; history row each time).
+- [x] Admin: `admin_search_users` (name/email, roles), `admin_set_user_role` (organization/admin only: `role_not_admin_managed`, `cannot_remove_own_admin`), `admin_request_overview` (aggregates only), `admin_update_setting` (existing keys, whole numbers 1–10000: `invalid_setting_value`).
+
+Tests (`supabase/tests/97_organizations_admin.test.sql`, 48 checks; allow-list in `80_…`)
+- [x] Nothing seeded; create/edit/validation allowed for admins, denied for others; direct inserts denied.
+- [x] Pending/stale hidden from users; verification columns and history hidden from users; verification needs a method; history recorded.
+- [x] Links: pending entry rejected, stranger denied, manager allowed, request inherits, clear works.
+- [x] Job: reminder once inside the window, stale after it, scheduled in cron.
+- [x] Users & roles, overview and settings: allowed for admins, denied for others; own admin role protected; settings validated and audited.
+
+App
+- [x] Directory (`/directory`, from Home): type chips, district filter, verified entries with "last verified" date and disclaimer; detail with call / website / map.
+- [x] Patient screen: optional "verified treating centre" card (choose from the directory / remove link); free text unchanged.
+- [x] Admin (`/admin`, Profile → Admin, admin role only): overview counts, users & roles, organizations list + edit form + verification recording, reports queue (2c moderation), settings editor.
+- [x] New notification types (`organization_reverification_due`, `organization_marked_stale`) routed to the admin organization screen, translated, push titles.

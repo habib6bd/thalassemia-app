@@ -76,6 +76,13 @@ export default function HomeScreen() {
         </View>
 
         <PrimaryButton
+          label={t("home.openDirectory")}
+          mode="outlined"
+          icon="hospital-building"
+          onPress={() => router.push("/(tabs)/directory")}
+        />
+
+        <PrimaryButton
           label={t("home.openCommunity")}
           mode="outlined"
           icon="forum"

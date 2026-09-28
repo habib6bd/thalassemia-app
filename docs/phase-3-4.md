@@ -80,7 +80,17 @@ Plan (migration `20260928160000_phase4c_nearby_and_reminders.sql`; decisions Q42
 - [x] Tests `99_nearby_and_reminders.test.sql` (23): location privacy/rounding/validation, gates, radius cap, bands without coordinates, missing location, blocks, cross-division nearby invite, stop sharing, reminders once / opt-out / covered-date suppression, cron.
 - [x] App: donor profile "Nearby search (optional)" (foreground `expo-location`, low accuracy, share / update / stop) and "Check-in reminders" switch; request search "By district | Nearby" with 10/25/50 km and distance bands; new notifications routed, translated, push titles.
 
-## 4d — Polish & release (next)
+## 4d — Polish & release (done)
 
-- [ ] Web/PWA polish, iOS build via EAS cloud, Maestro e2e, security review, load test for concurrent requests.
-- [ ] Final deliverables (§32): produce each document when its phase is done, not all at the end.
+- [x] Web/PWA polish, iOS build via EAS cloud, Maestro e2e, security review, load test for concurrent requests. _(iOS build and Maestro are configured but not run: no Apple account / emulator in the build environment.)_
+- [x] Final deliverables (§32): `docs/DELIVERABLES.md` indexes all 14.
+
+Plan and results (details in `docs/TESTING_REPORT.md`, `docs/SECURITY_PRIVACY.md`)
+
+- [x] Security review: catalog audit + reproduction; fixed SR-1 (writable definer views bypassed RLS, migration `20260928170000`) and SR-2 (constant-time webhook secret); invariant tests `05_security_invariants` (8).
+- [x] Load test `scripts/load/concurrency.sh` (runs in CI): accepts, confirmations, duplicate requests, network limit; fixed LT-1 (double commitment race, migration `20260928170100`, test `99_z_regressions`).
+- [x] Web: added `react-dom` / `react-native-web` (web build was impossible), `public/index.html` (bn, noindex, no-referrer, manifest), `public/manifest.json` + icons; fixed language rehydration.
+- [x] Accessibility: `TextField` gives every input an accessible name (was missing on web).
+- [x] iOS: EAS profiles, export-compliance flag, workflow platform choice.
+- [x] e2e: `.maestro/` flows (Android) and `npm run e2e:web` (9 journeys on web + local stack, passing).
+- [x] Docs: API (generated), roles, business rules, environment, testing report, security/privacy, admin guide, deployment, known limitations.

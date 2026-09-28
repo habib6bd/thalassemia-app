@@ -56,6 +56,7 @@ mention it in the PR description. Do not silently invent business rules.
 | Q43 | How precise is a donor's shared location, and how long is it kept? | Rounded to 2 decimals (~1 km), taken once in the foreground at the donor's request, readable only by the donor, kept until they stop sharing or delete their account. **Proposal:** ask donors to refresh it after 6 months. |
 | Q44 | When do donors get availability check-ins? | Once `donation_reminder_days` (120, a configurable product setting, not a medical rule) after their last recorded donation, and once when their own "available from" date arrives while marked unavailable. Donors can turn this off. The text never says they are eligible. |
 | Q45 | Transfusion reminders for families? | All managers get one reminder `transfusion_reminder_days` (3) before the patient's `next_transfusion_date`, unless a live request is already due within the 2 days before that date. |
+| Q46 | Which language does the app start in? The product is Bangla-first, but the code follows the device language. | Device language if it is Bangla or English, otherwise Bangla; a user's choice on Home is saved and re-applied (fixed in 4d). **Proposal:** always start in Bangla and let users switch, if the team prefers strict Bangla-first. |
 
 ## Decided
 

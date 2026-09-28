@@ -433,6 +433,10 @@ notify_emergency_donors)`. Search and invite also require the request to be at t
 (`search_not_available_yet`).
 
 Every RPC re-checks authorization; RLS is defence in depth, not the only check.
+Views (`public_profiles`, `patient_cards_for_donor`) are definer-rights and therefore
+**read-only** for clients (Phase 4d SR-1): a write through them would bypass RLS.
+A donor's move into an active commitment is serialised by the
+`enforce_single_active_commitment` trigger (Phase 4d LT-1, Q6).
 Test every row of this matrix with pgTAP (allowed **and** denied cases) — this is the IDOR/BOLA protection.
 
 ## 9. Privacy model
@@ -511,8 +515,11 @@ src/stores/              Zustand: session, activeRole, language
 - **pgTAP** (`supabase/tests/*.test.sql`, `supabase test db`): RLS matrix (allow + deny), every state transition (valid + invalid), limits, duplicates, concurrency-sensitive rules, cancel/expire cascades, deleted/blocked users. Highest priority.
 - **Jest (jest-expo) + React Native Testing Library**: zod schemas, error mapping, hooks, key screens.
 - **Edge Functions**: `deno test`.
-- CI runs lint, typecheck, jest, and `supabase start && supabase test db` (Docker available on GitHub runners).
-- Later: Maestro e2e flows on Android.
+- CI runs lint, typecheck, jest, `supabase start && supabase test db`, the concurrency test, and `deno test`.
+- Security invariants (`05_security_invariants`): RLS everywhere, pinned `search_path`, no `anon` access, read-only views, writable-table allow-list.
+- Concurrency (`scripts/load/concurrency.sh`, in CI): races on accept / confirm / create / join.
+- e2e: Maestro flows on Android (`.maestro/`), web smoke journeys (`npm run e2e:web`).
+- Results: `docs/TESTING_REPORT.md`.
 
 ## 14. Health, privacy, security & legal considerations
 

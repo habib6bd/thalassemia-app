@@ -62,6 +62,19 @@ product settings in `app_settings` (`community_auto_hide_report_threshold`,
 After pulling new migrations, apply them to the hosted project with
 `npx supabase db push` (linked project) before running the app against it.
 
+## Documentation
+
+All final deliverables (API reference, roles, business rules, environment,
+testing report, security/privacy checklist, admin guide, deployment guide,
+known limitations) are indexed in `docs/DELIVERABLES.md`.
+
+## Web build
+
+```bash
+EXPO_PUBLIC_SUPABASE_URL=… EXPO_PUBLIC_SUPABASE_ANON_KEY=… npx expo export --platform web
+npm run e2e:web   # smoke journeys against a served build (see docs/TESTING_REPORT.md)
+```
+
 ## Checks
 
 ```bash
@@ -161,7 +174,7 @@ a new GitHub Release and to the workflow run as an artifact.
 | 4a Analytics                                           | Done                                         |
 | 4b Organization portal                                 | Done                                         |
 | 4c Search & reminders                                  | Done                                         |
-| 4d Polish & release                                    | **Next**                                     |
+| 4d Polish & release                                    | Done (iOS build and Maestro not run yet)     |
 
 Queries for the product owner. Development continues with the default shown
 here; full details are in `docs/OPEN_QUESTIONS.md`.
@@ -219,6 +232,10 @@ here; full details are in `docs/OPEN_QUESTIONS.md`.
   from" date arrives; donors can switch them off.
 - **Q45 — Transfusion reminders** go to all guardians 3 days before the
   next transfusion date unless a request already covers it.
+- **Q46 — Starting language.** The app starts in the phone's language
+  (Bangla or English). Should it always start in Bangla?
+- **Before launch**: see the ⚠️ items in `docs/SECURITY_PRIVACY.md` and
+  `docs/KNOWN_LIMITATIONS.md`.
 - **Directory content.** No organizations are included. An admin must add
   and verify each real entry (call it or check its official website)
   before users see it.

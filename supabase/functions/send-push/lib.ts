@@ -59,3 +59,19 @@ export function findUnregisteredTokens(tokens: string[], tickets: ExpoPushTicket
   });
   return unregistered;
 }
+
+/**
+ * Constant-time comparison of the webhook secret (security review SR-2), so
+ * response timing doesn't reveal how many leading characters matched.
+ */
+export function secretsMatch(expected: string | undefined, provided: string | null): boolean {
+  if (!expected || provided === null) return false;
+  const encoder = new TextEncoder();
+  const a = encoder.encode(expected);
+  const b = encoder.encode(provided);
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a[i] ^ (b[i % Math.max(b.length, 1)] ?? 0);
+  }
+  return diff === 0;
+}

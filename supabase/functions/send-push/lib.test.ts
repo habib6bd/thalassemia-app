@@ -4,6 +4,7 @@ import {
   buildExpoMessages,
   chunkMessages,
   findUnregisteredTokens,
+  secretsMatch,
   shouldSendPush,
 } from "./lib.ts";
 import { getPushText, normalizeLanguage } from "./messages.ts";
@@ -132,4 +133,15 @@ Deno.test("getPushText has specific titles for community and organization notifi
     assertEquals(getPushText(type, "en").title === "New notification", false);
     assertEquals(getPushText(type, "bn").title === "নতুন বিজ্ঞপ্তি", false);
   }
+});
+
+Deno.test("secretsMatch accepts only the exact secret", () => {
+  assertEquals(secretsMatch("s3cret", "s3cret"), true);
+  assertEquals(secretsMatch("s3cret", "s3cre"), false);
+  assertEquals(secretsMatch("s3cret", "s3cret!"), false);
+  assertEquals(secretsMatch("s3cret", "S3cret"), false);
+  assertEquals(secretsMatch("s3cret", ""), false);
+  assertEquals(secretsMatch("s3cret", null), false);
+  assertEquals(secretsMatch(undefined, "anything"), false);
+  assertEquals(secretsMatch("", ""), false);
 });

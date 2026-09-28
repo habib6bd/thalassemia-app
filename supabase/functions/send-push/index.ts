@@ -4,7 +4,13 @@
 // drops tokens Expo reports as no longer registered.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-import { buildExpoMessages, chunkMessages, findUnregisteredTokens, shouldSendPush } from "./lib.ts";
+import {
+  buildExpoMessages,
+  chunkMessages,
+  findUnregisteredTokens,
+  secretsMatch,
+  shouldSendPush,
+} from "./lib.ts";
 import type { ExpoPushTicket } from "./lib.ts";
 import { getPushText } from "./messages.ts";
 
@@ -28,7 +34,7 @@ interface WebhookPayload {
 Deno.serve(async (req) => {
   const expectedSecret = Deno.env.get("PUSH_WEBHOOK_SECRET");
   const providedSecret = req.headers.get("x-webhook-secret");
-  if (!expectedSecret || providedSecret !== expectedSecret) {
+  if (!secretsMatch(expectedSecret, providedSecret)) {
     return new Response("unauthorized", { status: 401 });
   }
 

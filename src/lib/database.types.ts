@@ -192,6 +192,110 @@ export type Database = {
         };
         Relationships: [];
       };
+      awareness_content: {
+        Row: {
+          body_bn: string;
+          body_en: string;
+          category: Database["public"]["Enums"]["awareness_category"];
+          created_at: string;
+          drafted_by: string;
+          id: string;
+          kind: Database["public"]["Enums"]["content_kind"];
+          last_edited_by: string | null;
+          next_review_due: string | null;
+          published_at: string | null;
+          review_note: string | null;
+          review_reminded_at: string | null;
+          review_status: Database["public"]["Enums"]["content_review_status"];
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          slug: string;
+          sort_order: number;
+          summary_bn: string | null;
+          summary_en: string | null;
+          title_bn: string;
+          title_en: string;
+          updated_at: string;
+        };
+        Insert: {
+          body_bn: string;
+          body_en: string;
+          category: Database["public"]["Enums"]["awareness_category"];
+          created_at?: string;
+          drafted_by?: string;
+          id?: string;
+          kind?: Database["public"]["Enums"]["content_kind"];
+          last_edited_by?: string | null;
+          next_review_due?: string | null;
+          published_at?: string | null;
+          review_note?: string | null;
+          review_reminded_at?: string | null;
+          review_status?: Database["public"]["Enums"]["content_review_status"];
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          slug: string;
+          sort_order?: number;
+          summary_bn?: string | null;
+          summary_en?: string | null;
+          title_bn: string;
+          title_en: string;
+          updated_at?: string;
+        };
+        Update: {
+          body_bn?: string;
+          body_en?: string;
+          category?: Database["public"]["Enums"]["awareness_category"];
+          created_at?: string;
+          drafted_by?: string;
+          id?: string;
+          kind?: Database["public"]["Enums"]["content_kind"];
+          last_edited_by?: string | null;
+          next_review_due?: string | null;
+          published_at?: string | null;
+          review_note?: string | null;
+          review_reminded_at?: string | null;
+          review_status?: Database["public"]["Enums"]["content_review_status"];
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          slug?: string;
+          sort_order?: number;
+          summary_bn?: string | null;
+          summary_en?: string | null;
+          title_bn?: string;
+          title_en?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "awareness_content_last_edited_by_fkey";
+            columns: ["last_edited_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "awareness_content_last_edited_by_fkey";
+            columns: ["last_edited_by"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "awareness_content_reviewed_by_fkey";
+            columns: ["reviewed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "awareness_content_reviewed_by_fkey";
+            columns: ["reviewed_by"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
+      };
       blood_requests: {
         Row: {
           area: string | null;
@@ -489,6 +593,84 @@ export type Database = {
           {
             foreignKeyName: "community_posts_moderated_by_fkey";
             columns: ["moderated_by"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
+      };
+      content_source_links: {
+        Row: {
+          content_id: string;
+          source_id: string;
+        };
+        Insert: {
+          content_id: string;
+          source_id: string;
+        };
+        Update: {
+          content_id?: string;
+          source_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "content_source_links_content_id_fkey";
+            columns: ["content_id"];
+            isOneToOne: false;
+            referencedRelation: "awareness_content";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_source_links_source_id_fkey";
+            columns: ["source_id"];
+            isOneToOne: false;
+            referencedRelation: "content_sources";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      content_sources: {
+        Row: {
+          accessed_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          organization: string | null;
+          title: string;
+          updated_at: string;
+          url: string;
+        };
+        Insert: {
+          accessed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          organization?: string | null;
+          title: string;
+          updated_at?: string;
+          url: string;
+        };
+        Update: {
+          accessed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          organization?: string | null;
+          title?: string;
+          updated_at?: string;
+          url?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "content_sources_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "content_sources_created_by_fkey";
+            columns: ["created_by"];
             isOneToOne: false;
             referencedRelation: "public_profiles";
             referencedColumns: ["user_id"];
@@ -1654,6 +1836,25 @@ export type Database = {
         Args: { role: Database["public"]["Enums"]["app_role"] };
         Returns: undefined;
       };
+      admin_get_content: { Args: { content_id: string }; Returns: Json };
+      admin_list_content: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          category: Database["public"]["Enums"]["awareness_category"];
+          drafted_by: string;
+          id: string;
+          kind: Database["public"]["Enums"]["content_kind"];
+          next_review_due: string;
+          published_at: string;
+          review_status: Database["public"]["Enums"]["content_review_status"];
+          reviewed_at: string;
+          slug: string;
+          source_count: number;
+          title_bn: string;
+          title_en: string;
+          updated_at: string;
+        }[];
+      };
       admin_list_organizations: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -1703,6 +1904,10 @@ export type Database = {
           user_id: string;
         }[];
       };
+      admin_set_content_sources: {
+        Args: { content_id: string; source_ids: string[] };
+        Returns: undefined;
+      };
       admin_set_organization_verification: {
         Args: {
           method?: Database["public"]["Enums"]["organization_verification_method"];
@@ -1750,6 +1955,43 @@ export type Database = {
         };
         Returns: undefined;
       };
+      admin_transition_content: {
+        Args: {
+          content_id: string;
+          note?: string;
+          to_status: Database["public"]["Enums"]["content_review_status"];
+        };
+        Returns: {
+          body_bn: string;
+          body_en: string;
+          category: Database["public"]["Enums"]["awareness_category"];
+          created_at: string;
+          drafted_by: string;
+          id: string;
+          kind: Database["public"]["Enums"]["content_kind"];
+          last_edited_by: string | null;
+          next_review_due: string | null;
+          published_at: string | null;
+          review_note: string | null;
+          review_reminded_at: string | null;
+          review_status: Database["public"]["Enums"]["content_review_status"];
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          slug: string;
+          sort_order: number;
+          summary_bn: string | null;
+          summary_en: string | null;
+          title_bn: string;
+          title_en: string;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "awareness_content";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       admin_update_setting: {
         Args: { key: string; value: Json };
         Returns: {
@@ -1762,6 +2004,76 @@ export type Database = {
         SetofOptions: {
           from: "*";
           to: "app_settings";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      admin_upsert_content: {
+        Args: {
+          body_bn: string;
+          body_en: string;
+          category: Database["public"]["Enums"]["awareness_category"];
+          content_id: string;
+          kind: Database["public"]["Enums"]["content_kind"];
+          slug: string;
+          sort_order?: number;
+          summary_bn?: string;
+          summary_en?: string;
+          title_bn: string;
+          title_en: string;
+        };
+        Returns: {
+          body_bn: string;
+          body_en: string;
+          category: Database["public"]["Enums"]["awareness_category"];
+          created_at: string;
+          drafted_by: string;
+          id: string;
+          kind: Database["public"]["Enums"]["content_kind"];
+          last_edited_by: string | null;
+          next_review_due: string | null;
+          published_at: string | null;
+          review_note: string | null;
+          review_reminded_at: string | null;
+          review_status: Database["public"]["Enums"]["content_review_status"];
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          slug: string;
+          sort_order: number;
+          summary_bn: string | null;
+          summary_en: string | null;
+          title_bn: string;
+          title_en: string;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "awareness_content";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      admin_upsert_content_source: {
+        Args: {
+          accessed_at?: string;
+          organization?: string;
+          source_id: string;
+          title: string;
+          url: string;
+        };
+        Returns: {
+          accessed_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          organization: string | null;
+          title: string;
+          updated_at: string;
+          url: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "content_sources";
           isOneToOne: true;
           isSetofReturn: false;
         };
@@ -2382,6 +2694,10 @@ export type Database = {
           target_id: string;
           target_type: string;
         };
+        Returns: undefined;
+      };
+      process_content_review_due: {
+        Args: Record<PropertyKey, never>;
         Returns: undefined;
       };
       process_organization_reverification: {
@@ -3007,6 +3323,16 @@ export type Database = {
     };
     Enums: {
       app_role: "patient" | "guardian" | "donor" | "organization" | "admin";
+      awareness_category:
+        | "what_is_thalassemia"
+        | "what_is_carrier"
+        | "why_screening"
+        | "both_carriers"
+        | "genetic_counselling"
+        | "screening"
+        | "family_awareness"
+        | "living_with_thalassemia"
+        | "medicines";
       blood_group:
         | "A_POS"
         | "A_NEG"
@@ -3036,6 +3362,9 @@ export type Database = {
         | "removed";
       connection_tier: "regular" | "backup";
       contact_method: "phone" | "whatsapp" | "in_app";
+      content_kind: "article" | "faq" | "medicine";
+      content_review_status:
+        "draft" | "in_review" | "approved" | "published" | "retired";
       donation_verification: "guardian_confirmed" | "org_verified";
       donor_availability: "available" | "unavailable" | "paused";
       manager_relation: "self" | "guardian";
@@ -3206,6 +3535,17 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["patient", "guardian", "donor", "organization", "admin"],
+      awareness_category: [
+        "what_is_thalassemia",
+        "what_is_carrier",
+        "why_screening",
+        "both_carriers",
+        "genetic_counselling",
+        "screening",
+        "family_awareness",
+        "living_with_thalassemia",
+        "medicines",
+      ],
       blood_group: [
         "A_POS",
         "A_NEG",
@@ -3238,6 +3578,14 @@ export const Constants = {
       ],
       connection_tier: ["regular", "backup"],
       contact_method: ["phone", "whatsapp", "in_app"],
+      content_kind: ["article", "faq", "medicine"],
+      content_review_status: [
+        "draft",
+        "in_review",
+        "approved",
+        "published",
+        "retired",
+      ],
       donation_verification: ["guardian_confirmed", "org_verified"],
       donor_availability: ["available", "unavailable", "paused"],
       manager_relation: ["self", "guardian"],

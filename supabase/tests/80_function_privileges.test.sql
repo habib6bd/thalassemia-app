@@ -65,7 +65,10 @@ select set_eq(
     'set_patient_organization', 'set_request_organization', 'admin_list_organizations',
     'admin_upsert_organization', 'admin_set_organization_verification',
     'admin_search_users', 'admin_set_user_role', 'admin_request_overview',
-    'admin_update_setting'
+    'admin_update_setting',
+    -- phase 3: awareness CMS
+    'admin_upsert_content_source', 'admin_list_content', 'admin_get_content',
+    'admin_upsert_content', 'admin_set_content_sources', 'admin_transition_content'
   ],
   'authenticated can execute exactly the client RPCs and RLS/view helpers'
 );

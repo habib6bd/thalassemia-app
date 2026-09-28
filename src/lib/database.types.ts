@@ -839,9 +839,40 @@ export type Database = {
           },
         ];
       };
+      donor_locations: {
+        Row: {
+          latitude: number;
+          longitude: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          latitude: number;
+          longitude: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          latitude?: number;
+          longitude?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "donor_locations_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "donor_profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
+      };
       donor_profiles: {
         Row: {
           availability: Database["public"]["Enums"]["donor_availability"];
+          availability_reminded_at: string | null;
+          availability_reminders: boolean;
           available_from: string | null;
           blood_group: Database["public"]["Enums"]["blood_group"];
           created_at: string;
@@ -853,6 +884,8 @@ export type Database = {
         };
         Insert: {
           availability?: Database["public"]["Enums"]["donor_availability"];
+          availability_reminded_at?: string | null;
+          availability_reminders?: boolean;
           available_from?: string | null;
           blood_group: Database["public"]["Enums"]["blood_group"];
           created_at?: string;
@@ -864,6 +897,8 @@ export type Database = {
         };
         Update: {
           availability?: Database["public"]["Enums"]["donor_availability"];
+          availability_reminded_at?: string | null;
+          availability_reminders?: boolean;
           available_from?: string | null;
           blood_group?: Database["public"]["Enums"]["blood_group"];
           created_at?: string;
@@ -1507,6 +1542,7 @@ export type Database = {
           show_thalassemia_type: boolean;
           show_treating_centre: boolean;
           thalassemia_type: string | null;
+          transfusion_reminded_for: string | null;
           treating_centre: string | null;
           treating_organization_id: string | null;
           updated_at: string;
@@ -1527,6 +1563,7 @@ export type Database = {
           show_thalassemia_type?: boolean;
           show_treating_centre?: boolean;
           thalassemia_type?: string | null;
+          transfusion_reminded_for?: string | null;
           treating_centre?: string | null;
           treating_organization_id?: string | null;
           updated_at?: string;
@@ -1547,6 +1584,7 @@ export type Database = {
           show_thalassemia_type?: boolean;
           show_treating_centre?: boolean;
           thalassemia_type?: string | null;
+          transfusion_reminded_for?: string | null;
           treating_centre?: string | null;
           treating_organization_id?: string | null;
           updated_at?: string;
@@ -2487,6 +2525,7 @@ export type Database = {
           show_thalassemia_type: boolean;
           show_treating_centre: boolean;
           thalassemia_type: string | null;
+          transfusion_reminded_for: string | null;
           treating_centre: string | null;
           treating_organization_id: string | null;
           updated_at: string;
@@ -2506,6 +2545,10 @@ export type Database = {
       delete_my_account: {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
+      };
+      distance_km: {
+        Args: { lat1: number; lat2: number; lng1: number; lng2: number };
+        Returns: number;
       };
       enqueue_notification: {
         Args: {
@@ -2857,6 +2900,10 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
       };
+      process_daily_reminders: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
       process_organization_reverification: {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
@@ -3028,6 +3075,13 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      request_donor_distance_km: {
+        Args: {
+          p_donor_id: string;
+          p_request: Database["public"]["Tables"]["blood_requests"]["Row"];
+        };
+        Returns: number;
+      };
       respond_connection: {
         Args: {
           accept: boolean;
@@ -3116,6 +3170,7 @@ export type Database = {
           show_thalassemia_type: boolean;
           show_treating_centre: boolean;
           thalassemia_type: string | null;
+          transfusion_reminded_for: string | null;
           treating_centre: string | null;
           treating_organization_id: string | null;
           updated_at: string;
@@ -3157,6 +3212,17 @@ export type Database = {
           activity: string;
           area: string;
           display_name: string;
+          district_id: number;
+          donor_id: string;
+        }[];
+      };
+      search_nearby_donors: {
+        Args: { radius_km?: number; request_id: string };
+        Returns: {
+          activity: string;
+          area: string;
+          display_name: string;
+          distance_band: string;
           district_id: number;
           donor_id: string;
         }[];
@@ -3232,6 +3298,10 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      set_donor_location: {
+        Args: { latitude: number; longitude: number };
+        Returns: undefined;
+      };
       set_patient_organization: {
         Args: { organization_id: string; patient_id: string };
         Returns: {
@@ -3250,6 +3320,7 @@ export type Database = {
           show_thalassemia_type: boolean;
           show_treating_centre: boolean;
           thalassemia_type: string | null;
+          transfusion_reminded_for: string | null;
           treating_centre: string | null;
           treating_organization_id: string | null;
           updated_at: string;
@@ -3375,6 +3446,7 @@ export type Database = {
           show_thalassemia_type: boolean;
           show_treating_centre: boolean;
           thalassemia_type: string | null;
+          transfusion_reminded_for: string | null;
           treating_centre: string | null;
           treating_organization_id: string | null;
           updated_at: string;
@@ -3396,6 +3468,8 @@ export type Database = {
         };
         Returns: {
           availability: Database["public"]["Enums"]["donor_availability"];
+          availability_reminded_at: string | null;
+          availability_reminders: boolean;
           available_from: string | null;
           blood_group: Database["public"]["Enums"]["blood_group"];
           created_at: string;

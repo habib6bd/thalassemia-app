@@ -74,7 +74,9 @@ select set_eq(
     -- phase 4b: organization portal
     'is_active_organization_member', 'admin_set_organization_member',
     'admin_list_organization_members', 'org_my_organizations', 'org_list_requests',
-    'org_list_request_responses', 'org_confirm_donation'
+    'org_list_request_responses', 'org_confirm_donation',
+    -- phase 4c: nearby search
+    'set_donor_location', 'search_nearby_donors'
   ],
   'authenticated can execute exactly the client RPCs and RLS/view helpers'
 );

@@ -13,6 +13,8 @@ const config: ExpoConfig = {
   ios: {
     bundleIdentifier: "com.habib6bd.thalassemiaapp",
     supportsTablet: true,
+    // Only standard HTTPS/TLS is used, so no export-compliance paperwork.
+    config: { usesNonExemptEncryption: false },
   },
   android: {
     package: "com.habib6bd.thalassemiaapp",
@@ -26,8 +28,14 @@ const config: ExpoConfig = {
   },
   web: {
     favicon: "./assets/favicon.png",
-    // No public directory / SEO surface yet — keep it out of search indexes.
+    // SPA; public/index.html adds noindex + PWA metadata, public/robots.txt
+    // disallows crawling (ARCHITECTURE §9).
     output: "single",
+    name: "থ্যালাসেমিয়া সহায়তা",
+    shortName: "থ্যালাসেমিয়া",
+    lang: "bn",
+    themeColor: "#B3261E",
+    backgroundColor: "#ffffff",
   },
   plugins: [
     "expo-router",

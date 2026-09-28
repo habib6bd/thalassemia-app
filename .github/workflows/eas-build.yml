@@ -1,13 +1,45 @@
-name: EAS Build (Android APK)
+name: EAS Build
 
 # Manual trigger only (docs/OPEN_QUESTIONS.md Q10). Add an "on push to
 # release" trigger once that question is answered.
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "android = preview APK attached to a release; ios = cloud build (needs Apple credentials in EAS, docs/DEPLOYMENT.md)"
+        type: choice
+        options: [android, ios]
+        default: android
 
 jobs:
+  build-ios:
+    name: Build iOS (EAS cloud)
+    if: inputs.platform == 'ios'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      # Builds on Expo's macOS workers; the .ipa is downloaded from the EAS
+      # dashboard or submitted with `eas submit -p ios`.
+      - name: Build iOS with EAS
+        run: eas build --platform ios --profile preview --non-interactive --no-wait
+
   build:
     name: Build preview APK
+    if: inputs.platform != 'ios'
     runs-on: ubuntu-latest
     permissions:
       contents: write

@@ -31,7 +31,9 @@ type AppState = {
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
-      language: "bn",
+      // Starts as i18n's detected language (device, else Bangla) so the
+      // switcher and the UI agree before the user picks one.
+      language: i18n.language as SupportedLanguage,
       setLanguage: (language) => {
         void i18n.changeLanguage(language);
         set({ language });
@@ -55,6 +57,13 @@ export const useAppStore = create<AppState>()(
         language: state.language,
         activeRole: state.activeRole,
       }),
+      // Re-apply a saved language choice after a restart; i18n itself
+      // always starts from the device language.
+      onRehydrateStorage: () => (state) => {
+        if (state?.language && state.language !== i18n.language) {
+          void i18n.changeLanguage(state.language);
+        }
+      },
     },
   ),
 );

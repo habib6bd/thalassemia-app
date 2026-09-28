@@ -19,6 +19,10 @@ export default function RequestsLayout() {
         name="response/[id]"
         options={{ title: t("requests.detailTitle") }}
       />
+      <Stack.Screen
+        name="search/[id]"
+        options={{ title: t("requests.search.title") }}
+      />
     </Stack>
   );
 }

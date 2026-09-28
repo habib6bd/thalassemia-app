@@ -47,6 +47,11 @@ export function ConnectionCard({
 
   const isDonorSide = connection.donor_id === currentUserId;
   const isManager = !isDonorSide;
+  // §7.1: only the side that did not start the request may answer it; the
+  // side that started it may cancel it.
+  const isPending = connection.status === "requested";
+  const startedByMe =
+    (connection.initiated_by === "donor") === isDonorSide;
   const counterpartyName = isDonorSide
     ? partiesQuery.data?.patient_display_name
     : partiesQuery.data?.donor_display_name;
@@ -106,9 +111,7 @@ export function ConnectionCard({
 
         {error ? <ErrorText message={error} /> : null}
 
-        {connection.status === "requested" &&
-        connection.initiated_by === "donor" &&
-        isManager ? (
+        {isPending && !startedByMe && isManager ? (
           <View style={styles.actions}>
             <SegmentedButtons
               value={tier}
@@ -146,9 +149,38 @@ export function ConnectionCard({
           </View>
         ) : null}
 
-        {connection.status === "requested" &&
-        connection.initiated_by === "donor" &&
-        isDonorSide ? (
+        {isPending && !startedByMe && isDonorSide ? (
+          <View style={styles.actions}>
+            <Text variant="bodyMedium">{t("network.familyAsked")}</Text>
+            <View style={styles.buttonRow}>
+              <PrimaryButton
+                label={t("network.accept")}
+                loading={respondConnection.isPending}
+                onPress={() => {
+                  setError(null);
+                  respondConnection.mutate(
+                    { connectionId: connection.id, accept: true },
+                    { onError },
+                  );
+                }}
+              />
+              <PrimaryButton
+                label={t("network.decline")}
+                mode="outlined"
+                loading={respondConnection.isPending}
+                onPress={() => {
+                  setError(null);
+                  respondConnection.mutate(
+                    { connectionId: connection.id, accept: false },
+                    { onError },
+                  );
+                }}
+              />
+            </View>
+          </View>
+        ) : null}
+
+        {isPending && startedByMe ? (
           <PrimaryButton
             label={t("network.cancelRequest")}
             mode="outlined"

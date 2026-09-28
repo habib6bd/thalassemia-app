@@ -151,7 +151,9 @@
       "cancelled": "Cancelled",
       "paused": "Paused",
       "removed": "Removed"
-    }
+    },
+    "familyAsked": "This family asked you to join their donor network. You can say no; nobody else is told.",
+    "accept": "Accept"
   },
   "requests": {
     "title": "Blood requests",

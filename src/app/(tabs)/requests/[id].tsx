@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
@@ -14,7 +14,12 @@ import {
   useCancelBloodRequest,
   useRequest,
   useRequestResponses,
+  useWidenRequestSearch,
 } from "@/features/requests/api";
+import {
+  EmergencyBadge,
+  EmergencyNotice,
+} from "@/features/requests/components/EmergencyNotice";
 import { ResponseRow } from "@/features/requests/components/ResponseRow";
 import { requestStatusTone } from "@/features/requests/statusTone";
 import { bloodGroupLabels } from "@/lib/bloodGroups";
@@ -26,6 +31,8 @@ export default function RequestDetailScreen() {
   const requestQuery = useRequest(id);
   const responsesQuery = useRequestResponses(id);
   const cancelRequest = useCancelBloodRequest(id ?? "");
+  const widenSearch = useWidenRequestSearch(id ?? "");
+  const [widenError, setWidenError] = useState<string | null>(null);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
 
@@ -58,6 +65,15 @@ export default function RequestDetailScreen() {
     "responding",
     "partially_fulfilled",
   ].includes(request.status);
+  const isActive = ["open", "responding", "partially_fulfilled"].includes(
+    request.status,
+  );
+  const openSearch = () =>
+    router.push({
+      pathname: "/(tabs)/requests/search/[id]",
+      params: { id: request.id },
+    });
+
   const nameFor = (donorId: string) =>
     profilesQuery.data?.find((p) => p.user_id === donorId)?.display_name ??
     undefined;
@@ -72,6 +88,13 @@ export default function RequestDetailScreen() {
             tone={requestStatusTone(request.status)}
           />
         </View>
+
+        {request.is_emergency ? (
+          <>
+            <EmergencyBadge />
+            <EmergencyNotice />
+          </>
+        ) : null}
 
         <Text variant="bodyMedium">
           {bloodGroupLabels[request.blood_group]}
@@ -89,6 +112,42 @@ export default function RequestDetailScreen() {
         ) : null}
         {request.notes ? (
           <Text variant="bodyMedium">{request.notes}</Text>
+        ) : null}
+
+        {isActive ? (
+          <View style={styles.tierBox}>
+            <Text variant="labelLarge">{t("requests.tier.title")}</Text>
+            <Text variant="bodyLarge">
+              {t(`requests.tier.${request.current_tier}`)}
+            </Text>
+            <Text variant="bodySmall" style={styles.hint}>
+              {t(`requests.tierHint.${request.current_tier}`)}
+            </Text>
+            {widenError ? <ErrorText message={widenError} /> : null}
+            {request.current_tier === "backup" ? (
+              <PrimaryButton
+                label={t("requests.widenSearch")}
+                mode="outlined"
+                icon="account-search"
+                loading={widenSearch.isPending}
+                onPress={() => {
+                  setWidenError(null);
+                  widenSearch.mutate(undefined, {
+                    onSuccess: openSearch,
+                    onError: (err) => setWidenError(mapSupabaseError(err)),
+                  });
+                }}
+              />
+            ) : null}
+            {request.current_tier === "broad" ? (
+              <PrimaryButton
+                label={t("requests.findDonors")}
+                mode="outlined"
+                icon="account-search"
+                onPress={openSearch}
+              />
+            ) : null}
+          </View>
         ) : null}
 
         {cancelError ? <ErrorText message={cancelError} /> : null}
@@ -143,5 +202,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  tierBox: {
+    gap: 4,
+  },
+  hint: {
+    opacity: 0.7,
   },
 });

@@ -11,6 +11,10 @@ import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
 import { StatusChip } from "@/components/StatusChip";
 import {
+  EmergencyBadge,
+  EmergencyNotice,
+} from "@/features/requests/components/EmergencyNotice";
+import {
   useMyResponse,
   useReportDonated,
   useRequestForDonor,
@@ -90,7 +94,10 @@ export default function ResponseDetailScreen() {
           {new Date(request.required_at).toLocaleString()}
         </Text>
         {request.is_emergency ? (
-          <StatusChip label={t("requests.emergency")} tone="negative" />
+          <>
+            <EmergencyBadge />
+            <EmergencyNotice />
+          </>
         ) : null}
 
         {contactQuery.data?.manager_phone ? (

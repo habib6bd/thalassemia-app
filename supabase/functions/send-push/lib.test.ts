@@ -101,3 +101,17 @@ Deno.test("getPushText falls back to a default title for an unknown type", () =>
   const { title } = getPushText("something_new", "bn");
   assertEquals(title, "নতুন বিজ্ঞপ্তি");
 });
+
+Deno.test("getPushText marks emergency invites as urgent without adding details", () => {
+  const { title, body } = getPushText("request_invited", "en", { is_emergency: true, district_id: 1 });
+  assertEquals(title, "Urgent blood request");
+  assertEquals(body, "Open the app for details.");
+});
+
+Deno.test("getPushText keeps the normal title for non-emergency invites", () => {
+  assertEquals(getPushText("request_invited", "bn", { is_emergency: false }).title, "নতুন রক্তের অনুরোধ");
+});
+
+Deno.test("getPushText has a title for request_escalated", () => {
+  assertEquals(getPushText("request_escalated", "en").title, "Backup donors notified");
+});

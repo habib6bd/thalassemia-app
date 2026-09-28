@@ -8,6 +8,7 @@ import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
 import { StatusChip } from "@/components/StatusChip";
 import { useMyRequests, useDonorInbox } from "@/features/requests/api";
+import { EmergencyBadge } from "@/features/requests/components/EmergencyNotice";
 import { requestStatusTone } from "@/features/requests/statusTone";
 import { useAppStore } from "@/stores/useAppStore";
 
@@ -51,6 +52,7 @@ export default function RequestsScreen() {
                       <Text variant="bodySmall">
                         {new Date(item.request.required_at).toLocaleString()}
                       </Text>
+                      {item.request.is_emergency ? <EmergencyBadge /> : null}
                     </View>
                     <StatusChip
                       label={t(
@@ -102,6 +104,7 @@ export default function RequestsScreen() {
                     <Text variant="bodySmall">
                       {new Date(item.required_at).toLocaleString()}
                     </Text>
+                    {item.is_emergency ? <EmergencyBadge /> : null}
                   </View>
                   <StatusChip
                     label={t(`requests.status.${item.status}`)}

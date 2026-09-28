@@ -15,11 +15,18 @@ const titles: Record<string, Record<"bn" | "en", string>> = {
   request_invited: { bn: "নতুন রক্তের অনুরোধ", en: "New blood request" },
   request_cancelled: { bn: "অনুরোধ বাতিল হয়েছে", en: "Request cancelled" },
   request_fulfilled: { bn: "অনুরোধ সম্পন্ন হয়েছে", en: "Request fulfilled" },
+  request_escalated: { bn: "ব্যাকআপ রক্তদাতাদের জানানো হয়েছে", en: "Backup donors notified" },
   response_accepted: { bn: "প্রতিক্রিয়া গৃহীত হয়েছে", en: "Response accepted" },
   response_declined: { bn: "প্রতিক্রিয়া প্রত্যাখ্যান হয়েছে", en: "Response declined" },
   response_withdrawn: { bn: "প্রতিক্রিয়া প্রত্যাহার হয়েছে", en: "Response withdrawn" },
   donation_reported: { bn: "দান রিপোর্ট হয়েছে", en: "Donation reported" },
   donation_confirmed: { bn: "দান নিশ্চিত হয়েছে", en: "Donation confirmed" },
+};
+
+// "Urgent" says nothing about the patient, so it stays within D9.
+const urgentInviteTitle: Record<"bn" | "en", string> = {
+  bn: "জরুরি রক্তের অনুরোধ",
+  en: "Urgent blood request",
 };
 
 const defaultTitle: Record<"bn" | "en", string> = {
@@ -34,8 +41,12 @@ export function normalizeLanguage(language: string | null | undefined): "bn" | "
 export function getPushText(
   type: string,
   language: string | null | undefined,
+  params?: Record<string, unknown> | null,
 ): { title: string; body: string } {
   const lang = normalizeLanguage(language);
-  const title = titles[type]?.[lang] ?? defaultTitle[lang];
+  const title =
+    type === "request_invited" && params?.is_emergency === true
+      ? urgentInviteTitle[lang]
+      : (titles[type]?.[lang] ?? defaultTitle[lang]);
   return { title, body: bodies[lang] };
 }

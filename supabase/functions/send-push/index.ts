@@ -16,6 +16,7 @@ interface NotificationRecord {
   type: string;
   entity_type: string | null;
   entity_id: string | null;
+  params?: Record<string, unknown> | null;
 }
 
 interface WebhookPayload {
@@ -68,7 +69,7 @@ Deno.serve(async (req) => {
     return Response.json({ skipped: "no_tokens" });
   }
 
-  const { title, body } = getPushText(record.type, profile?.language);
+  const { title, body } = getPushText(record.type, profile?.language, record.params);
   const messages = buildExpoMessages(tokens, title, body, record.entity_type, record.entity_id);
 
   const tickets: ExpoPushTicket[] = [];

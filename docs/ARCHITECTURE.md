@@ -43,6 +43,7 @@ Supabase
 - **RLS enabled on every table**, no exceptions. Default deny.
 - Helper functions are `security definer`, `stable`, `set search_path = ''`, fully-qualified names.
 - RPCs: `security definer`, `set search_path = ''`, validate `auth.uid()` is not null, check authorization explicitly, lock rows they transition, write audit, enqueue notifications, return the updated row.
+- Function EXECUTE is default-deny: `anon` can execute nothing; `authenticated` gets an explicit `grant execute` only for client RPCs and the helpers RLS policies/views call. Supabase grants EXECUTE on new `public` functions to `anon`/`authenticated` directly, so this must be revoked per role, not only from `PUBLIC` (migration `20260928080000`). `supabase/tests/80_function_privileges.test.sql` pins the allowed list; add every new client RPC there.
 - RPC errors: `raise exception using errcode = 'P0001', message = '<error_code>'` where `<error_code>` is a stable snake_case key (e.g. `invalid_transition`, `not_authorized`, `donor_limit_reached`). The app maps it to i18n key `errors.<error_code>`.
 - Enums as Postgres `enum` types (listed in §4).
 - Generated TS types: `supabase gen types typescript` → `src/lib/database.types.ts` (committed).

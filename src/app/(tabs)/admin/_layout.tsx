@@ -17,6 +17,15 @@ export default function AdminLayout() {
         options={{ title: t("admin.organization") }}
       />
       <Stack.Screen name="settings" options={{ title: t("admin.settings") }} />
+      <Stack.Screen
+        name="content/index"
+        options={{ title: t("admin.content") }}
+      />
+      <Stack.Screen
+        name="content/[id]"
+        options={{ title: t("admin.contentItem") }}
+      />
+      <Stack.Screen name="sources" options={{ title: t("admin.sources") }} />
     </Stack>
   );
 }

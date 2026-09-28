@@ -76,6 +76,13 @@ export default function HomeScreen() {
         </View>
 
         <PrimaryButton
+          label={t("home.openLearn")}
+          mode="contained-tonal"
+          icon="book-education"
+          onPress={() => router.push("/(tabs)/learn")}
+        />
+
+        <PrimaryButton
           label={t("home.openDirectory")}
           mode="outlined"
           icon="hospital-building"

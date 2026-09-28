@@ -51,14 +51,16 @@
     "profile": "Profile",
     "community": "Community",
     "directory": "Directory",
-    "admin": "Admin"
+    "admin": "Admin",
+    "learn": "Learn"
   },
   "home": {
     "requestBlood": "Request Blood",
     "viewBloodRequests": "View Blood Requests",
     "roleSwitcher": "Viewing as",
     "openCommunity": "Community: share experiences",
-    "openDirectory": "Find treatment centres & services"
+    "openDirectory": "Find treatment centres & services",
+    "openLearn": "Learn about thalassemia & carriers"
   },
   "onboarding": {
     "title": "Tell us about you",
@@ -307,7 +309,8 @@
       "community_content_auto_hidden": "Community content was hidden after reports and needs review",
       "community_report_urgent": "Community content was reported for selling blood",
       "organization_reverification_due": "An organization in the directory is due for re-verification",
-      "organization_marked_stale": "An organization was hidden because its verification is overdue"
+      "organization_marked_stale": "An organization was hidden because its verification is overdue",
+      "content_review_due": "Published awareness content is due for re-review"
     }
   },
   "notificationPreferences": {
@@ -389,7 +392,15 @@
     "verification_method_required": "Choose how you verified it.",
     "role_not_admin_managed": "This role is chosen by the user, not by admins.",
     "cannot_remove_own_admin": "You can't remove your own admin role.",
-    "invalid_setting_value": "Enter a whole number from 1 to 10000."
+    "invalid_setting_value": "Enter a whole number from 1 to 10000.",
+    "review_required": "This content needs a human review before publishing.",
+    "source_required": "Link at least one source before publishing.",
+    "source_not_checked": "Every linked source must be checked by a person before publishing.",
+    "invalid_source": "Please check the source title and link.",
+    "source_in_use": "This source is cited by published content and must stay checked.",
+    "content_locked": "Published content can't be edited. Retire it and move it back to draft first.",
+    "slug_taken": "This slug is already used.",
+    "invalid_content": "Please fill in the title and text in both languages."
   },
   "emergency": {
     "badge": "Emergency",
@@ -656,6 +667,120 @@
       "official_document": "Official document"
     },
     "verificationNote": "Note (optional)",
-    "recordVerification": "Record"
+    "recordVerification": "Record",
+    "content": "Awareness content",
+    "contentItem": "Content",
+    "sources": "Sources",
+    "contentRules": "Medical content is published only after a human review with checked sources (docs/CONTENT_SAFETY.md). No diagnosis, eligibility, dosage or fear messaging, and never tell anyone whom to marry.",
+    "newContent": "New content",
+    "noContent": "No content yet.",
+    "reviewStatus": {
+      "draft": "Draft",
+      "in_review": "In review",
+      "approved": "Approved",
+      "published": "Published",
+      "retired": "Retired"
+    },
+    "contentKind": {
+      "article": "Article",
+      "faq": "FAQ",
+      "medicine": "Medicine info"
+    },
+    "agentDraft": "Agent draft",
+    "sourceCount_one": "{{count}} source",
+    "sourceCount_other": "{{count}} sources",
+    "nextReviewDue": "Next review due {{date}}",
+    "reviewTitle": "Review",
+    "reviewedBy": "Approved by {{name}} on {{date}}",
+    "reviewHint": "Approve only after you have read the text in both languages against its sources and the content safety checklist. Your name is recorded as the reviewer.",
+    "reviewNote": "Review note (optional)",
+    "transition": {
+      "in_review": "Send for review",
+      "approved": "Approve (I reviewed it)",
+      "draft": "Back to draft",
+      "published": "Publish",
+      "retired": "Retire (take offline)",
+      "rereview": "Mark re-reviewed"
+    },
+    "sourcesHint": "Link at least one source. Content can only be published when every linked source has been checked by a person.",
+    "sourceUnchecked": "not yet checked",
+    "saveSources": "Save sources",
+    "contentLockedHint": "Published and retired content can't be edited. Retire it and move it back to draft to make changes.",
+    "editResetsReview": "Saving changes moves this item back to draft; it needs a new review.",
+    "contentFields": {
+      "kind": "Type",
+      "category": "Category",
+      "sortOrder": "Order",
+      "slug": "Slug (e.g. what-is-a-carrier)",
+      "titleBn": "Title (Bangla)",
+      "titleEn": "Title (English)",
+      "summaryBn": "Short summary (Bangla)",
+      "summaryEn": "Short summary (English)",
+      "bodyBn": "Text (Bangla) — blank line between paragraphs",
+      "bodyEn": "Text (English) — blank line between paragraphs"
+    },
+    "slugHint": "Lowercase letters, numbers and dashes only.",
+    "saveDraft": "Save draft",
+    "sourcesPageHint": "Tick \"checked today\" only after you have opened the source and confirmed it supports the content that cites it.",
+    "addSource": "Add source",
+    "openSource": "Open",
+    "editSource": "Edit",
+    "sourceFields": {
+      "title": "Title",
+      "organization": "Organization (optional)",
+      "url": "Link (https://…)"
+    },
+    "sourceCheckedToday": "I opened and checked this source (dated today)"
+  },
+  "learn": {
+    "title": "Learn",
+    "disclaimer": "General information only, not medical advice, diagnosis or a genetic risk assessment. Talk to a doctor or genetic counsellor about your own situation.",
+    "medicineDisclaimer": "Information only. This app never tells you to start, stop or change a medicine or its dose. Follow your doctor's advice.",
+    "journeyTitle": "Learn about carrier screening",
+    "journeySubtitle": "A short step-by-step guide. No quiz, nothing is saved.",
+    "simulatorTitle": "How inheritance works (example)",
+    "simulatorSubtitle": "A fixed educational diagram. It asks nothing about you.",
+    "emptyTitle": "Articles are being reviewed",
+    "emptyDescription": "Articles appear here after a qualified reviewer has checked them against trusted sources.",
+    "categories": {
+      "what_is_thalassemia": "What is thalassemia?",
+      "what_is_carrier": "What is a carrier?",
+      "why_screening": "Why screening can matter",
+      "both_carriers": "If both partners are carriers",
+      "genetic_counselling": "Genetic counselling",
+      "screening": "Screening",
+      "family_awareness": "Family awareness",
+      "living_with_thalassemia": "Living with thalassemia",
+      "medicines": "Medicine information"
+    },
+    "sourcesTitle": "Sources",
+    "sourceChecked": "checked {{date}}",
+    "reviewedOn": "Reviewed {{date}}",
+    "lastUpdated": "Last updated {{date}}",
+    "findCounselling": "Find genetic counselling services",
+    "simulatorBanner": "Educational example — not a personal medical/genetic risk assessment",
+    "scenarioCarrierCarrier": "Carrier × carrier",
+    "scenarioCarrierNonCarrier": "Carrier × non-carrier",
+    "simulatorKey": "Everyone has two copies of the gene. \"A\" is a typical copy and \"a\" is a changed copy. A child gets one copy from each parent, so each box shows one possible combination.",
+    "parentA": "Parent 1: {{who}}",
+    "parentB": "Parent 2: {{who}}",
+    "parent": {
+      "carrier": "carrier (A a)",
+      "nonCarrier": "not a carrier (A A)"
+    },
+    "gridLabel": "Four possible gene combinations",
+    "outcome": {
+      "notCarrier": "Not a carrier",
+      "carrier": "Carrier",
+      "thalassemia": "Thalassemia"
+    },
+    "inThisExample": "In this example:",
+    "boxesOutOfFour_one": "{{count}} of 4 boxes: {{outcome}}",
+    "boxesOutOfFour_other": "{{count}} of 4 boxes: {{outcome}}",
+    "simulatorNote": "The boxes show possible combinations, not what will happen in a real family, and real situations can differ by type of thalassemia. Ask a doctor or genetic counsellor about your own situation.",
+    "stepOf": "Step {{step}} of {{total}}",
+    "stepComingSoon": "The article for this step is still being reviewed. Please check back later.",
+    "journeyEndTitle": "Talk to a professional",
+    "journeyEndBody": "Whether screening is right for you or your family, and what results mean, is best discussed with a doctor or genetic counsellor. The decisions are yours."
   }
 }

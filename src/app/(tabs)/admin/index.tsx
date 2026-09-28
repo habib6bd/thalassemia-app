@@ -65,6 +65,12 @@ function AdminHome() {
             onPress={() => router.push("/(tabs)/admin/organizations")}
           />
           <List.Item
+            title={t("admin.content")}
+            left={(props) => <List.Icon {...props} icon="book-education" />}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+            onPress={() => router.push("/(tabs)/admin/content")}
+          />
+          <List.Item
             title={t("admin.reports")}
             description={
               overview

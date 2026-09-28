@@ -71,6 +71,11 @@ organization_type   : treatment_centre | hospital | blood_bank | diagnostic_cent
                     | genetic_counselling | support_org        -- Phase 2d
 organization_verification_status: pending | verified | stale | rejected   -- Phase 2d (§7.5)
 organization_verification_method: phone_call | official_website | in_person | official_document
+content_kind        : article | faq | medicine            -- Phase 3
+awareness_category  : what_is_thalassemia | what_is_carrier | why_screening | both_carriers
+                    | genetic_counselling | screening | family_awareness | living_with_thalassemia
+                    | medicines
+content_review_status: draft | in_review | approved | published | retired   -- Phase 3 (§7.6)
 report_reason       : selling_blood | medical_misinformation | harassment | privacy | spam | other
 report_status       : open | actioned | dismissed
 ```
@@ -237,9 +242,11 @@ audit_logs                      -- append-only; no update/delete grants to anyon
   - `patients.treating_organization_id`, `blood_requests.organization_id` (optional; free text stays the fallback). A `before insert` trigger copies the patient's verified centre onto new requests.
   - Settings `organization_reverify_months` (12), `organization_reverify_reminder_days` (30). `app_settings` now has an audit trigger.
 - **Phase 4**: `organization_members` (organization portal).
-- **Phase 3**: `content_sources`, `awareness_articles` (bn/en body, `review_status`
-  draft|in_review|approved|published|retired, `reviewed_by`, `reviewed_at`,
-  `next_review_due`), `article_sources` (m:n), `faqs`, `medicine_info` (optional).
+- **Phase 3** (done):
+  - `content_sources` (title, organization, url, `accessed_at` = date a person checked it; null = unchecked).
+  - `awareness_content` (`kind` article|faq|medicine, unique `slug`, `category`, bn/en title/summary/body, `sort_order`, `review_status`, `reviewed_by/at`, `review_note`, `published_at`, `next_review_due`, `review_reminded_at`, `drafted_by` agent|human, `last_edited_by`). FAQs and medicine information are kinds of this table (Q33).
+  - `content_source_links` (content ↔ source, m:n).
+  - Setting `content_review_months` (12). Trigger `enforce_content_publish_rules`.
 - **Phase 4**: aggregate analytics views/materialised views (no row-level personal data).
 
 ## 7. State machines
@@ -342,6 +349,19 @@ locks the row, sets `status_changed_at/by`, writes audit, enqueues notifications
 - `process_organization_reverification()` (pg_cron, daily 03:17 UTC): once `organization_reverify_reminder_days` before the window ends, admins get `organization_reverification_due`; after `organization_reverify_months`, the entry becomes `stale` (hidden) and admins get `organization_marked_stale`. `stale` is never set by hand.
 - Rejecting clears patient links to the entry.
 
+### 7.6 Awareness content review (Phase 3)
+```
+ draft ─submit─▶ in_review ─approve (human)─▶ approved ─publish─▶ published ─retire─▶ retired
+   ▲                │                            │                   │  ▲                │
+   └── changes ─────┴────────────────────────────┘                   └──┘ re-reviewed    │
+   └──────────────────────────── reopen ─────────────────────────────────────────────────┘
+```
+- Only admins act (`admin_transition_content`); every step is audited.
+- `approved` records `reviewed_by/at`. `published` needs ≥ 1 linked source and every linked source checked (`accessed_at`); a trigger re-checks on every write. Publishing sets `published_at` and `next_review_due = today + content_review_months`.
+- Editing text or sources (`admin_upsert_content`, `admin_set_content_sources`) is allowed in draft/in_review/approved and always returns the item to `draft` with the review cleared. `published`/`retired` items are locked (`content_locked`): retire → draft to change them (Q34).
+- `published → published` = "re-reviewed": records the reviewer again and restarts `next_review_due`.
+- `process_content_review_due()` (pg_cron) notifies admins once when a published item reaches `next_review_due`. It never unpublishes.
+
 ## 8. Authorization matrix (Phase 1)
 
 Helper functions: `has_role(role)`, `is_admin()`, `is_patient_manager(patient_id)`,
@@ -372,6 +392,9 @@ Helper functions: `has_role(role)`, `is_admin()`, `is_patient_manager(patient_id
 | community_guideline_acceptances (2c) | own; admin | RPC only (`accept_community_guidelines`) |
 | organizations (2d) | `verified` entries, directory columns only (column grant); admin: all via `admin_list_organizations` | admin RPC only (`admin_upsert_organization`, `admin_set_organization_verification`) |
 | organization_verifications (2d) | admin | admin RPC only |
+| awareness_content (3) | `published` rows, reader columns only (column grant); admin: all via `admin_list_content` / `admin_get_content` | admin RPC only |
+| content_source_links (3) | links of published content; admin | admin RPC only (`admin_set_content_sources`) |
+| content_sources (3) | sources linked to published content; admin | admin RPC only (`admin_upsert_content_source`) |
 | app_settings (2d change) | everyone authenticated | `admin_update_setting` (existing keys, whole numbers 1–10000; audited) |
 
 Phase 2b read RPCs: `get_patient_managers` and `get_patient_donation_history`
@@ -432,7 +455,8 @@ Phase 2c adds `community_comment_added` (post author), `community_content_modera
 `params.action`), `community_content_auto_hidden` and `community_report_urgent` (admins). All use
 `entity_type = community_post`.
 Phase 2d adds `organization_reverification_due` and `organization_marked_stale` (admins,
-`entity_type = organization`).
+`entity_type = organization`). Phase 3 adds `content_review_due` (admins,
+`entity_type = awareness_content`).
 
 Note: Expo Go on Android cannot receive remote push (SDK 53+). Test push with an EAS development build; everything else works in Expo Go.
 
@@ -440,6 +464,7 @@ Note: Expo Go on Android cannot receive remote push (SDK 53+). Test push with an
 
 - `*/10 * * * *` → `process_request_timers()`: expire requests with `required_at + grace < now()`; then escalate non-emergency `regular` requests to `backup` (rules in §7.2).
 - `17 3 * * *` → `process_organization_reverification()` (Phase 2d, §7.5).
+- `23 3 * * *` → `process_content_review_due()` (Phase 3, §7.6).
 - Daily (Phase 2) → availability reminders based on `donation_reminder_days` — worded as a reminder to check with the blood bank, never "you are eligible".
 
 ## 12. Frontend architecture
@@ -468,7 +493,7 @@ src/stores/              Zustand: session, activeRole, language
 
 ## 14. Health, privacy, security & legal considerations
 
-- App never decides donor eligibility, dosage, blood quantity, compatibility or genetic status (§2). Copy review checklist in `docs/CONTENT_SAFETY.md` (Phase 3).
+- App never decides donor eligibility, dosage, blood quantity, compatibility or genetic status (§2). Copy review checklist in `docs/CONTENT_SAFETY.md`.
 - Emergency screen must say the app is not an emergency service and direct to hospital / national emergency number (999 in Bangladesh — verify before release).
 - No money fields anywhere; reports category "selling blood" in moderation (§28.11).
 - Minors: patients are often children → guardians manage; decide minimum account age (Q8).

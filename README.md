@@ -149,14 +149,15 @@ a new GitHub Release and to the workflow run as an artifact.
 
 ## Progress and open queries
 
-| Part                                                   | Status                              |
-| ------------------------------------------------------ | ----------------------------------- |
-| Phase 0, 1a–1d                                         | Done                                |
-| 2a Escalation, broad search, emergency                 | Done                                |
-| 2b History, appreciation, guardians, account lifecycle | Done (profile photos deferred, Q23) |
-| 2c Community & moderation                              | Done                                |
-| 2d Verified organization directory + admin basics      | **Next**                            |
-| Phase 3, Phase 4                                       | Not started                         |
+| Part                                                   | Status                                       |
+| ------------------------------------------------------ | -------------------------------------------- |
+| Phase 0, 1a–1d                                         | Done                                         |
+| 2a Escalation, broad search, emergency                 | Done                                         |
+| 2b History, appreciation, guardians, account lifecycle | Done (profile photos deferred, Q23)          |
+| 2c Community & moderation                              | Done                                         |
+| 2d Verified organization directory + admin basics      | Done                                         |
+| Phase 3 Awareness & carrier education                  | Done (content still needs human review, Q35) |
+| Phase 4 Analytics, organization portal, polish         | **Next**                                     |
 
 Queries for the product owner. Development continues with the default shown
 here; full details are in `docs/OPEN_QUESTIONS.md`.
@@ -169,7 +170,7 @@ here; full details are in `docs/OPEN_QUESTIONS.md`.
   "selling blood" reports; max 10 posts per user per day; no post editing yet.
 - **Q26 — Where the community lives.** Default: reached from Home and
   Profile, not a 7th bottom tab. Should it become a tab (maybe together with
-  the Phase 3 Learn tab)?
+  the Learn section)? See Q32 below.
 - **Q27 — Blocking and existing donor connections.** Default: blocking stops
   new connection requests both ways but does not end an existing connection.
 - **Q28 — Stale directory entries.** Default: admins are reminded 30 days
@@ -182,6 +183,19 @@ here; full details are in `docs/OPEN_QUESTIONS.md`.
 - **Q31 — Roles.** Default: admins manage only the `organization` and
   `admin` roles; the first admin is created with SQL; nobody can remove
   their own admin role.
+- **Q35 — Draft medical content needs a human reviewer.** 10 bn/en drafts
+  (7 articles, 3 FAQs) are in Admin → Awareness content, all unpublished.
+  The agent could not open the WHO/CDC/PMC sources from its environment, so
+  the sources are marked "not yet checked". A qualified person must open
+  each source, check each draft against it and `docs/CONTENT_SAFETY.md`,
+  then approve and publish. The fixed texts of the inheritance example and
+  screening journey need the same review before release.
+- **Q32 — Navigation.** Learn is reached from Home, not a tab. Proposal: a
+  five-tab layout before launch (see `docs/OPEN_QUESTIONS.md`).
+- **Q34 — Correcting published content** takes it offline while it is
+  edited and reviewed again (no versioning yet).
+- **Q36 — Single reviewer.** An admin can approve content they edited
+  (recorded in the audit log); a two-person rule can be added later.
 - **Directory content.** No organizations are included. An admin must add
   and verify each real entry (call it or check its official website)
   before users see it.

@@ -81,6 +81,10 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="learn"
+        options={{ title: t("nav.learn"), headerShown: false, href: null }}
+      />
+      <Tabs.Screen
         name="directory"
         options={{
           title: t("nav.directory"),

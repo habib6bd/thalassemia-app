@@ -24,5 +24,7 @@ export const notificationTypes = [
   // Phase 2d
   "organization_reverification_due",
   "organization_marked_stale",
+  // Phase 3
+  "content_review_due",
 ] as const;
 export type NotificationType = (typeof notificationTypes)[number];

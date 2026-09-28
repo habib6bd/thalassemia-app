@@ -46,12 +46,14 @@
     "network": "Network",
     "requests": "Requests",
     "notifications": "Notifications",
-    "profile": "Profile"
+    "profile": "Profile",
+    "community": "Community"
   },
   "home": {
     "requestBlood": "Request Blood",
     "viewBloodRequests": "View Blood Requests",
-    "roleSwitcher": "Viewing as"
+    "roleSwitcher": "Viewing as",
+    "openCommunity": "Community: share experiences"
   },
   "onboarding": {
     "title": "Tell us about you",
@@ -268,7 +270,9 @@
     "rolesLabel": "Your roles",
     "addRoleLabel": "Add a role",
     "donorSettings": "Donor settings",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "blockedUsers": "Blocked users",
+    "moderation": "Community moderation"
   },
   "notifications": {
     "title": "Notifications",
@@ -292,7 +296,11 @@
       "request_escalated": "Not enough donors yet: backup donors have been asked",
       "appreciation_received": "A thank-you message for you",
       "guardian_added": "A guardian was added",
-      "guardian_removed": "You were removed as a guardian"
+      "guardian_removed": "You were removed as a guardian",
+      "community_comment_added": "Someone commented on your community post",
+      "community_content_moderated": "A moderator reviewed your community content",
+      "community_content_auto_hidden": "Community content was hidden after reports and needs review",
+      "community_report_urgent": "Community content was reported for selling blood"
     }
   },
   "notificationPreferences": {
@@ -357,7 +365,18 @@
     "recipient_unavailable": "This donor's account no longer exists.",
     "account_deleted": "This account has been deleted.",
     "not_found": "Not found.",
-    "auth_delete_failed": "Your data was removed, but signing you out everywhere failed. Please try again."
+    "auth_delete_failed": "Your data was removed, but signing you out everywhere failed. Please try again.",
+    "guidelines_not_accepted": "Please accept the community guidelines first.",
+    "invalid_post": "Please add a title and some text (title up to 120, text up to 5000 characters).",
+    "invalid_comment": "Comments must be 1 to 2000 characters.",
+    "post_limit_reached": "You've reached today's posting limit. Please try again tomorrow.",
+    "post_not_found": "This post isn't available.",
+    "content_not_found": "This content isn't available.",
+    "cannot_report_own": "You can't report your own content.",
+    "already_reported": "You've already reported this.",
+    "invalid_report": "Details can be up to 500 characters.",
+    "invalid_target": "This action isn't possible.",
+    "invalid_action": "Unknown moderation action."
   },
   "emergency": {
     "badge": "Emergency",
@@ -421,5 +440,99 @@
     "deleteConfirmTitle": "Delete your account?",
     "deleteConfirmBody": "This can't be undone. Open requests you manage alone will be cancelled and your donor connections ended.",
     "deleteConfirmButton": "Delete account"
+  },
+  "community": {
+    "title": "Community",
+    "personalExperienceLabel": "Personal experience, not medical advice",
+    "banner": "Posts are personal experiences from patients and families. They are not medical advice. Always follow your doctor or treatment centre.",
+    "allTopics": "All topics",
+    "topics": {
+      "treatment_centre_experience": "Treatment centre experience",
+      "transfusion_experience": "Transfusion experience",
+      "managing_transfusions": "Managing regular transfusions",
+      "family_experience": "Family experiences",
+      "emotional_support": "Emotional support",
+      "support_resources": "Support services & information",
+      "newly_diagnosed": "For newly diagnosed families",
+      "questions": "Questions for the community"
+    },
+    "feedEmptyTitle": "No posts yet",
+    "feedEmptyDescription": "Be the first to share an experience or ask a question.",
+    "loadMore": "Show older posts",
+    "newPost": "New post",
+    "topicLabel": "Topic",
+    "titleLabel": "Title",
+    "bodyLabel": "Your experience or question",
+    "composerWarning": "Share your own experience. Don't give medicine names with doses, diagnoses or treatment instructions, and never ask for or offer money for blood.",
+    "publish": "Publish",
+    "byAuthor": "By {{name}}",
+    "you": "You",
+    "commentCount_one": "{{count}} comment",
+    "commentCount_other": "{{count}} comments",
+    "commentsTitle": "Comments",
+    "noComments": "No comments yet.",
+    "commentLabel": "Write a comment",
+    "sendComment": "Send",
+    "hiddenNotice": "Hidden while a moderator reviews it. Only you can see it.",
+    "statusHidden": "Under review",
+    "actions": "More actions",
+    "report": "Report",
+    "reported": "Reported",
+    "block": "Block this user",
+    "delete": "Delete",
+    "deletePostTitle": "Delete this post?",
+    "deletePostDescription": "The post and its comments will no longer be shown.",
+    "deleteCommentTitle": "Delete this comment?",
+    "deleteCommentDescription": "The comment will no longer be shown.",
+    "blockTitle": "Block {{name}}?",
+    "blockDescription": "You won't see each other's posts or comments, and neither of you can send a connection request to the other. They won't be told.",
+    "reportTitle": "Report content",
+    "reportIntro": "Why are you reporting this? A moderator will review it. The author won't see who reported it.",
+    "reasons": {
+      "selling_blood": "Buying or selling blood / asking for money",
+      "medical_misinformation": "Medical misinformation or dangerous advice",
+      "harassment": "Harassment or hate",
+      "privacy": "Shares someone's private information",
+      "spam": "Spam",
+      "other": "Something else"
+    },
+    "reportDetails": "Details (optional)",
+    "submitReport": "Send report",
+    "reportThanks": "Thank you. A moderator will review it.",
+    "guidelinesTitle": "Community guidelines",
+    "guidelinesIntro": "This community is for sharing personal experiences and support. Please read and accept these rules before posting.",
+    "guidelines": {
+      "personal": "Share your own experience. Everything here is personal experience, not medical advice.",
+      "noMedicalAdvice": "Don't tell others which medicine or dose to take, or whether someone can donate. Those decisions belong to doctors and blood banks.",
+      "noMoney": "No buying or selling blood, and no requests for money. Blood donation here is voluntary.",
+      "privacy": "Protect privacy: don't post phone numbers, addresses, reports or photos of other people.",
+      "respect": "Be kind and respectful. No harassment, hate or shaming.",
+      "report": "Report posts that break these rules. Reported posts may be hidden until a moderator reviews them.",
+      "emergency": "This is not an emergency service. In an emergency, contact your hospital or call 999."
+    },
+    "acceptGuidelines": "I accept the guidelines",
+    "readGuidelines": "Read the community guidelines",
+    "guidelinesAccepted": "You have accepted the guidelines.",
+    "blockedTitle": "Blocked users",
+    "blockedEmpty": "You haven't blocked anyone.",
+    "unblock": "Unblock",
+    "moderationTitle": "Moderation queue",
+    "moderationEmpty": "Nothing to review.",
+    "openReports_one": "{{count}} open report",
+    "openReports_other": "{{count}} open reports",
+    "sellingBloodFlag": "Reported for selling blood",
+    "reasonsLabel": "Reasons: {{reasons}}",
+    "targetPost": "Post",
+    "targetComment": "Comment",
+    "status": {
+      "published": "Visible",
+      "hidden": "Hidden",
+      "removed": "Removed",
+      "deleted": "Deleted"
+    },
+    "moderationNote": "Note (optional)",
+    "restore": "Keep / restore",
+    "hide": "Hide",
+    "remove": "Remove"
   }
 }

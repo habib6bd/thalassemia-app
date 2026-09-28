@@ -300,6 +300,191 @@ export type Database = {
           },
         ];
       };
+      community_comments: {
+        Row: {
+          author_id: string;
+          body: string;
+          created_at: string;
+          id: string;
+          moderated_at: string | null;
+          moderated_by: string | null;
+          moderation_note: string | null;
+          post_id: string;
+          report_count: number;
+          status: Database["public"]["Enums"]["community_content_status"];
+          updated_at: string;
+        };
+        Insert: {
+          author_id: string;
+          body: string;
+          created_at?: string;
+          id?: string;
+          moderated_at?: string | null;
+          moderated_by?: string | null;
+          moderation_note?: string | null;
+          post_id: string;
+          report_count?: number;
+          status?: Database["public"]["Enums"]["community_content_status"];
+          updated_at?: string;
+        };
+        Update: {
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          id?: string;
+          moderated_at?: string | null;
+          moderated_by?: string | null;
+          moderation_note?: string | null;
+          post_id?: string;
+          report_count?: number;
+          status?: Database["public"]["Enums"]["community_content_status"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "community_comments_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "community_comments_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "community_comments_moderated_by_fkey";
+            columns: ["moderated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "community_comments_moderated_by_fkey";
+            columns: ["moderated_by"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "community_comments_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "community_posts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      community_guideline_acceptances: {
+        Row: {
+          accepted_at: string;
+          user_id: string;
+          version: number;
+        };
+        Insert: {
+          accepted_at?: string;
+          user_id: string;
+          version: number;
+        };
+        Update: {
+          accepted_at?: string;
+          user_id?: string;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "community_guideline_acceptances_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "community_guideline_acceptances_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
+      };
+      community_posts: {
+        Row: {
+          author_id: string;
+          body: string;
+          created_at: string;
+          id: string;
+          moderated_at: string | null;
+          moderated_by: string | null;
+          moderation_note: string | null;
+          report_count: number;
+          status: Database["public"]["Enums"]["community_content_status"];
+          title: string;
+          topic: Database["public"]["Enums"]["community_topic"];
+          updated_at: string;
+        };
+        Insert: {
+          author_id: string;
+          body: string;
+          created_at?: string;
+          id?: string;
+          moderated_at?: string | null;
+          moderated_by?: string | null;
+          moderation_note?: string | null;
+          report_count?: number;
+          status?: Database["public"]["Enums"]["community_content_status"];
+          title: string;
+          topic: Database["public"]["Enums"]["community_topic"];
+          updated_at?: string;
+        };
+        Update: {
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          id?: string;
+          moderated_at?: string | null;
+          moderated_by?: string | null;
+          moderation_note?: string | null;
+          report_count?: number;
+          status?: Database["public"]["Enums"]["community_content_status"];
+          title?: string;
+          topic?: Database["public"]["Enums"]["community_topic"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "community_posts_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "community_posts_moderated_by_fkey";
+            columns: ["moderated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "community_posts_moderated_by_fkey";
+            columns: ["moderated_by"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
+      };
       districts: {
         Row: {
           division_id: number;
@@ -1029,6 +1214,135 @@ export type Database = {
           },
         ];
       };
+      reports: {
+        Row: {
+          comment_id: string | null;
+          created_at: string;
+          details: string | null;
+          id: string;
+          post_id: string | null;
+          reason: Database["public"]["Enums"]["report_reason"];
+          reporter_id: string;
+          resolved_at: string | null;
+          resolved_by: string | null;
+          status: Database["public"]["Enums"]["report_status"];
+        };
+        Insert: {
+          comment_id?: string | null;
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          post_id?: string | null;
+          reason: Database["public"]["Enums"]["report_reason"];
+          reporter_id: string;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          status?: Database["public"]["Enums"]["report_status"];
+        };
+        Update: {
+          comment_id?: string | null;
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          post_id?: string | null;
+          reason?: Database["public"]["Enums"]["report_reason"];
+          reporter_id?: string;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          status?: Database["public"]["Enums"]["report_status"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reports_comment_id_fkey";
+            columns: ["comment_id"];
+            isOneToOne: false;
+            referencedRelation: "community_comments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reports_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "community_posts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reports_reporter_id_fkey";
+            columns: ["reporter_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "reports_reporter_id_fkey";
+            columns: ["reporter_id"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "reports_resolved_by_fkey";
+            columns: ["resolved_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "reports_resolved_by_fkey";
+            columns: ["resolved_by"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
+      };
+      user_blocks: {
+        Row: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at: string;
+        };
+        Insert: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at?: string;
+        };
+        Update: {
+          blocked_id?: string;
+          blocker_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_blocks_blocked_id_fkey";
+            columns: ["blocked_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "user_blocks_blocked_id_fkey";
+            columns: ["blocked_id"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "user_blocks_blocker_id_fkey";
+            columns: ["blocker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "user_blocks_blocker_id_fkey";
+            columns: ["blocker_id"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
+      };
       user_roles: {
         Row: {
           created_at: string;
@@ -1139,12 +1453,21 @@ export type Database = {
       };
     };
     Functions: {
+      accept_community_guidelines: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
       accept_guardian_invite: { Args: { code: string }; Returns: string };
       add_role: {
         Args: { role: Database["public"]["Enums"]["app_role"] };
         Returns: undefined;
       };
+      assert_can_post_in_community: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
       bd_date: { Args: { ts: string }; Returns: string };
+      block_user: { Args: { user_id: string }; Returns: undefined };
       cancel_blood_request: {
         Args: { reason?: string; request_id: string };
         Returns: {
@@ -1198,6 +1521,10 @@ export type Database = {
           isOneToOne: true;
           isSetofReturn: false;
         };
+      };
+      community_setting_int: {
+        Args: { p_default: number; p_key: string };
+        Returns: number;
       };
       complete_onboarding: {
         Args: {
@@ -1294,6 +1621,55 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      create_community_comment: {
+        Args: { body: string; post_id: string };
+        Returns: {
+          author_id: string;
+          body: string;
+          created_at: string;
+          id: string;
+          moderated_at: string | null;
+          moderated_by: string | null;
+          moderation_note: string | null;
+          post_id: string;
+          report_count: number;
+          status: Database["public"]["Enums"]["community_content_status"];
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "community_comments";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      create_community_post: {
+        Args: {
+          body: string;
+          title: string;
+          topic: Database["public"]["Enums"]["community_topic"];
+        };
+        Returns: {
+          author_id: string;
+          body: string;
+          created_at: string;
+          id: string;
+          moderated_at: string | null;
+          moderated_by: string | null;
+          moderation_note: string | null;
+          report_count: number;
+          status: Database["public"]["Enums"]["community_content_status"];
+          title: string;
+          topic: Database["public"]["Enums"]["community_topic"];
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "community_posts";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       create_guardian_invite: {
         Args: { patient_id: string };
         Returns: {
@@ -1355,6 +1731,11 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      delete_community_comment: {
+        Args: { comment_id: string };
+        Returns: undefined;
+      };
+      delete_community_post: { Args: { post_id: string }; Returns: undefined };
       delete_my_account: {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
@@ -1381,6 +1762,21 @@ export type Database = {
       generate_invite_code: {
         Args: Record<PropertyKey, never>;
         Returns: string;
+      };
+      get_community_post: {
+        Args: { post_id: string };
+        Returns: {
+          author_id: string;
+          author_name: string;
+          body: string;
+          created_at: string;
+          id: string;
+          is_mine: boolean;
+          reported_by_me: boolean;
+          status: Database["public"]["Enums"]["community_content_status"];
+          title: string;
+          topic: Database["public"]["Enums"]["community_topic"];
+        }[];
       };
       get_connection_parties: {
         Args: { connection_id: string };
@@ -1453,6 +1849,10 @@ export type Database = {
           manager_preferred_contact: Database["public"]["Enums"]["contact_method"];
         }[];
       };
+      has_accepted_community_guidelines: {
+        Args: Record<PropertyKey, never>;
+        Returns: boolean;
+      };
       has_role: {
         Args: { target_role: Database["public"]["Enums"]["app_role"] };
         Returns: boolean;
@@ -1505,6 +1905,7 @@ export type Database = {
         Returns: number;
       };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      is_blocked_between: { Args: { other_user_id: string }; Returns: boolean };
       is_broad_eligible_donor: {
         Args: {
           p_donor_id: string;
@@ -1525,6 +1926,64 @@ export type Database = {
       is_patient_manager: {
         Args: { target_patient_id: string };
         Returns: boolean;
+      };
+      list_blocked_users: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          created_at: string;
+          display_name: string;
+          user_id: string;
+        }[];
+      };
+      list_community_comments: {
+        Args: { post_id: string };
+        Returns: {
+          author_id: string;
+          author_name: string;
+          body: string;
+          created_at: string;
+          id: string;
+          is_mine: boolean;
+          reported_by_me: boolean;
+          status: Database["public"]["Enums"]["community_content_status"];
+        }[];
+      };
+      list_community_posts: {
+        Args: {
+          before_created_at?: string;
+          page_size?: number;
+          topic_filter?: Database["public"]["Enums"]["community_topic"];
+        };
+        Returns: {
+          author_id: string;
+          author_name: string;
+          body: string;
+          comment_count: number;
+          created_at: string;
+          id: string;
+          is_mine: boolean;
+          status: Database["public"]["Enums"]["community_content_status"];
+          title: string;
+          topic: Database["public"]["Enums"]["community_topic"];
+        }[];
+      };
+      list_moderation_queue: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          author_id: string;
+          author_name: string;
+          body: string;
+          details: string[];
+          has_selling_blood: boolean;
+          last_reported_at: string;
+          open_reports: number;
+          post_id: string;
+          reasons: Database["public"]["Enums"]["report_reason"][];
+          status: Database["public"]["Enums"]["community_content_status"];
+          target_id: string;
+          target_type: string;
+          title: string;
+        }[];
       };
       manages_connected_donor: {
         Args: { target_donor_id: string };
@@ -1557,6 +2016,15 @@ export type Database = {
           isOneToOne: true;
           isSetofReturn: false;
         };
+      };
+      moderate_community_content: {
+        Args: {
+          action: string;
+          note?: string;
+          target_id: string;
+          target_type: string;
+        };
+        Returns: undefined;
       };
       process_request_timers: {
         Args: Record<PropertyKey, never>;
@@ -1624,6 +2092,32 @@ export type Database = {
       remove_patient_manager: {
         Args: { patient_id: string; user_id: string };
         Returns: undefined;
+      };
+      report_community_content: {
+        Args: {
+          details?: string;
+          reason: Database["public"]["Enums"]["report_reason"];
+          target_id: string;
+          target_type: string;
+        };
+        Returns: {
+          comment_id: string | null;
+          created_at: string;
+          details: string | null;
+          id: string;
+          post_id: string | null;
+          reason: Database["public"]["Enums"]["report_reason"];
+          reporter_id: string;
+          resolved_at: string | null;
+          resolved_by: string | null;
+          status: Database["public"]["Enums"]["report_status"];
+        };
+        SetofOptions: {
+          from: "*";
+          to: "reports";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
       };
       report_donated: {
         Args: { response_id: string };
@@ -1904,6 +2398,7 @@ export type Database = {
         Args: { other_user_id: string };
         Returns: boolean;
       };
+      unblock_user: { Args: { user_id: string }; Returns: undefined };
       update_blood_request: {
         Args: {
           area?: string;
@@ -2092,6 +2587,16 @@ export type Database = {
         | "AB_NEG"
         | "O_POS"
         | "O_NEG";
+      community_content_status: "published" | "hidden" | "removed" | "deleted";
+      community_topic:
+        | "treatment_centre_experience"
+        | "transfusion_experience"
+        | "managing_transfusions"
+        | "family_experience"
+        | "emotional_support"
+        | "support_resources"
+        | "newly_diagnosed"
+        | "questions";
       connection_initiator: "patient_side" | "donor";
       connection_status:
         | "requested"
@@ -2105,6 +2610,14 @@ export type Database = {
       donation_verification: "guardian_confirmed" | "org_verified";
       donor_availability: "available" | "unavailable" | "paused";
       manager_relation: "self" | "guardian";
+      report_reason:
+        | "selling_blood"
+        | "medical_misinformation"
+        | "harassment"
+        | "privacy"
+        | "spam"
+        | "other";
+      report_status: "open" | "actioned" | "dismissed";
       request_status:
         | "draft"
         | "open"
@@ -2263,6 +2776,17 @@ export const Constants = {
         "O_POS",
         "O_NEG",
       ],
+      community_content_status: ["published", "hidden", "removed", "deleted"],
+      community_topic: [
+        "treatment_centre_experience",
+        "transfusion_experience",
+        "managing_transfusions",
+        "family_experience",
+        "emotional_support",
+        "support_resources",
+        "newly_diagnosed",
+        "questions",
+      ],
       connection_initiator: ["patient_side", "donor"],
       connection_status: [
         "requested",
@@ -2277,6 +2801,15 @@ export const Constants = {
       donation_verification: ["guardian_confirmed", "org_verified"],
       donor_availability: ["available", "unavailable", "paused"],
       manager_relation: ["self", "guardian"],
+      report_reason: [
+        "selling_blood",
+        "medical_misinformation",
+        "harassment",
+        "privacy",
+        "spam",
+        "other",
+      ],
+      report_status: ["open", "actioned", "dismissed"],
       request_status: [
         "draft",
         "open",

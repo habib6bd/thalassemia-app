@@ -24,6 +24,10 @@ const titles: Record<string, Record<"bn" | "en", string>> = {
   appreciation_received: { bn: "আপনার জন্য একটি ধন্যবাদ বার্তা", en: "A thank-you message for you" },
   guardian_added: { bn: "নতুন অভিভাবক যুক্ত হয়েছেন", en: "A guardian was added" },
   guardian_removed: { bn: "আপনাকে অভিভাবক তালিকা থেকে সরানো হয়েছে", en: "You were removed as a guardian" },
+  community_comment_added: { bn: "আপনার পোস্টে নতুন মন্তব্য", en: "New comment on your post" },
+  community_content_moderated: { bn: "আপনার কমিউনিটি কনটেন্ট পর্যালোচনা হয়েছে", en: "Your community content was reviewed" },
+  community_content_auto_hidden: { bn: "কমিউনিটি কনটেন্ট পর্যালোচনা প্রয়োজন", en: "Community content needs review" },
+  community_report_urgent: { bn: "জরুরি কমিউনিটি রিপোর্ট", en: "Urgent community report" },
 };
 
 // "Urgent" says nothing about the patient, so it stays within D9.

@@ -16,5 +16,10 @@ export const notificationTypes = [
   "appreciation_received",
   "guardian_added",
   "guardian_removed",
+  // Phase 2c
+  "community_comment_added",
+  "community_content_moderated",
+  "community_content_auto_hidden",
+  "community_report_urgent",
 ] as const;
 export type NotificationType = (typeof notificationTypes)[number];

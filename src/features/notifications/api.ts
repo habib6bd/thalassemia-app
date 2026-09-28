@@ -72,6 +72,11 @@ export async function navigateToNotificationTarget(entityType: string | null, en
     return;
   }
 
+  if (entityType === "community_post") {
+    router.push({ pathname: "/(tabs)/community/[id]", params: { id: entityId } });
+    return;
+  }
+
   if (entityType === "patient") {
     router.push({ pathname: "/(tabs)/patients/guardians/[id]", params: { id: entityId } });
     return;

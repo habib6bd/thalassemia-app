@@ -75,6 +75,13 @@ export default function HomeScreen() {
           />
         </View>
 
+        <PrimaryButton
+          label={t("home.openCommunity")}
+          mode="outlined"
+          icon="forum"
+          onPress={() => router.push("/(tabs)/community")}
+        />
+
         <View>
           <Text variant="labelLarge" style={styles.switcherLabel}>
             {t("language.label")}

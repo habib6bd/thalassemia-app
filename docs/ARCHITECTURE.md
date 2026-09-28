@@ -63,6 +63,12 @@ request_tier        : regular | backup | broad          -- current escalation st
 response_status     : invited | accepted | declined | donation_pending | completed | cancelled | expired
 donation_verification: guardian_confirmed | org_verified -- (self_reported is NOT a donation; see §7.3)
 contact_method      : phone | whatsapp | in_app
+community_topic     : treatment_centre_experience | transfusion_experience | managing_transfusions
+                    | family_experience | emotional_support | support_resources | newly_diagnosed
+                    | questions                        -- Phase 2c; no money-related topic (Q24)
+community_content_status: published | hidden | removed | deleted   -- Phase 2c (§7.4)
+report_reason       : selling_blood | medical_misinformation | harassment | privacy | spam | other
+report_status       : open | actioned | dismissed
 ```
 
 ## 5. Tables — Phase 1
@@ -215,9 +221,14 @@ audit_logs                      -- append-only; no update/delete grants to anyon
   - Settings `max_patient_managers` (5) and `guardian_invite_ttl_hours` (72).
   - Deletion is handled directly by the RPC plus Edge Function `delete-account` (no `account_deletion_requests` table, Q21).
   - A `before insert` trigger on `user_roles` blocks deleted profiles, and the `profiles_update_own` policy excludes deleted profiles.
+- **Phase 2c** (done):
+  - `community_posts` (author, `topic` community_topic, `title` ≤ 120, `body` ≤ 5000, `status`, `report_count`, `moderated_by/at`, `moderation_note`) and `community_comments` (post, author, `body` ≤ 2000, same moderation columns). Written by RPCs only.
+  - `reports` (reporter, exactly one of `post_id`/`comment_id`, `reason` report_reason, `details` ≤ 500, `status` open|actioned|dismissed, `resolved_by/at`; one per reporter per item).
+  - `user_blocks` (blocker, blocked; pk both). `community_guideline_acceptances` (user, guideline version).
+  - Settings `community_auto_hide_report_threshold` (3), `community_daily_post_limit` (10), `community_guidelines_version` (1).
+  - Triggers: `block_connections_between_blocked_users` (before insert on `patient_donor_connections`), `community_cleanup_on_profile_delete` (after a profile is soft-deleted).
 - **Phase 2 (rest)**: `organizations` (+ `organization_verifications`), `organization_members`,
-  `blood_requests.organization_id`, `patients.treating_organization_id`,
-  `community_posts`, `community_comments`, `reports`, `user_blocks`.
+  `blood_requests.organization_id`, `patients.treating_organization_id`.
 - **Phase 3**: `content_sources`, `awareness_articles` (bn/en body, `review_status`
   draft|in_review|approved|published|retired, `reviewed_by`, `reviewed_at`,
   `next_review_due`), `article_sources` (m:n), `faqs`, `medicine_info` (optional).
@@ -294,6 +305,23 @@ locks the row, sets `status_changed_at/by`, writes audit, enqueues notifications
 - Decline/withdraw carries no penalty and is not shown to other donors (§28.3).
 - Conflict rule: a donor with a response in `accepted/donation_pending` on another non-terminal request gets `donor_has_active_commitment` on accept (Q6).
 
+### 7.4 Community content (Phase 2c, posts and comments)
+```
+            reports ≥ threshold / admin hide
+ published ─────────────────────────────────▶ hidden
+     ▲  │                                       │  │
+     │  │           admin restore               │  │
+     │  └──────────◀────────────────────────────┘  │
+     │                                             │
+     ├── admin remove ──────▶ removed ◀── admin remove
+     └── author delete ─────▶ deleted ◀── author delete
+```
+- Created as `published` by `create_community_post` / `create_community_comment` after the author accepted the current guidelines version.
+- `report_community_content`: one report per reporter per item; `report_count` counts distinct reporters. At `community_auto_hide_report_threshold` a `published` item becomes `hidden` and admins get `community_content_auto_hidden`. Every "selling blood" report also notifies admins (`community_report_urgent`).
+- `moderate_community_content` (admin): `restore` → `published` (open reports `dismissed`, count reset), `hide` → `hidden`, `remove` → `removed` (open reports `actioned`). Audited with `community_moderated`; the author gets `community_content_moderated`.
+- `removed` and `deleted` are terminal (`invalid_transition`). Account deletion moves the user's items to `deleted`.
+- Visibility: others see `published` items not involving a block; the author also sees their own `hidden` items (labelled "under review"); admins see everything.
+
 ## 8. Authorization matrix (Phase 1)
 
 Helper functions: `has_role(role)`, `is_admin()`, `is_patient_manager(patient_id)`,
@@ -317,10 +345,22 @@ Helper functions: `has_role(role)`, `is_admin()`, `is_patient_manager(patient_id
 | audit_logs | admin | triggers only |
 | guardian_invites (2b) | managers of patient; admin | RPC only (`create_/revoke_/accept_guardian_invite`) |
 | appreciation_messages (2b) | sender, recipient, admin | RPC only (`send_/hide_/remove_appreciation`) |
+| community_posts (2c) | `published` and no block either way; own `published/hidden`; admin | RPC only (`create_/delete_community_post`, `moderate_community_content`) |
+| community_comments (2c) | as posts, and only under a `published` post; admin | RPC only (`create_/delete_community_comment`, `moderate_community_content`) |
+| reports (2c) | own; admin | RPC only (`report_community_content`, `moderate_community_content`) |
+| user_blocks (2c) | blocker only (the blocked user never sees it) | RPC only (`block_user`, `unblock_user`) |
+| community_guideline_acceptances (2c) | own; admin | RPC only (`accept_community_guidelines`) |
 
 Phase 2b read RPCs: `get_patient_managers` and `get_patient_donation_history`
 (managers only), `get_my_donation_history` (own donations; the patient name
 appears only while the donor is still connected), `export_my_data` (own data only).
+
+Phase 2c read RPCs: `list_community_posts`, `get_community_post`, `list_community_comments`
+(same visibility as the table rows; they add the author's display name, so `profiles` stays
+private), `list_blocked_users` (own blocks), `list_moderation_queue` (admin only). Blocking
+also rejects new connections between the two users (`patient_donor_connections` insert
+trigger, both directions); the error is the path's usual `invalid_invite_code` /
+`donor_not_available`, so a user can't tell they were blocked.
 
 Phase 2a RPCs (all check `is_patient_manager` of the request's/patient's patient):
 `widen_request_search`, `search_broad_donors`, `invite_broad_donor`,
@@ -360,6 +400,9 @@ Phase 1 types: `connection_requested`, `connection_accepted`, `connection_ended`
 Phase 2a adds `request_escalated` (to managers, when a request moves from regular to backup
 donors). `request_invited` carries `is_emergency` in `params`, so push can say "urgent" without
 any patient detail.
+Phase 2c adds `community_comment_added` (post author), `community_content_moderated` (author;
+`params.action`), `community_content_auto_hidden` and `community_report_urgent` (admins). All use
+`entity_type = community_post`.
 
 Note: Expo Go on Android cannot receive remote push (SDK 53+). Test push with an EAS development build; everything else works in Expo Go.
 

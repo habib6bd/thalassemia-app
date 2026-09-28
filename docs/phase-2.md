@@ -86,11 +86,43 @@ App
 
 ## 2c — Community & moderation
 §11, §28.8, §28.10.
-- [ ] `community_posts`, `community_comments` with topics from §11. Every post is shown with a "personal experience, not medical advice" label.
-- [ ] Posting requires accepting community guidelines (bn/en page).
-- [ ] `reports` (reason: medical misinformation, selling blood, harassment, privacy, spam, other), `user_blocks` (a blocked user's content is hidden both ways, and blocking also blocks connection requests).
-- [ ] Moderation: new posts auto-hidden after N reports (setting); admin review queue; hide/restore/remove; audit.
-- [ ] No money-related post categories. The report reason "selling blood" is prominent.
+- [x] `community_posts`, `community_comments` with topics from §11. Every post is shown with a "personal experience, not medical advice" label.
+- [x] Posting requires accepting community guidelines (bn/en page).
+- [x] `reports` (reason: medical misinformation, selling blood, harassment, privacy, spam, other), `user_blocks` (a blocked user's content is hidden both ways, and blocking also blocks connection requests).
+- [x] Moderation: new posts auto-hidden after N reports (setting); admin review queue; hide/restore/remove; audit.
+- [x] No money-related post categories. The report reason "selling blood" is prominent.
+
+### 2c — concrete plan
+Decisions: OPEN_QUESTIONS Q24 (topics), Q25 (auto-hide / notifications), Q26 (where community lives), Q27 (blocks vs. existing connections). State machine: ARCHITECTURE §7.4.
+
+Schema / settings (migration `20260928110000_phase2c_community.sql`)
+- [x] Enums `community_topic` (8 topics, none about money), `community_content_status` (published/hidden/removed/deleted), `report_reason` (selling_blood first), `report_status`.
+- [x] Tables `community_guideline_acceptances`, `community_posts`, `community_comments`, `reports` (one per reporter per item), `user_blocks`; RLS on all, select-only grants, audit triggers.
+- [x] Settings `community_auto_hide_report_threshold` (3), `community_daily_post_limit` (10), `community_guidelines_version` (1).
+- [x] Trigger: a blocked pair can't create a connection (either direction); the error reuses the path's "not found" code so nobody learns they were blocked.
+- [x] Trigger: account deletion takes down the user's posts/comments and removes their blocks and acceptances; `export_my_data` includes community data.
+
+RPCs
+- [x] `accept_community_guidelines`, `has_accepted_community_guidelines`.
+- [x] `list_community_posts(topic_filter, before_created_at, page_size)`, `get_community_post`, `list_community_comments` (published + not blocked; authors also see their own hidden items).
+- [x] `create_community_post` (`guidelines_not_accepted`, `invalid_post`, `post_limit_reached`), `delete_community_post`, `create_community_comment` (`post_not_found`, `invalid_comment`), `delete_community_comment`.
+- [x] `report_community_content` (`cannot_report_own`, `already_reported`, `invalid_target`, `content_not_found`); auto-hide at the threshold; admins notified on auto-hide and on "selling blood" reports.
+- [x] `block_user`, `unblock_user`, `list_blocked_users`, helper `is_blocked_between`.
+- [x] Admin: `list_moderation_queue`, `moderate_community_content(target_type, target_id, restore|hide|remove, note)`, audited, author notified.
+
+Tests (`supabase/tests/95_community.test.sql`, 53 checks; allow-list in `80_…`)
+- [x] Guidelines gate for posts and comments; direct inserts denied; validation; daily limit.
+- [x] Feed/topic filter/detail/comments visibility; comment notification; only the author deletes.
+- [x] Reports: own content denied, duplicate denied, reports private, auto-hide at the threshold, author still sees hidden post, admin notifications.
+- [x] Moderation: non-admins denied, queue grouping + selling-blood flag, restore dismisses reports, removed is terminal, audited, author notified.
+- [x] Blocks: self-block denied, content hidden both ways, block list private to the blocker, no commenting, unblock, connection requests blocked both ways.
+- [x] Account deletion takes down community posts.
+
+App
+- [x] Community stack (`/community`): feed with topic chips and "personal experience" banner, post detail with comments, composer with guidelines gate and safety hint, guidelines page.
+- [x] Report dialog ("selling blood" first and bold), block with confirmation, delete own post/comment, "under review" label for the author's hidden content.
+- [x] Profile: "Blocked users" (unblock) and, for admins, "Community moderation" queue (restore / hide / remove with a note).
+- [x] Home: entry to the community. New notification types routed to the post, translated (bn/en) and given push titles.
 
 ## 2d — Verified organization directory + admin basics
 §18, §23.

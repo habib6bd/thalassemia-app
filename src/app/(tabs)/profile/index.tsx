@@ -102,6 +102,22 @@ export default function ProfileScreen() {
           }
         />
 
+        <List.Item
+          title={t("profile.blockedUsers")}
+          left={(props) => <List.Icon {...props} icon="account-cancel" />}
+          right={(props) => <List.Icon {...props} icon="chevron-right" />}
+          onPress={() => router.push("/(tabs)/community/blocked")}
+        />
+
+        {roles.includes("admin") ? (
+          <List.Item
+            title={t("profile.moderation")}
+            left={(props) => <List.Icon {...props} icon="shield-check" />}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+            onPress={() => router.push("/(tabs)/community/moderation")}
+          />
+        ) : null}
+
         <View>
           <Text variant="labelLarge" style={styles.sectionLabel}>
             {t("account.sectionTitle")}

@@ -115,3 +115,15 @@ Deno.test("getPushText keeps the normal title for non-emergency invites", () => 
 Deno.test("getPushText has a title for request_escalated", () => {
   assertEquals(getPushText("request_escalated", "en").title, "Backup donors notified");
 });
+
+Deno.test("getPushText has specific titles for community notifications", () => {
+  for (const type of [
+    "community_comment_added",
+    "community_content_moderated",
+    "community_content_auto_hidden",
+    "community_report_urgent",
+  ]) {
+    assertEquals(getPushText(type, "en").title === "New notification", false);
+    assertEquals(getPushText(type, "bn").title === "নতুন বিজ্ঞপ্তি", false);
+  }
+});

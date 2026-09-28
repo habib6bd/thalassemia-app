@@ -41,6 +41,24 @@ npx supabase gen types typescript --local > src/lib/database.types.ts
 Migrations live in `supabase/migrations/`; tests in `supabase/tests/*.test.sql`.
 Never edit an already-applied migration — add a new one instead.
 
+## Community moderation (Phase 2c)
+
+The community (Home → **Community**) is moderated. To review reports you need
+a user with the `admin` role. Admin roles are never self-assigned; grant one
+in the Supabase SQL editor:
+
+```sql
+insert into public.user_roles (user_id, role)
+select user_id, 'admin' from public.profiles where user_id = '<auth user id>';
+```
+
+The admin then sees **Profile → Community moderation**. Thresholds are
+product settings in `app_settings` (`community_auto_hide_report_threshold`,
+`community_daily_post_limit`, `community_guidelines_version`).
+
+After pulling new migrations, apply them to the hosted project with
+`npx supabase db push` (linked project) before running the app against it.
+
 ## Checks
 
 ```bash
@@ -126,3 +144,34 @@ the app never uses the Supabase `service_role` key.
 Push to GitHub, then run the **EAS Build (Android APK)** workflow manually
 from the Actions tab (`workflow_dispatch`). The resulting APK is attached to
 a new GitHub Release and to the workflow run as an artifact.
+
+## Progress and open queries
+
+| Part                                                   | Status                              |
+| ------------------------------------------------------ | ----------------------------------- |
+| Phase 0, 1a–1d                                         | Done                                |
+| 2a Escalation, broad search, emergency                 | Done                                |
+| 2b History, appreciation, guardians, account lifecycle | Done (profile photos deferred, Q23) |
+| 2c Community & moderation                              | Done                                |
+| 2d Verified organization directory + admin basics      | **Next**                            |
+| Phase 3, Phase 4                                       | Not started                         |
+
+Queries for the product owner. Development continues with the default shown
+here; full details are in `docs/OPEN_QUESTIONS.md`.
+
+- **Q24 — "Financial/support resources" topic.** The master prompt lists it,
+  but money-related categories are forbidden. Default: a `support_resources`
+  topic ("Support services & information") with no money wording.
+- **Q25 — Report threshold.** Default: 3 distinct reports hide a post or
+  comment until an admin reviews it; admins are alerted immediately for
+  "selling blood" reports; max 10 posts per user per day; no post editing yet.
+- **Q26 — Where the community lives.** Default: reached from Home and
+  Profile, not a 7th bottom tab. Should it become a tab (maybe together with
+  the Phase 3 Learn tab)?
+- **Q27 — Blocking and existing donor connections.** Default: blocking stops
+  new connection requests both ways but does not end an existing connection.
+- **Community guidelines text** (bn/en, `community.guidelines.*` in the locale
+  files) was drafted by an agent and needs a human review before launch.
+- Still open from earlier phases: Q9 (legal review), Q11 (package name before
+  the first store build), Q15 (verify 999), Q16 (email confirmation redirect),
+  Q21 (audit-log retention after account deletion).

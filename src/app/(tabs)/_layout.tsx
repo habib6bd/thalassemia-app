@@ -70,6 +70,16 @@ export default function TabsLayout() {
           ),
         }}
       />
+      {/* Reached from Home and Profile; kept out of the tab bar to leave
+          room for the six core tabs on small phones (OPEN_QUESTIONS Q26). */}
+      <Tabs.Screen
+        name="community"
+        options={{
+          title: t("nav.community"),
+          headerShown: false,
+          href: null,
+        }}
+      />
       <Tabs.Screen
         name="notifications"
         options={{

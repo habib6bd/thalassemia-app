@@ -53,7 +53,14 @@ select set_eq(
     'create_guardian_invite', 'revoke_guardian_invite', 'accept_guardian_invite',
     'remove_patient_manager', 'get_patient_managers', 'get_patient_donation_history',
     'get_my_donation_history', 'send_appreciation', 'hide_appreciation',
-    'remove_appreciation', 'delete_my_account', 'export_my_data'
+    'remove_appreciation', 'delete_my_account', 'export_my_data',
+    -- phase 2c: community, reports, blocks, moderation
+    'is_blocked_between', 'has_accepted_community_guidelines',
+    'accept_community_guidelines', 'list_community_posts', 'get_community_post',
+    'list_community_comments', 'create_community_post', 'delete_community_post',
+    'create_community_comment', 'delete_community_comment',
+    'report_community_content', 'block_user', 'unblock_user', 'list_blocked_users',
+    'list_moderation_queue', 'moderate_community_content'
   ],
   'authenticated can execute exactly the client RPCs and RLS/view helpers'
 );

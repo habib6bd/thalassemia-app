@@ -32,6 +32,7 @@ import {
   type OrganizationInput,
   type VerificationInput,
 } from "@/features/organizations/schema";
+import { StaffCard } from "@/features/orgPortal/components/StaffCard";
 import { mapSupabaseError } from "@/lib/errors";
 
 type TextField = Exclude<keyof OrganizationInput, "type" | "districtId">;
@@ -114,6 +115,7 @@ function AdminOrganization() {
         ) : (
           <Text variant="bodyMedium">{t("admin.newOrganizationHint")}</Text>
         )}
+        {organization ? <StaffCard organizationId={organization.id} /> : null}
         <OrganizationForm
           organizationId={organization?.id ?? null}
           defaultValues={defaultValues}

@@ -52,8 +52,9 @@ insert into public.user_roles (user_id, role)
 select user_id, 'admin' from public.profiles where user_id = '<auth user id>';
 ```
 
-The admin then sees **Profile → Admin** (users & roles, requests overview,
-organizations & verification, reports queue, settings) and **Profile →
+The admin then sees **Profile → Admin** (analytics, users & roles, requests
+overview, organizations & verification with portal staff, awareness content,
+reports queue, settings) and **Profile →
 Community moderation**. Thresholds are
 product settings in `app_settings` (`community_auto_hide_report_threshold`,
 `community_daily_post_limit`, `community_guidelines_version`).
@@ -157,7 +158,10 @@ a new GitHub Release and to the workflow run as an artifact.
 | 2c Community & moderation                              | Done                                         |
 | 2d Verified organization directory + admin basics      | Done                                         |
 | Phase 3 Awareness & carrier education                  | Done (content still needs human review, Q35) |
-| Phase 4 Analytics, organization portal, polish         | **Next**                                     |
+| 4a Analytics                                           | Done                                         |
+| 4b Organization portal                                 | Done                                         |
+| 4c Search & reminders                                  | **Next**                                     |
+| 4d Polish & release                                    | Not started                                  |
 
 Queries for the product owner. Development continues with the default shown
 here; full details are in `docs/OPEN_QUESTIONS.md`.
@@ -196,6 +200,16 @@ here; full details are in `docs/OPEN_QUESTIONS.md`.
   edited and reviewed again (no versioning yet).
 - **Q36 — Single reviewer.** An admin can approve content they edited
   (recorded in the audit log); a two-person rule can be added later.
+- **Q37 — Analytics privacy.** Counts below 5 are hidden; admins see
+  totals only, never individual people or requests.
+- **Q39 — What organization staff see.** Patient display name, blood group,
+  donors needed, time, status and donor display names for requests linked
+  to their verified organization; no medical details, notes or phones.
+- **Q40 — Organization verification of donations.** Staff can only confirm
+  donations not already confirmed by the family; confirmed donations are
+  never changed.
+- **Q41 — Donor verification** is not implemented (needs a process and
+  legal review).
 - **Directory content.** No organizations are included. An admin must add
   and verify each real entry (call it or check its official website)
   before users see it.

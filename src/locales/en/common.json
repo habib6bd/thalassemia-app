@@ -52,7 +52,8 @@
     "community": "Community",
     "directory": "Directory",
     "admin": "Admin",
-    "learn": "Learn"
+    "learn": "Learn",
+    "org": "Organization"
   },
   "home": {
     "requestBlood": "Request Blood",
@@ -310,7 +311,8 @@
       "community_report_urgent": "Community content was reported for selling blood",
       "organization_reverification_due": "An organization in the directory is due for re-verification",
       "organization_marked_stale": "An organization was hidden because its verification is overdue",
-      "content_review_due": "Published awareness content is due for re-review"
+      "content_review_due": "Published awareness content is due for re-review",
+      "organization_member_added": "You were added as staff of an organization"
     }
   },
   "notificationPreferences": {
@@ -400,7 +402,8 @@
     "source_in_use": "This source is cited by published content and must stay checked.",
     "content_locked": "Published content can't be edited. Retire it and move it back to draft first.",
     "slug_taken": "This slug is already used.",
-    "invalid_content": "Please fill in the title and text in both languages."
+    "invalid_content": "Please fill in the title and text in both languages.",
+    "invalid_donation_date": "The donation date can't be in the future or before the request was made."
   },
   "emergency": {
     "badge": "Emergency",
@@ -782,5 +785,58 @@
     "stepComingSoon": "The article for this step is still being reviewed. Please check back later.",
     "journeyEndTitle": "Talk to a professional",
     "journeyEndBody": "Whether screening is right for you or your family, and what results mean, is best discussed with a doctor or genetic counsellor. The decisions are yours."
+  },
+  "analytics": {
+    "title": "Analytics",
+    "intro": "Totals and rates only. No person or request can be looked up here.",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "fewerThan_one": "fewer than {{count}}",
+    "fewerThan_other": "fewer than {{count}}",
+    "notEnoughData": "Not enough data",
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "fulfilmentRate": "Requests fulfilled (of closed)",
+    "medianResponse": "Median time to first \"I can donate\"",
+    "activePatients": "Active patients",
+    "activeDonors": "Available donors",
+    "patientsWithNetwork": "Patients with a donor network",
+    "activeConnections": "Active donor connections",
+    "requestsCreated": "Requests created",
+    "emergencyRequests": "Emergency requests",
+    "requestsFulfilled": "Requests fulfilled",
+    "completedDonations": "Confirmed donations",
+    "orgVerifiedDonations": "Organization-verified donations",
+    "communityPosts": "Community posts",
+    "communityReports": "Community reports",
+    "contentViews": "Awareness content views",
+    "byDivision": "Requests by division",
+    "topContent": "Most-read awareness content",
+    "none": "Nothing in this period.",
+    "privacyNote": "To protect privacy, counts from 1 to {{count}} minus one are shown as \"fewer than {{count}}\", and rates need at least {{count}} requests. Current patient, donor and network counts ignore the period."
+  },
+  "orgPortal": {
+    "title": "Organization portal",
+    "requests": "Linked requests",
+    "request": "Donors for this request",
+    "intro": "You see only blood requests that families have linked to your organization, with the minimum needed to confirm donations. Please keep this information confidential.",
+    "noOrganizations": "You are not staff of any organization",
+    "noOrganizationsHint": "An admin adds staff after verifying the organization.",
+    "notActive": "Not active (organization not verified)",
+    "requestsHint": "Open requests, and requests fulfilled in the last 30 days.",
+    "noRequests": "No linked requests right now.",
+    "emergency": "Emergency",
+    "requiredAt": "Needed by {{date}}",
+    "counts": "Donors needed: {{units}} · can donate: {{accepted}} · confirmed: {{completed}}",
+    "confirmHint": "Confirm a donation only after it has happened at your organization. It is recorded as organization-verified, and the family and donor are notified.",
+    "noResponses": "No donor has said they can donate yet.",
+    "confirmDonation": "Confirm donation (verified by us)",
+    "confirmTitle": "Confirm this donation?",
+    "confirmBody": "You confirm this donor donated on {{date}} at your organization. This can't be undone.",
+    "staffTitle": "Portal staff",
+    "staffHint": "Staff can see requests linked to this organization and confirm donations. Adding someone gives them the Organization role.",
+    "noStaff": "No staff yet.",
+    "addStaff": "Add",
+    "removeStaff": "Remove"
   }
 }

@@ -71,6 +71,18 @@ export function useContentSources(contentId: string | undefined) {
   });
 }
 
+// Anonymous per-day counter for analytics (no user id is stored).
+export function useRecordContentView(contentId: string | undefined) {
+  return useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.rpc("record_content_view", {
+        content_id: contentId as string,
+      });
+      if (error) throw error;
+    },
+  });
+}
+
 // === admin ===================================================================
 export type AdminContent = {
   id: string;

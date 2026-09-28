@@ -109,6 +109,15 @@ export default function ProfileScreen() {
           onPress={() => router.push("/(tabs)/community/blocked")}
         />
 
+        {roles.includes("organization") ? (
+          <List.Item
+            title={t("orgPortal.title")}
+            left={(props) => <List.Icon {...props} icon="hospital-building" />}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+            onPress={() => router.push("/(tabs)/org")}
+          />
+        ) : null}
+
         {roles.includes("admin") ? (
           <>
             <List.Item

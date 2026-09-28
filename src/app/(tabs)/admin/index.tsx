@@ -46,6 +46,12 @@ function AdminHome() {
       <View style={styles.content}>
         <Card>
           <List.Item
+            title={t("analytics.title")}
+            left={(props) => <List.Icon {...props} icon="chart-box-outline" />}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+            onPress={() => router.push("/(tabs)/admin/analytics")}
+          />
+          <List.Item
             title={t("admin.users")}
             left={(props) => <List.Icon {...props} icon="account-cog" />}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}

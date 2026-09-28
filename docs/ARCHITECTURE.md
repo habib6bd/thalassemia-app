@@ -241,7 +241,8 @@ audit_logs                      -- append-only; no update/delete grants to anyon
   - `organization_verifications` (history: organization, status, method, note, verified_by, created_at).
   - `patients.treating_organization_id`, `blood_requests.organization_id` (optional; free text stays the fallback). A `before insert` trigger copies the patient's verified centre onto new requests.
   - Settings `organization_reverify_months` (12), `organization_reverify_reminder_days` (30). `app_settings` now has an audit trigger.
-- **Phase 4**: `organization_members` (organization portal).
+- **Phase 4a** (done): `content_view_counts` (content, day, views; no user id, no client access) and setting `analytics_min_cell_size` (5). Analytics are computed on demand by `admin_analytics()`; no materialised views yet.
+- **Phase 4b** (done): `organization_members` (organization, user, added_by). Staff act only while the organization is `verified` and they hold the `organization` role.
 - **Phase 3** (done):
   - `content_sources` (title, organization, url, `accessed_at` = date a person checked it; null = unchecked).
   - `awareness_content` (`kind` article|faq|medicine, unique `slug`, `category`, bn/en title/summary/body, `sort_order`, `review_status`, `reviewed_by/at`, `review_note`, `published_at`, `next_review_due`, `review_reminded_at`, `drafted_by` agent|human, `last_edited_by`). FAQs and medicine information are kinds of this table (Q33).
@@ -316,7 +317,8 @@ locks the row, sets `status_changed_at/by`, writes audit, enqueues notifications
 - `declined → accepted` allowed while request is `open/responding/partially_fulfilled` (misclicks).
 - `schedule` (set `scheduled_at`) by donor or manager.
 - `report_donated` by donor sets `donor_reported_donated_at` and notifies managers; status unchanged.
-- `confirm_donation` by a patient manager from `accepted` or `donation_pending` → `completed` and inserts a `donations` row (`guardian_confirmed`). Phase 4: organizations can confirm (`org_verified`).
+- `confirm_donation` by a patient manager from `accepted` or `donation_pending` → `completed` and inserts a `donations` row (`guardian_confirmed`).
+- `org_confirm_donation` (Phase 4b) by staff of the request's verified organization, same transition, inserts `org_verified` and notifies the patient's managers; the date can't be in the future or before the request was made (`invalid_donation_date`).
 - Decline/withdraw carries no penalty and is not shown to other donors (§28.3).
 - Conflict rule: a donor with a response in `accepted/donation_pending` on another non-terminal request gets `donor_has_active_commitment` on accept (Q6).
 
@@ -395,6 +397,8 @@ Helper functions: `has_role(role)`, `is_admin()`, `is_patient_manager(patient_id
 | awareness_content (3) | `published` rows, reader columns only (column grant); admin: all via `admin_list_content` / `admin_get_content` | admin RPC only |
 | content_source_links (3) | links of published content; admin | admin RPC only (`admin_set_content_sources`) |
 | content_sources (3) | sources linked to published content; admin | admin RPC only (`admin_upsert_content_source`) |
+| content_view_counts (4a) | nobody (only `admin_analytics`) | `record_content_view` (published items, any signed-in user) |
+| organization_members (4b) | own rows; admin | admin RPC only (`admin_set_organization_member`) |
 | app_settings (2d change) | everyone authenticated | `admin_update_setting` (existing keys, whole numbers 1–10000; audited) |
 
 Phase 2b read RPCs: `get_patient_managers` and `get_patient_donation_history`
@@ -412,6 +416,13 @@ Phase 2d RPCs: `set_patient_organization` / `set_request_organization` (patient 
 entries only). Admin-only (`is_admin()` checked in each): `admin_search_users` (name, email,
 roles), `admin_set_user_role` (only `organization`/`admin`; an admin can't drop their own admin
 role), `admin_request_overview` (aggregate counts only, no per-request or per-person rows).
+
+Phase 4a: `admin_analytics(period_days)` (admin) returns aggregates only; counts from 1 to
+`analytics_min_cell_size − 1` come back as null, and rates/medians need at least that many
+requests. Phase 4b staff RPCs (`org_list_requests`, `org_list_request_responses`,
+`org_confirm_donation`) check `is_active_organization_member` of the request's organization and
+return patient display name, blood group, units, time, status, emergency flag, and donor display
+names/statuses only (never thalassemia type, notes or contact details).
 
 Phase 2a RPCs (all check `is_patient_manager` of the request's/patient's patient):
 `widen_request_search`, `search_broad_donors`, `invite_broad_donor`,
@@ -456,7 +467,9 @@ Phase 2c adds `community_comment_added` (post author), `community_content_modera
 `entity_type = community_post`.
 Phase 2d adds `organization_reverification_due` and `organization_marked_stale` (admins,
 `entity_type = organization`). Phase 3 adds `content_review_due` (admins,
-`entity_type = awareness_content`).
+`entity_type = awareness_content`). Phase 4b adds `organization_member_added` (the new staff
+member, `entity_type = organization_membership`) and sends `donation_confirmed` (with
+`params.by_organization`) to the patient's managers when staff confirm.
 
 Note: Expo Go on Android cannot receive remote push (SDK 53+). Test push with an EAS development build; everything else works in Expo Go.
 

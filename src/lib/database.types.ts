@@ -677,6 +677,32 @@ export type Database = {
           },
         ];
       };
+      content_view_counts: {
+        Row: {
+          content_id: string;
+          day: string;
+          views: number;
+        };
+        Insert: {
+          content_id: string;
+          day?: string;
+          views?: number;
+        };
+        Update: {
+          content_id?: string;
+          day?: string;
+          views?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "content_view_counts_content_id_fkey";
+            columns: ["content_id"];
+            isOneToOne: false;
+            referencedRelation: "awareness_content";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       districts: {
         Row: {
           division_id: number;
@@ -1097,6 +1123,63 @@ export type Database = {
           },
           {
             foreignKeyName: "notifications_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
+      };
+      organization_members: {
+        Row: {
+          added_by: string | null;
+          created_at: string;
+          organization_id: string;
+          user_id: string;
+        };
+        Insert: {
+          added_by?: string | null;
+          created_at?: string;
+          organization_id: string;
+          user_id: string;
+        };
+        Update: {
+          added_by?: string | null;
+          created_at?: string;
+          organization_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_added_by_fkey";
+            columns: ["added_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "organization_members_added_by_fkey";
+            columns: ["added_by"];
+            isOneToOne: false;
+            referencedRelation: "public_profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "organization_members_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "organization_members_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "organization_members_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "public_profiles";
@@ -1836,6 +1919,7 @@ export type Database = {
         Args: { role: Database["public"]["Enums"]["app_role"] };
         Returns: undefined;
       };
+      admin_analytics: { Args: { period_days?: number }; Returns: Json };
       admin_get_content: { Args: { content_id: string }; Returns: Json };
       admin_list_content: {
         Args: Record<PropertyKey, never>;
@@ -1853,6 +1937,15 @@ export type Database = {
           title_bn: string;
           title_en: string;
           updated_at: string;
+        }[];
+      };
+      admin_list_organization_members: {
+        Args: { organization_id: string };
+        Returns: {
+          created_at: string;
+          display_name: string;
+          email: string;
+          user_id: string;
         }[];
       };
       admin_list_organizations: {
@@ -1906,6 +1999,10 @@ export type Database = {
       };
       admin_set_content_sources: {
         Args: { content_id: string; source_ids: string[] };
+        Returns: undefined;
+      };
+      admin_set_organization_member: {
+        Args: { member: boolean; organization_id: string; user_id: string };
         Returns: undefined;
       };
       admin_set_organization_verification: {
@@ -2574,6 +2671,10 @@ export type Database = {
         Args: { p_request_id: string };
         Returns: number;
       };
+      is_active_organization_member: {
+        Args: { target_organization_id: string };
+        Returns: boolean;
+      };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_blocked_between: { Args: { other_user_id: string }; Returns: boolean };
       is_broad_eligible_donor: {
@@ -2696,6 +2797,62 @@ export type Database = {
         };
         Returns: undefined;
       };
+      org_confirm_donation: {
+        Args: { donated_on: string; response_id: string };
+        Returns: {
+          confirmed_at: string;
+          confirmed_by: string;
+          created_at: string;
+          donated_on: string;
+          donor_id: string;
+          id: string;
+          patient_id: string;
+          request_id: string;
+          response_id: string;
+          verification: Database["public"]["Enums"]["donation_verification"];
+        };
+        SetofOptions: {
+          from: "*";
+          to: "donations";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      org_list_request_responses: {
+        Args: { request_id: string };
+        Returns: {
+          donor_display_name: string;
+          donor_reported_donated_at: string;
+          response_id: string;
+          scheduled_at: string;
+          status: Database["public"]["Enums"]["response_status"];
+        }[];
+      };
+      org_list_requests: {
+        Args: { organization_id: string };
+        Returns: {
+          accepted_count: number;
+          blood_group: Database["public"]["Enums"]["blood_group"];
+          completed_count: number;
+          id: string;
+          is_emergency: boolean;
+          patient_display_name: string;
+          required_at: string;
+          status: Database["public"]["Enums"]["request_status"];
+          units_needed: number;
+        }[];
+      };
+      org_my_organizations: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          can_act: boolean;
+          id: string;
+          name: string;
+          name_bn: string;
+          type: Database["public"]["Enums"]["organization_type"];
+          verification_status: Database["public"]["Enums"]["organization_verification_status"];
+        }[];
+      };
       process_content_review_due: {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
@@ -2749,6 +2906,7 @@ export type Database = {
         Args: { request_id: string };
         Returns: undefined;
       };
+      record_content_view: { Args: { content_id: string }; Returns: undefined };
       register_push_token: {
         Args: { platform: string; token: string };
         Returns: {
@@ -3140,6 +3298,7 @@ export type Database = {
         Args: { other_user_id: string };
         Returns: boolean;
       };
+      suppress_small_count: { Args: { n: number }; Returns: number };
       unblock_user: { Args: { user_id: string }; Returns: undefined };
       update_blood_request: {
         Args: {

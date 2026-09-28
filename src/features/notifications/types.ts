@@ -26,5 +26,7 @@ export const notificationTypes = [
   "organization_marked_stale",
   // Phase 3
   "content_review_due",
+  // Phase 4b
+  "organization_member_added",
 ] as const;
 export type NotificationType = (typeof notificationTypes)[number];

@@ -30,6 +30,7 @@ const titles: Record<string, Record<"bn" | "en", string>> = {
   community_report_urgent: { bn: "জরুরি কমিউনিটি রিপোর্ট", en: "Urgent community report" },
   organization_reverification_due: { bn: "প্রতিষ্ঠান পুনরায় যাচাই করুন", en: "Organization re-verification due" },
   organization_marked_stale: { bn: "প্রতিষ্ঠানের তথ্য পুরোনো হয়েছে", en: "Organization listing is out of date" },
+  organization_member_added: { bn: "আপনাকে প্রতিষ্ঠানের স্টাফ হিসেবে যুক্ত করা হয়েছে", en: "You were added as organization staff" },
   content_review_due: { bn: "শিক্ষামূলক লেখা পুনরায় পর্যালোচনা করুন", en: "Awareness content due for review" },
 };
 

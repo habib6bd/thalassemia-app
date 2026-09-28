@@ -102,3 +102,46 @@ export function useUpdateSetting() {
     },
   });
 }
+
+// Aggregate-only analytics (Phase 4a). A null count means "fewer than
+// min_cell_size" (hidden to protect privacy), never "unknown".
+export type Analytics = {
+  period_days: number;
+  min_cell_size: number;
+  active_patients: number | null;
+  active_donors: number | null;
+  patients_with_network: number | null;
+  active_connections: number | null;
+  requests_created: number | null;
+  emergency_requests: number | null;
+  requests_closed: number | null;
+  requests_fulfilled: number | null;
+  fulfilment_rate: number | null;
+  median_first_response_minutes: number | null;
+  completed_donations: number | null;
+  org_verified_donations: number | null;
+  community_posts: number | null;
+  community_reports: number | null;
+  content_views: number | null;
+  requests_by_division: { division_id: number; requests: number | null }[];
+  top_content: {
+    content_id: string;
+    title_bn: string;
+    title_en: string;
+    views: number | null;
+  }[];
+};
+
+export function useAnalytics(periodDays: number, enabled: boolean) {
+  return useQuery({
+    queryKey: ["admin-analytics", periodDays],
+    enabled,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("admin_analytics", {
+        period_days: periodDays,
+      });
+      if (error) throw error;
+      return data as unknown as Analytics;
+    },
+  });
+}

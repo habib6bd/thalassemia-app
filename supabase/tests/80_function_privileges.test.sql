@@ -68,7 +68,13 @@ select set_eq(
     'admin_update_setting',
     -- phase 3: awareness CMS
     'admin_upsert_content_source', 'admin_list_content', 'admin_get_content',
-    'admin_upsert_content', 'admin_set_content_sources', 'admin_transition_content'
+    'admin_upsert_content', 'admin_set_content_sources', 'admin_transition_content',
+    -- phase 4a: analytics
+    'record_content_view', 'admin_analytics',
+    -- phase 4b: organization portal
+    'is_active_organization_member', 'admin_set_organization_member',
+    'admin_list_organization_members', 'org_my_organizations', 'org_list_requests',
+    'org_list_request_responses', 'org_confirm_donation'
   ],
   'authenticated can execute exactly the client RPCs and RLS/view helpers'
 );

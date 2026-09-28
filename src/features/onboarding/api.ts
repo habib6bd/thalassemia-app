@@ -18,6 +18,21 @@ export function useDistricts() {
   });
 }
 
+export function useDivisions() {
+  return useQuery({
+    queryKey: ["divisions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("divisions")
+        .select("id, name_bn, name_en")
+        .order("id");
+      if (error) throw error;
+      return data;
+    },
+    staleTime: Infinity,
+  });
+}
+
 export function useCompleteOnboarding() {
   const queryClient = useQueryClient();
   return useMutation({

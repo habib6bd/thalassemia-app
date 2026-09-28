@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { ActivityIndicator, Chip, Text } from "react-native-paper";
@@ -7,7 +8,7 @@ import { Disclaimer } from "@/components/Disclaimer";
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
-import { usePublishedItem } from "@/features/learn/api";
+import { usePublishedItem, useRecordContentView } from "@/features/learn/api";
 import { localized } from "@/features/learn/categories";
 import { ContentBody } from "@/features/learn/components/ContentBody";
 import { SourcesList } from "@/features/learn/components/SourcesList";
@@ -18,6 +19,14 @@ export default function LearnItemScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const language = useAppStore((state) => state.language);
   const itemQuery = usePublishedItem(id);
+  const recordView = useRecordContentView(id);
+  const loadedId = itemQuery.data?.id;
+  const { mutate: record } = recordView;
+
+  // Counted once per opening; failures are ignored (analytics only).
+  useEffect(() => {
+    if (loadedId) record();
+  }, [loadedId, record]);
 
   if (itemQuery.isPending) {
     return (

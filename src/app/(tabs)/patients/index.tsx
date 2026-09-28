@@ -21,6 +21,12 @@ export default function MyPatientsScreen() {
           label={t("patients.addPatient")}
           onPress={() => router.push("/(tabs)/patients/new")}
         />
+        <PrimaryButton
+          label={t("patients.joinAsGuardian")}
+          mode="outlined"
+          icon="account-key"
+          onPress={() => router.push("/(tabs)/patients/join")}
+        />
 
         {patientsQuery.data?.length === 0 ? (
           <EmptyState

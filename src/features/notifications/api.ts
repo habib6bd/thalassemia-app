@@ -67,6 +67,16 @@ export async function navigateToNotificationTarget(entityType: string | null, en
     return;
   }
 
+  if (entityType === "donation") {
+    router.push("/(tabs)/profile/donations");
+    return;
+  }
+
+  if (entityType === "patient") {
+    router.push({ pathname: "/(tabs)/patients/guardians/[id]", params: { id: entityId } });
+    return;
+  }
+
   if (entityType === "blood_request") {
     const {
       data: { user },

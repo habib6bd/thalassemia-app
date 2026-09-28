@@ -85,6 +85,22 @@ helpers (`lib.ts`, `messages.ts`) unit-tested via `deno test`:
 cd supabase/functions && deno test
 ```
 
+## Account deletion
+
+The Profile screen's **Delete my account** button calls the `delete-account`
+Edge Function. It runs `public.delete_my_account()` as the signed-in user
+(anonymises the profile, ends connections and open responses, hands patients
+over to other guardians or archives them), then soft-deletes the auth user
+with the service role so the person can't sign in again. Deploy it with:
+
+```bash
+npx supabase functions deploy delete-account
+```
+
+It uses the project's built-in `SUPABASE_URL`, `SUPABASE_ANON_KEY` and
+`SUPABASE_SERVICE_ROLE_KEY`. No extra secrets are needed. Keep JWT
+verification on (the default) for this function.
+
 ## CI / CD
 
 - **`.github/workflows/ci.yml`**: runs on every push and PR — lint, typecheck,

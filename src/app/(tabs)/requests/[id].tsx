@@ -23,6 +23,7 @@ import {
 import { ResponseRow } from "@/features/requests/components/ResponseRow";
 import { requestStatusTone } from "@/features/requests/statusTone";
 import { bloodGroupLabels } from "@/lib/bloodGroups";
+import { personName } from "@/lib/displayName";
 import { mapSupabaseError } from "@/lib/errors";
 
 export default function RequestDetailScreen() {
@@ -75,8 +76,9 @@ export default function RequestDetailScreen() {
     });
 
   const nameFor = (donorId: string) =>
-    profilesQuery.data?.find((p) => p.user_id === donorId)?.display_name ??
-    undefined;
+    personName(
+      profilesQuery.data?.find((p) => p.user_id === donorId)?.display_name,
+    );
 
   return (
     <Screen scroll>

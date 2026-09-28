@@ -209,10 +209,15 @@ audit_logs                      -- append-only; no update/delete grants to anyon
   `donor_responses.invited_via`, `donor_profiles.searchable`/`emergency_available` (all
   Phase 1 columns), adds `blood_requests.emergency_acknowledged_at` and the
   `broad_invite_limit` setting. Tiered escalation is in §7.2, broad search in §9.
+- **Phase 2b** (done):
+  - `guardian_invites` (patient_id, one-time `code`, `expires_at`, `accepted_by/at`, `revoked_at`): readable by the patient's managers, written by RPCs only.
+  - `appreciation_messages` (one per `donation_id`, `sender_id`, `recipient_id`, `message` ≤ 300, `hidden_by_recipient_at`, `removed_at/by`): readable by sender, recipient and admin, written by RPCs only.
+  - Settings `max_patient_managers` (5) and `guardian_invite_ttl_hours` (72).
+  - Deletion is handled directly by the RPC plus Edge Function `delete-account` (no `account_deletion_requests` table, Q21).
+  - A `before insert` trigger on `user_roles` blocks deleted profiles, and the `profiles_update_own` policy excludes deleted profiles.
 - **Phase 2 (rest)**: `organizations` (+ `organization_verifications`), `organization_members`,
   `blood_requests.organization_id`, `patients.treating_organization_id`,
-  `appreciation_messages`, `community_posts`, `community_comments`, `reports`,
-  `user_blocks`, `guardian_invites`, `account_deletion_requests`.
+  `community_posts`, `community_comments`, `reports`, `user_blocks`.
 - **Phase 3**: `content_sources`, `awareness_articles` (bn/en body, `review_status`
   draft|in_review|approved|published|retired, `reviewed_by`, `reviewed_at`,
   `next_review_due`), `article_sources` (m:n), `faqs`, `medicine_info` (optional).
@@ -310,6 +315,12 @@ Helper functions: `has_role(role)`, `is_admin()`, `is_patient_manager(patient_id
 | notifications | own | `mark_notification_read` RPC |
 | push_tokens / notification_preferences | own | own |
 | audit_logs | admin | triggers only |
+| guardian_invites (2b) | managers of patient; admin | RPC only (`create_/revoke_/accept_guardian_invite`) |
+| appreciation_messages (2b) | sender, recipient, admin | RPC only (`send_/hide_/remove_appreciation`) |
+
+Phase 2b read RPCs: `get_patient_managers` and `get_patient_donation_history`
+(managers only), `get_my_donation_history` (own donations; the patient name
+appears only while the donor is still connected), `export_my_data` (own data only).
 
 Phase 2a RPCs (all check `is_patient_manager` of the request's/patient's patient):
 `widen_request_search`, `search_broad_donors`, `invite_broad_donor`,

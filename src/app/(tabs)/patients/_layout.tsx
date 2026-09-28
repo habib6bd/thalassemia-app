@@ -15,6 +15,15 @@ export default function PatientsLayout() {
         name="[id]"
         options={{ title: t("patients.editPatient") }}
       />
+      <Stack.Screen
+        name="history/[id]"
+        options={{ title: t("history.patientTitle") }}
+      />
+      <Stack.Screen
+        name="guardians/[id]"
+        options={{ title: t("guardians.title") }}
+      />
+      <Stack.Screen name="join" options={{ title: t("guardians.joinTitle") }} />
     </Stack>
   );
 }

@@ -15,13 +15,15 @@ export function mapSupabaseError(
 ): string {
   if (!error) return i18n.t("errors.generic");
 
-  const code =
-    ("code" in error && error.code) ||
-    ("message" in error ? error.message : undefined);
-  if (code) {
-    const key = `errors.${code}`;
-    if (i18n.exists(key)) {
-      return i18n.t(key);
+  // RPC errors arrive with code "P0001" and the stable key in `message`, so
+  // try both rather than stopping at the first non-empty one.
+  const candidates = [
+    "code" in error ? error.code : undefined,
+    "message" in error ? error.message : undefined,
+  ];
+  for (const code of candidates) {
+    if (code && i18n.exists(`errors.${code}`)) {
+      return i18n.t(`errors.${code}`);
     }
   }
 

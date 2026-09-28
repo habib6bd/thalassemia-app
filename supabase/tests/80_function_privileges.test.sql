@@ -48,7 +48,12 @@ select set_eq(
     'get_response_contact', 'widen_request_search', 'search_broad_donors',
     'invite_broad_donor',
     -- notifications
-    'mark_notification_read', 'mark_all_notifications_read', 'register_push_token'
+    'mark_notification_read', 'mark_all_notifications_read', 'register_push_token',
+    -- phase 2b: guardians, history, appreciation, account lifecycle
+    'create_guardian_invite', 'revoke_guardian_invite', 'accept_guardian_invite',
+    'remove_patient_manager', 'get_patient_managers', 'get_patient_donation_history',
+    'get_my_donation_history', 'send_appreciation', 'hide_appreciation',
+    'remove_appreciation', 'delete_my_account', 'export_my_data'
   ],
   'authenticated can execute exactly the client RPCs and RLS/view helpers'
 );

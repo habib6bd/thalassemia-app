@@ -49,11 +49,40 @@ App
 
 ## 2b — History, appreciation, guardians, account lifecycle
 §12, §20.
-- [ ] Patient donation history (managers) and donor history with milestones (count-based badges, no ranking of donors against each other).
-- [ ] `appreciation_messages` (manager → donor, moderated text, optional).
-- [ ] Guardian invites: an existing manager invites another guardian by code; primary manager can remove guardians; at least one manager must remain.
-- [ ] Account deletion (Play Store requirement): anonymise the profile, remove contact data and push tokens, keep donation records with the donor shown as "deleted user", end connections. Data export (JSON) of own data.
-- [ ] Profile photo (optional): private Storage bucket, size/type limits, signed URLs.
+- [x] Patient donation history (managers) and donor history with milestones (count-based badges, no ranking of donors against each other).
+- [x] `appreciation_messages` (manager → donor, moderated text, optional).
+- [x] Guardian invites: an existing manager invites another guardian by code; primary manager can remove guardians; at least one manager must remain.
+- [x] Account deletion (Play Store requirement): anonymise the profile, remove contact data and push tokens, keep donation records with the donor shown as "deleted user", end connections. Data export (JSON) of own data.
+- [ ] Profile photo (optional): private Storage bucket, size/type limits, signed URLs. **Deferred (Q23).**
+
+### 2b — concrete plan
+Decisions: OPEN_QUESTIONS Q20 (thank-you privacy), Q21 (deletion), Q22 (guardian limits), Q23 (photos deferred).
+
+Schema / settings
+- [x] `guardian_invites`, `appreciation_messages` (RLS, audit triggers); settings `max_patient_managers`, `guardian_invite_ttl_hours`.
+- [x] Deleted profiles can't regain roles (trigger) or edit their profile (policy).
+
+RPCs
+- [x] `create_guardian_invite`, `revoke_guardian_invite`, `accept_guardian_invite(code)` (adds the guardian role; errors `invite_invalid`, `already_manager`, `manager_limit_reached`).
+- [x] `remove_patient_manager(patient_id, user_id)`: primary removes others, anyone leaves; `last_manager`, `cannot_remove_patient`; primary handed over automatically.
+- [x] `get_patient_managers`, `get_patient_donation_history`, `get_my_donation_history`.
+- [x] `send_appreciation` (one per donation, 1–300 chars), `hide_appreciation` (recipient), `remove_appreciation` (admin).
+- [x] `delete_my_account()` + Edge Function `delete-account` (soft-deletes the auth user); `export_my_data()`.
+- [x] Fix: `add_role` failed with an ambiguous column error (new migration).
+
+Tests (`supabase/tests/90_guardians_history_account.test.sql`, 49 checks; allow-list in `80_…`)
+- [x] Invites: stranger denied, used/expired/revoked codes rejected, limit, notifications.
+- [x] Removal/leave rules and primary hand-over.
+- [x] History visibility for managers, donors and strangers; appreciation rules; export contents.
+- [x] Deletion: responses/connections closed, request reopened, profile anonymised, roles gone, can't re-add roles or edit profile, sole-manager patient archived and its requests cancelled.
+
+App
+- [x] Donor history: total, milestone badges (icon + text), patient name when connected, thank-you message with "hide".
+- [x] Patient screen → donation history (with "Say thank you" dialog) and guardians (list, invite code + share, cancel code, remove/leave).
+- [x] Patients tab: "Join as guardian with a code".
+- [x] Profile: "Download my data" (share sheet / file download on web) and "Delete my account" with confirmation.
+- [x] Deleted donors shown as "Deleted user" in request detail and network cards; new notification types routed and translated (bn/en), push titles added.
+- [x] Fix: RPC error codes now show their translated message instead of the generic error (`src/lib/errors.ts`).
 
 ## 2c — Community & moderation
 §11, §28.8, §28.10.

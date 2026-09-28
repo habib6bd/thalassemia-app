@@ -4,9 +4,11 @@ import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { Chip, List, Text } from "react-native-paper";
 
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { useDeleteAccount, useExportMyData } from "@/features/account/api";
 import { useSignOut } from "@/features/auth/api";
 import { useAddRole, useMyRoles, useProfile } from "@/features/profile/api";
 import {
@@ -23,7 +25,10 @@ export default function ProfileScreen() {
   const rolesQuery = useMyRoles(session?.user.id);
   const addRole = useAddRole();
   const signOut = useSignOut();
+  const exportData = useExportMyData();
+  const deleteAccount = useDeleteAccount();
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const roles = rolesQuery.data ?? [];
   const missingRoles = selfServiceRoles.filter((role) => !roles.includes(role));
@@ -92,8 +97,35 @@ export default function ProfileScreen() {
           title={t("notificationPreferences.title")}
           left={(props) => <List.Icon {...props} icon="bell-outline" />}
           right={(props) => <List.Icon {...props} icon="chevron-right" />}
-          onPress={() => router.push("/(tabs)/profile/notification-preferences")}
+          onPress={() =>
+            router.push("/(tabs)/profile/notification-preferences")
+          }
         />
+
+        <View>
+          <Text variant="labelLarge" style={styles.sectionLabel}>
+            {t("account.sectionTitle")}
+          </Text>
+          <List.Item
+            title={t("account.exportData")}
+            description={t("account.exportHint")}
+            descriptionNumberOfLines={3}
+            left={(props) => <List.Icon {...props} icon="download" />}
+            onPress={() => {
+              setError(null);
+              exportData.mutate(t("account.exportShareTitle"), {
+                onError: (err) => setError(mapSupabaseError(err)),
+              });
+            }}
+          />
+          <List.Item
+            title={t("account.deleteAccount")}
+            description={t("account.deleteHint")}
+            descriptionNumberOfLines={4}
+            left={(props) => <List.Icon {...props} icon="account-remove" />}
+            onPress={() => setConfirmDelete(true)}
+          />
+        </View>
 
         <PrimaryButton
           label={t("profile.signOut")}
@@ -106,6 +138,28 @@ export default function ProfileScreen() {
           }
         />
       </View>
+
+      <ConfirmDialog
+        visible={confirmDelete}
+        title={t("account.deleteConfirmTitle")}
+        description={t("account.deleteConfirmBody")}
+        confirmLabel={t("account.deleteConfirmButton")}
+        loading={deleteAccount.isPending}
+        onDismiss={() => setConfirmDelete(false)}
+        onConfirm={() => {
+          setError(null);
+          deleteAccount.mutate(undefined, {
+            onSuccess: () => {
+              setConfirmDelete(false);
+              router.replace("/(auth)/sign-in");
+            },
+            onError: (err) => {
+              setConfirmDelete(false);
+              setError(mapSupabaseError(err));
+            },
+          });
+        }}
+      />
     </Screen>
   );
 }

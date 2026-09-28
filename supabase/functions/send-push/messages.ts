@@ -21,6 +21,9 @@ const titles: Record<string, Record<"bn" | "en", string>> = {
   response_withdrawn: { bn: "প্রতিক্রিয়া প্রত্যাহার হয়েছে", en: "Response withdrawn" },
   donation_reported: { bn: "দান রিপোর্ট হয়েছে", en: "Donation reported" },
   donation_confirmed: { bn: "দান নিশ্চিত হয়েছে", en: "Donation confirmed" },
+  appreciation_received: { bn: "আপনার জন্য একটি ধন্যবাদ বার্তা", en: "A thank-you message for you" },
+  guardian_added: { bn: "নতুন অভিভাবক যুক্ত হয়েছেন", en: "A guardian was added" },
+  guardian_removed: { bn: "আপনাকে অভিভাবক তালিকা থেকে সরানো হয়েছে", en: "You were removed as a guardian" },
 };
 
 // "Urgent" says nothing about the patient, so it stays within D9.

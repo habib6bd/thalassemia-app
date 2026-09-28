@@ -1,8 +1,8 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Share, StyleSheet, View } from "react-native";
-import { ActivityIndicator, Card, Text } from "react-native-paper";
+import { ActivityIndicator, Card, List, Text } from "react-native-paper";
 
 import { ErrorText } from "@/components/ErrorText";
 import { PrimaryButton } from "@/components/PrimaryButton";
@@ -88,6 +88,31 @@ export default function EditPatientScreen() {
               />
             </View>
           </Card.Content>
+        </Card>
+
+        <Card>
+          <List.Item
+            title={t("patients.donationHistory")}
+            left={(props) => <List.Icon {...props} icon="history" />}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+            onPress={() =>
+              router.push({
+                pathname: "/(tabs)/patients/history/[id]",
+                params: { id: patient.id },
+              })
+            }
+          />
+          <List.Item
+            title={t("patients.guardians")}
+            left={(props) => <List.Icon {...props} icon="account-group" />}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+            onPress={() =>
+              router.push({
+                pathname: "/(tabs)/patients/guardians/[id]",
+                params: { id: patient.id },
+              })
+            }
+          />
         </Card>
 
         <PatientForm

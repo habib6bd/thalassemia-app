@@ -114,7 +114,10 @@
     "showThalassemiaType": "Thalassemia type",
     "emptyTitle": "No patients yet",
     "emptyDescription": "Add a patient to start building their donor network.",
-    "notFound": "Patient not found."
+    "notFound": "Patient not found.",
+    "donationHistory": "Donation history",
+    "guardians": "Guardians",
+    "joinAsGuardian": "Join as guardian with a code"
   },
   "network": {
     "enterCode": "Have an invite code?",
@@ -286,7 +289,10 @@
       "response_withdrawn": "Response withdrawn",
       "donation_reported": "Donation reported",
       "donation_confirmed": "Donation confirmed",
-      "request_escalated": "Not enough donors yet: backup donors have been asked"
+      "request_escalated": "Not enough donors yet: backup donors have been asked",
+      "appreciation_received": "A thank-you message for you",
+      "guardian_added": "A guardian was added",
+      "guardian_removed": "You were removed as a guardian"
     }
   },
   "notificationPreferences": {
@@ -305,7 +311,9 @@
     "back": "Back",
     "next": "Next",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "deletedUser": "Deleted user",
+    "close": "Close"
   },
   "disclaimer": {
     "generic": "This app does not decide donor eligibility, blood quantity, compatibility, or medical treatment. Always consult a doctor or blood bank for those decisions."
@@ -337,7 +345,19 @@
     "search_not_available_yet": "Wider search opens after your regular and backup donors have been asked.",
     "already_invited": "This donor has already been invited.",
     "donor_not_available": "This donor can't be invited right now.",
-    "broad_invite_limit_reached": "You've invited the maximum number of donors for this request."
+    "broad_invite_limit_reached": "You've invited the maximum number of donors for this request.",
+    "manager_limit_reached": "This patient already has the maximum number of guardians.",
+    "invite_invalid": "This guardian code is invalid, expired or already used.",
+    "already_manager": "You already manage this patient.",
+    "manager_not_found": "That guardian is no longer linked to this patient.",
+    "cannot_remove_patient": "The patient's own account can't be removed by a guardian.",
+    "last_manager": "You're the only guardian. Add another guardian before leaving, or delete your account.",
+    "invalid_message": "Write a message of 1 to 300 characters.",
+    "appreciation_already_sent": "You've already sent a thank-you for this donation.",
+    "recipient_unavailable": "This donor's account no longer exists.",
+    "account_deleted": "This account has been deleted.",
+    "not_found": "Not found.",
+    "auth_delete_failed": "Your data was removed, but signing you out everywhere failed. Please try again."
   },
   "emergency": {
     "badge": "Emergency",
@@ -348,5 +368,58 @@
     "acknowledge": "I understand this app is not an emergency service",
     "notifyNearby": "Also notify nearby donors who accept emergency requests",
     "notifyNearbyHint": "Donors in the same district who chose to help in emergencies. They see the request details, but not the patient's name."
+  },
+  "history": {
+    "patientTitle": "Donation history",
+    "emptyTitle": "No confirmed donations yet",
+    "emptyDescription": "Donations you confirm will appear here.",
+    "donatedBy": "Donor: {{name}}",
+    "milestonesTitle": "Milestones",
+    "milestone_one": "{{count}} donation",
+    "milestone_other": "{{count}} donations",
+    "totalDonations": "Confirmed donations: {{count}}",
+    "forPatient": "For {{name}}",
+    "sayThanks": "Say thank you",
+    "thanksSent": "Thank-you sent",
+    "thanksTitle": "Thank your donor",
+    "thanksHint": "The donor sees only this message, not your name. Please don't include money or offers.",
+    "thanksLabel": "Message",
+    "send": "Send",
+    "messageFromFamily": "Message from the family",
+    "hideMessage": "Hide message"
+  },
+  "guardians": {
+    "title": "Guardians",
+    "hint": "Guardians can create blood requests, manage donors and confirm donations for this patient.",
+    "primary": "Primary",
+    "you": "You",
+    "patientSelf": "Patient",
+    "invite": "Invite a guardian",
+    "inviteHint": "Share this code with a family member. It works once and expires on {{date}}.",
+    "shareMessage": "Use code {{code}} in the Thalassemia Support app (Patients → Join as guardian) to help manage {{name}}.",
+    "share": "Share code",
+    "revoke": "Cancel code",
+    "pendingInvites": "Unused codes",
+    "remove": "Remove",
+    "leave": "Leave",
+    "removeConfirmTitle": "Remove guardian?",
+    "removeConfirmBody": "{{name}} will no longer see or manage this patient.",
+    "leaveConfirmTitle": "Stop being a guardian?",
+    "leaveConfirmBody": "You will no longer see or manage this patient.",
+    "joinTitle": "Join as guardian",
+    "joinHint": "Enter the 8-character code a guardian shared with you.",
+    "codeLabel": "Guardian code",
+    "joinButton": "Join"
+  },
+  "account": {
+    "sectionTitle": "Your data",
+    "exportData": "Download my data",
+    "exportHint": "A copy of the information this app keeps about you.",
+    "exportShareTitle": "My data",
+    "deleteAccount": "Delete my account",
+    "deleteHint": "Removes your personal details, ends your donor connections and signs you out. Past donations stay in patients' records as \"Deleted user\".",
+    "deleteConfirmTitle": "Delete your account?",
+    "deleteConfirmBody": "This can't be undone. Open requests you manage alone will be cancelled and your donor connections ended.",
+    "deleteConfirmButton": "Delete account"
   }
 }

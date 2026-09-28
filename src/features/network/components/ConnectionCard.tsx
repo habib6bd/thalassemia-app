@@ -19,6 +19,7 @@ import {
   useSetConnectionStatus,
 } from "@/features/network/api";
 import { bloodGroupLabels } from "@/lib/bloodGroups";
+import { personName } from "@/lib/displayName";
 import { mapSupabaseError } from "@/lib/errors";
 import type { Database } from "@/lib/database.types";
 
@@ -50,11 +51,12 @@ export function ConnectionCard({
   // §7.1: only the side that did not start the request may answer it; the
   // side that started it may cancel it.
   const isPending = connection.status === "requested";
-  const startedByMe =
-    (connection.initiated_by === "donor") === isDonorSide;
-  const counterpartyName = isDonorSide
-    ? partiesQuery.data?.patient_display_name
-    : partiesQuery.data?.donor_display_name;
+  const startedByMe = (connection.initiated_by === "donor") === isDonorSide;
+  const counterpartyName = personName(
+    isDonorSide
+      ? partiesQuery.data?.patient_display_name
+      : partiesQuery.data?.donor_display_name,
+  );
 
   const statusTone =
     connection.status === "active"

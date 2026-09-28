@@ -45,6 +45,11 @@ jobs:
       - name: Run pgTAP tests
         run: supabase test db
 
+      # Races on accept / confirm / create / join (docs/TESTING_REPORT.md).
+      # psql comes preinstalled on ubuntu-latest runners.
+      - name: Concurrency test
+        run: scripts/load/concurrency.sh 20
+
   edge-functions:
     name: Edge Function tests (deno)
     runs-on: ubuntu-latest
